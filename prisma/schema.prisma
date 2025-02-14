@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,38 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  username    String  @id @db.VarChar(100)
+  is_artist   Boolean
+  global_name String  @db.VarChar(100)
+  albums      Album[]
+  songs       Song[]
+
+  @@map("users")
+}
+
+model Song {
+  song_id  Int    @id @default(autoincrement())
+  title    String @db.VarChar(100)
+  url      String
+  album_id Int?
+  username String
+  album    Album? @relation(fields: [album_id], references: [album_id])
+  artist   User   @relation(fields: [username], references: [username])
+
+  @@map("songs")
+}
+
+model Album {
+  album_id        Int     @id @default(autoincrement())
+  title           String  @db.VarChar(100)
+  front_cover_url String
+  back_cover_url  String?
+  username        String
+  artist          User    @relation(fields: [username], references: [username])
+  songs           Song[]
+
+  @@map("albums")
 }
