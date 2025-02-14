@@ -1,6 +1,5 @@
 const { identities, captainKevinPhoto, lockdownPhoto, koolAlex } = require("./images");
 
-
 module.exports = [
     {
         username: "AlexTheMan",
@@ -9,9 +8,9 @@ module.exports = [
         back_cover_url: captainKevinPhoto
     },
     {
-        username: "Kevin",
+        username: "Kevin_SynthV",
         title: "Kevin's Greatest Hits",
-        front_cover_url: captainKevinPhoto
+        front_cover_url: captainKevinPhoto,
     },
     {
         username: "AlexGB231",

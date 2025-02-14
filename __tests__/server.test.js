@@ -1,6 +1,8 @@
 const seed = require("../database/seed")
 const data = require("../database/test-data")
 
+jest.setTimeout(60000);
+
 beforeEach(() => {
     return seed(data)
 })

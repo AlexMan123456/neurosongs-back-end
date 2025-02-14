@@ -32,13 +32,13 @@ module.exports = [
         album_id: 1
     },
     {
-        username: "Kevin",
+        username: "Kevin_SynthV",
         title: "Captain Kevin",
         url: captainKevin,
         album_id: 2
     },
     {
-        username: "Kevin",
+        username: "Kevin_SynthV",
         title: "The Pirate Who Wanted Treasure",
         url: thePirateWhoWantedTreasure,
         album_id: 2

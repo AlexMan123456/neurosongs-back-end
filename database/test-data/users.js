@@ -1,17 +1,17 @@
 module.exports = [
     {
-        global_name: "Alex The Man",
         username: "AlexTheMan",
+        global_name: "Alex The Man",
         is_artist: true,
     },
     {
-        global_name: "AlexGB231",
         username: "AlexGB231",
+        global_name: "AlexGB231",
         is_artist: true
     },
     {
-        global_name: "Kevin",
         username: "Kevin_SynthV",
+        global_name: "Kevin",
         is_artist: true
     },
     {

@@ -21,9 +21,9 @@ model Song {
   song_id  Int    @id @default(autoincrement())
   title    String @db.VarChar(100)
   url      String
-  album_id Int?
+  album_id Int
   username String
-  album    Album? @relation(fields: [album_id], references: [album_id])
+  album    Album  @relation(fields: [album_id], references: [album_id])
   artist   User   @relation(fields: [username], references: [username])
 
   @@map("songs")

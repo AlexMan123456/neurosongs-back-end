@@ -11,8 +11,11 @@ async function seed({userData, songData, albumData}){
         await database.album.createMany({
             data: albumData
         })
+        console.log(songData)
         await database.song.createMany({
             data: songData
+        }).then((songs) => {
+            console.log(songs)
         })
     } catch(err) {
         console.log(err)

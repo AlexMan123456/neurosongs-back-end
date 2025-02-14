@@ -11,7 +11,7 @@
   "scripts": {
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "test": "dotenv -e .env.test -- yarn docker:up && yarn prisma migrate deploy && jest -i"
+    "test": "yarn docker:up && dotenv -e ./.env.test -- yarn prisma migrate reset --force && jest -i"
   },
   "keywords": [],
   "author": "",
