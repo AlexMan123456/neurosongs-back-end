@@ -3,6 +3,12 @@ const { captainKevin, placeInSociety, domination, burnout, seeTheLight, thePirat
 module.exports = [
     {
         username: "AlexTheMan",
+        title: "Captain Kevin",
+        url: captainKevin,
+        album_id: 1
+    },
+    {
+        username: "AlexTheMan",
         title: "Place In Society",
         url: placeInSociety,
         album_id: 1

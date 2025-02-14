@@ -4,17 +4,21 @@
   "main": "index.js",
   "devDependencies": {
     "jest": "^29.7.0",
+    "jest-mock-extended": "^4.0.0-beta1",
     "prisma": "^6.3.1",
     "supertest": "^7.0.0"
   },
   "scripts": {
-    "test": "dotenv -e .env.test -- jest -i"
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "test": "dotenv -e .env.test -- yarn docker:up && yarn prisma migrate deploy && jest -i"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.3.1"
+    "@prisma/client": "^6.3.1",
+    "dotenv": "^16.4.7"
   }
 }
