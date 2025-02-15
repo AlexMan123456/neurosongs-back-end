@@ -20,6 +20,7 @@ describe("/api/users", () => {
                 response.body.users.forEach((user) => {
                     expect(typeof user.username).toBe("string");
                     expect(typeof user.global_name).toBe("string");
+                    expect(typeof user.email).toBe("string");
                     expect(typeof user.is_artist).toBe("boolean");
                 })
             })
