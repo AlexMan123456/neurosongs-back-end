@@ -32,7 +32,7 @@ jobs:
         npm install -g dotenv-cli
     - name: Setup environment variables
       run: |
-        touch .env
-        echo "${{ secrets.DATABASE_URL }}" >> .env
+        touch .env.test
+        echo DATABASE_URL="${{ secrets.DATABASE_URL }}" >> .env.test
     - name: Run tests
       run: npm test server
