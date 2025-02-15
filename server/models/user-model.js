@@ -15,4 +15,10 @@ function fetchUserByUsername(username){
     })
 }
 
-module.exports = { fetchAllUsers, fetchUserByUsername }
+function uploadUser(data){
+    return database.user.create({
+        data
+    })
+}
+
+module.exports = { fetchAllUsers, fetchUserByUsername, uploadUser }
