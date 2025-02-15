@@ -4,4 +4,10 @@ function fetchAllUsers(){
     return database.user.findMany({})
 }
 
-module.exports = { fetchAllUsers }
+function fetchUserByUsername(username){
+    return database.user.findUnique({
+        where: {username}
+    })
+}
+
+module.exports = { fetchAllUsers, fetchUserByUsername }
