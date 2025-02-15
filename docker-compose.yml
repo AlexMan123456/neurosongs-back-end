@@ -1,17 +1,21 @@
-# Set the version of docker compose to use
-version: '3.9'
-
-# The containers that compose the project
 services:
   db:
-    image: postgres:13
-    restart: always
+    image: postgres:latest
     container_name: integration-tests-prisma
-    ports:
-      - '5433:5432'
+    restart: always
+    user: postgres
     environment:
-      POSTGRES_USER: prisma
-      POSTGRES_PASSWORD: prisma
-      POSTGRES_DB: tests
-
-      
+      - POSTGRES_DB=tests
+      - POSTGRES_PASSWORD=prisma
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  database:
+    driver: local
