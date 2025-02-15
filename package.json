@@ -11,7 +11,8 @@
   "scripts": {
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "test": "yarn docker:up && dotenv -e ./.env.test -- yarn prisma migrate reset --force && jest -i"
+    "test": "yarn docker:up && dotenv -e ./.env.test -- yarn prisma migrate reset --force && jest -i",
+    "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force && node database/run-seed.js"
   },
   "keywords": [],
   "author": "",
