@@ -44,5 +44,13 @@ describe("/api/user/:username", () => {
                 expect(user.is_artist).toBe(true);
             })
         })
+        test("404: Responds with a not found message if user not found in database", () => {
+            return request(app)
+            .get("/api/users/nonexistent_user")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
     })
 })
