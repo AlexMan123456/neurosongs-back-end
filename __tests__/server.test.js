@@ -46,6 +46,25 @@ describe("/api/users", () => {
                 expect(user.is_verified).toBe(false)
             })
         })
+        test("201: Ignores any extra properties on request object", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                username: "TestUser123",
+                global_name: "Test User",
+                email: "testuser2@test.com",
+                extraKey: "Extra property"
+            })
+            .expect(201)
+            .then((response) => {
+                const {user} = response.body
+                expect(user.username).toBe("TestUser123")
+                expect(user.global_name).toBe("Test User")
+                expect(user.email).toBe("testuser2@test.com")
+                expect(user.is_verified).toBe(false)
+                expect(user).not.toHaveProperty("extraKey")
+            })
+        })
     })
 })
 

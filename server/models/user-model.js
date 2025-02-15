@@ -16,6 +16,12 @@ function fetchUserByUsername(username){
 }
 
 function uploadUser(data){
+    for(const key in data){
+        if(!["username", "global_name", "email", "is_verified"].includes(key)){
+            delete data[key]
+        }
+    }
+
     return database.user.create({
         data
     })
