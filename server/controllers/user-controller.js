@@ -11,6 +11,8 @@ function getAllUsers(request, response, next){
 function getUserByUsername(request, response, next){
     fetchUserByUsername(request.params.username).then((user) => {
         response.status(200).send({user})
+    }).catch((err) => {
+        next(err)
     })
 }
 
