@@ -11,6 +11,7 @@ model User {
   username    String  @id @db.VarChar(100)
   is_artist   Boolean
   global_name String  @db.VarChar(100)
+  email       String  @unique
   albums      Album[]
   songs       Song[]
 
