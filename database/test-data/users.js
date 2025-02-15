@@ -2,7 +2,7 @@ module.exports = [
     {
         username: "AlexTheMan",
         global_name: "Alex The Man",
-        email: "alex.man03888@gmail.com",
+        email: "alextheman231231@gmail.com",
         is_artist: true,
     },
     {

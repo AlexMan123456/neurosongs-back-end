@@ -1,12 +1,14 @@
-const seed = require("../database/seed")
-const data = require("../database/test-data")
+const seed = require("../database/seed");
+const data = require("../database/test-data");
 const request = require("supertest");
 const app = require("../server/app");
+const { execSync } = require("node:child_process")
 
 jest.setTimeout(60000);
 
 beforeEach(async () => {
-    await seed(data)
+    execSync("dotenv -e ./.env.test -- yarn prisma migrate reset --force");
+    await seed(data);
 })
 
 describe("/api/users", () => {
@@ -25,5 +27,22 @@ describe("/api/users", () => {
                 })
             })
         })
-    }) 
+    })
+})
+
+describe("/api/user/:username", () => {
+    describe("GET", () => {
+        test("200: Responds with the user with the given username", () => {
+            return request(app)
+            .get("/api/users/AlexTheMan")
+            .expect(200)
+            .then((response) => {
+                const {user} = response.body;
+                expect(user.username).toBe("AlexTheMan");
+                expect(user.global_name).toBe("Alex The Man");
+                expect(user.email).toBe("alextheman231231@gmail.com");
+                expect(user.is_artist).toBe(true);
+            })
+        })
+    })
 })
