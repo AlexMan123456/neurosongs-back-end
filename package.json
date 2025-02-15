@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "devDependencies": {
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-mock-extended": "^4.0.0-beta1",
     "prisma": "^6.3.1",
@@ -12,7 +13,8 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "test": "yarn docker:up && jest -i",
-    "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force && node database/run-seed.js"
+    "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force && node database/run-seed.js",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
