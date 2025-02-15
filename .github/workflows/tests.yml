@@ -31,5 +31,6 @@ jobs:
     - name: Setup environment variables
       run: |
         touch .env.test
-        echo 
-    - run: npm test
+        echo "${{ secrets.DATABASE_URL }} >> .env.test"
+    - name: Run tests
+      run: npm test server
