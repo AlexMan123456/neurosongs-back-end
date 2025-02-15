@@ -1,4 +1,4 @@
-const { fetchAllUsers, fetchUserByUsername } = require("../models/user-model")
+const { fetchAllUsers, fetchUserByUsername, uploadUser } = require("../models/user-model")
 
 function getAllUsers(request, response, next){
     fetchAllUsers().then((users) => {
@@ -16,4 +16,10 @@ function getUserByUsername(request, response, next){
     })
 }
 
-module.exports = { getAllUsers, getUserByUsername }
+function postUser(request, response, next){
+    uploadUser(request.body).then((user) => {
+        response.status(201).send({user})
+    })
+}
+
+module.exports = { getAllUsers, getUserByUsername, postUser }
