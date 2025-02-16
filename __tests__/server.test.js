@@ -82,7 +82,7 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "Test User 123",
-                global_name: "Test User 2",
+                global_name: "Test User",
                 email: "test@test.com"
             })
             .expect(400)
@@ -95,7 +95,7 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "TestUser123",
-                global_name: "Test User 3",
+                global_name: "Test User",
                 email: "veryAwesomeTestUserEmail"
             })
             .expect(400)
@@ -110,6 +110,19 @@ describe("/api/users", () => {
                 username: "AlexTheMan",
                 global_name: "Test User",
                 email: "test@test.com"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Unique constraint violation");
+            })
+        })
+        test("400: Responds with a bad request message if email is not unique", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                username: "FakeUser123",
+                global_name: "Faker",
+                email: "captain-kevin@thefarisland.com"
             })
             .expect(400)
             .then((response) => {
