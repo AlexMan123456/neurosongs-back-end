@@ -22,10 +22,10 @@ function fetchSongsFromUser(username){
     })
 }
 
-function uploadSong(username, song){
+function uploadSong(album_id, song){
     const data = {...song};
-    data.username = username;
-    return database.song.create({data})
+    data.album_id = parseInt(album_id);
+    return database.song.create({data});
 }
 
 module.exports = { fetchAllSongs, fetchSongById, fetchSongsFromUser, uploadSong }

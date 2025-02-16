@@ -13,7 +13,6 @@ users.route("/:username")
 
 users.route("/:username/songs")
 .get(getSongsFromUser)
-.post(postSong)
 
 users.route("/:username/albums")
 .get(getAlbumsFromUser)
