@@ -168,6 +168,14 @@ describe("/api/users/:username/songs", () => {
                 })
             })
         })
+        test("200: Responds with an empty array if user exists but has no songs", () => {
+            return request(app)
+            .get("/api/users/Badstagram/songs")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.songs.length).toBe(0)
+            })
+        })
         test("404: Responds with a not found message if user does not exist", () => {
             return request(app)
             .get("/api/users/invalid_user/songs")
