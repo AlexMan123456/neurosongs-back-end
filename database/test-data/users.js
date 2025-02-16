@@ -20,7 +20,7 @@ module.exports = [
     {
         global_name: "Badstagram",
         username: "Badstagram",
-        email: "test@test.com",
+        email: "bad-developer@bad.com",
         is_verified: false
     }
 ]

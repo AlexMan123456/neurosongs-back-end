@@ -19,6 +19,8 @@ function getUserByUsername(request, response, next){
 function postUser(request, response, next){
     uploadUser(request.body).then((user) => {
         response.status(201).send({user})
+    }).catch((err) => {
+        next(err)
     })
 }
 
