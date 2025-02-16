@@ -6,9 +6,21 @@ function fetchAlbumsFromUser(username){
     })
 }
 
+function fetchAlbumById(stringifiedAlbumID){
+    const album_id = parseInt(stringifiedAlbumID);
+    return database.album.findUnique({
+        where: {
+            album_id
+        },
+        include: {
+            songs: true
+        }
+    })
+}
+
 function uploadAlbum(username, album){
-    const data = {...album}
-    data.username = username
+    const data = {...album};
+    data.username = username;
 
     for(const key in data){
         if(!["username", "title", "front_cover_reference", "back_cover_reference"].includes(key)){
@@ -16,7 +28,7 @@ function uploadAlbum(username, album){
         }
     }
 
-    return database.album.create({data})
+    return database.album.create({data});
 }
 
-module.exports = { fetchAlbumsFromUser, uploadAlbum };
+module.exports = { fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };
