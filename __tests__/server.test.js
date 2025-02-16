@@ -194,6 +194,14 @@ describe("/api/songs/:song_id", () => {
                 expect(response.body.message).toBe("Bad request")
             })
         })
+        test("404: Responds with a not found message when ID does not exist", () => {
+            return request(app)
+            .get("/api/songs/231")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Song not found")
+            })
+        })
     })
 })
 
