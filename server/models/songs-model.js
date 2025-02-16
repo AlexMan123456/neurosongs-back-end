@@ -4,4 +4,10 @@ function fetchAllSongs(){
     return database.song.findMany({})
 }
 
-module.exports = { fetchAllSongs }
+function fetchSongById(song_id){
+    return database.song.findUnique({
+        where: {song_id}
+    })
+}
+
+module.exports = { fetchAllSongs, fetchSongById }

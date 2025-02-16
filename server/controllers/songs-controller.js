@@ -1,4 +1,4 @@
-const { fetchAllSongs } = require("../models/songs-model")
+const { fetchAllSongs, fetchSongById } = require("../models/songs-model")
 
 function getAllSongs(request, response, next){
     fetchAllSongs().then((songs) => {
@@ -8,4 +8,10 @@ function getAllSongs(request, response, next){
     })
 }
 
-module.exports = { getAllSongs }
+function getSongById(request, response, next){
+    fetchSongById(parseInt(request.params.song_id)).then((song) => {
+        response.status(200).send({song})
+    })
+}
+
+module.exports = { getAllSongs, getSongById }

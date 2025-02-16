@@ -171,6 +171,24 @@ describe("/api/songs", () => {
     })
 })
 
+describe("/api/songs/:song_id", () => {
+    describe("GET", () => {
+        test("200: Responds with the song with the given ID", () => {
+            return request(app)
+            .get("/api/songs/1")
+            .expect(200)
+            .then((response) => {
+                const {song} = response.body
+                expect(song.song_id).toBe(1)
+                expect(song.title).toBe("Captain Kevin")
+                expect(song.username).toBe("AlexTheMan")
+                expect(song.url).toBe("./captain-kevin.mp3")
+                expect(song.album_id).toBe(1)
+            })
+        })
+    })
+})
+
 describe("/*", () => {
     test("404: Responds with a not found message if endpoint does not exist", () => {
         return request(app)
