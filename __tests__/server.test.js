@@ -219,6 +219,24 @@ describe("/api/users/:username/albums", () => {
                 })
             ])
         })
+        test("201: Ignores any extra keys on request object", () => {
+            return request(app)
+            .post("/api/users/AlexTheMan/albums")
+            .send({
+                title: "Extraordinary Escapade",
+                front_cover_reference: "./extraordinary-escapade.png",
+                back_cover_reference: "./back-cover.png",
+                extraKey: "Extra property"
+            })
+            .expect(201)
+            .then((response) => {
+                const {album} = response.body;
+                expect(album.username).toBe("AlexTheMan")
+                expect(album.title).toBe("Extraordinary Escapade")
+                expect(album.front_cover_reference).toBe("./extraordinary-escapade.png")
+                expect(album.back_cover_reference).toBe("./back-cover.png")
+            })
+        })
     })
 })
 
