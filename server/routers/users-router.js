@@ -1,7 +1,7 @@
 const express = require("express")
 const { getAllUsers, getUserByUsername, postUser } = require("../controllers/users-controller")
 const { getSongsFromUser, postSong } = require("../controllers/songs-controller")
-const { getAlbumsFromUser } = require("../controllers/albums-controller")
+const { getAlbumsFromUser, postAlbum } = require("../controllers/albums-controller")
 const users = express.Router()
 
 users.route("/")
@@ -17,5 +17,6 @@ users.route("/:username/songs")
 
 users.route("/:username/albums")
 .get(getAlbumsFromUser)
+.post(postAlbum)
 
 module.exports = users

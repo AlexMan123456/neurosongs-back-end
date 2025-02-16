@@ -1,14 +1,22 @@
-const { fetchAlbumsFromUser } = require("../models/albums-model");
+const { fetchAlbumsFromUser, uploadAlbum } = require("../models/albums-model");
 const { fetchUserByUsername } = require("../models/users-model");
 
 function getAlbumsFromUser(request, response, next){
     fetchUserByUsername(request.params.username).then((user) => {
-        return fetchAlbumsFromUser(user.username)
+        return fetchAlbumsFromUser(user.username);
     }).then((albums) => {
-        response.status(200).send({albums})
+        response.status(200).send({albums});
     }).catch((err) => {
-        next(err)
+        next(err);
     })
 }
 
-module.exports = { getAlbumsFromUser };
+function postAlbum(request, response, next){
+    uploadAlbum(request.params.username, request.body).then((album) => {
+        response.status(201).send({album});
+    }).catch((err) => {
+        next(err);
+    })
+}
+
+module.exports = { getAlbumsFromUser, postAlbum };

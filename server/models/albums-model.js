@@ -6,4 +6,10 @@ function fetchAlbumsFromUser(username){
     })
 }
 
-module.exports = { fetchAlbumsFromUser };
+function uploadAlbum(username, album){
+    const data = {...album}
+    data.username = username
+    return database.album.create({data})
+}
+
+module.exports = { fetchAlbumsFromUser, uploadAlbum };
