@@ -2,7 +2,14 @@ const database = require("../../client")
 
 function fetchAlbumsFromUser(username){
     return database.album.findMany({
-        where: {username}
+        where: {username},
+        include: {
+            artist: {
+                select: {
+                    artist_name: true
+                }
+            }
+        }
     })
 }
 
@@ -13,7 +20,23 @@ function fetchAlbumById(stringifiedAlbumID){
             album_id
         },
         include: {
-            songs: true
+            songs: {
+                select: {
+                    username: true,
+                    title: true,
+                    reference: true,
+                    artist: {
+                        select: {
+                            artist_name: true
+                        }
+                    }
+                }
+            },
+            artist: {
+                select: {
+                    artist_name: true
+                }
+            }
         }
     }).then((album) => {
         if(!album){
@@ -33,7 +56,16 @@ function uploadAlbum(username, album){
         }
     }
 
-    return database.album.create({data});
+    return database.album.create({
+        data,
+        include: {
+            artist: {
+                select: {
+                    artist_name: true
+                }
+            }
+        }
+    });
 }
 
 module.exports = { fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };
