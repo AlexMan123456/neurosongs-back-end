@@ -25,5 +25,8 @@
     "@prisma/extension-accelerate": "^1.2.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2"
+  },
+  "prisma": {
+    "seed": "node ./database/run-seed.js"
   }
 }

@@ -2,13 +2,13 @@ const database = require("../client")
 
 async function seed({userData, songData, albumData}){
     try {
-        await database.song.deleteMany({})
-        await database.album.deleteMany({})
+        await database.$executeRaw`TRUNCATE songs RESTART IDENTITY CASCADE`
+        await database.$executeRaw`TRUNCATE albums RESTART IDENTITY CASCADE`
         await database.user.deleteMany({})
         await database.user.createMany({
             data: userData
         })
-        await database.album.createMany({
+        const albums = await database.album.createManyAndReturn({
             data: albumData
         })
         await database.song.createMany({
