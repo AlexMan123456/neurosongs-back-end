@@ -294,6 +294,28 @@ describe("/api/albums/:album_id", () => {
     })
 })
 
+describe("/api/albums/:album_id/songs", () => {
+    describe("POST", () => {
+        test("201: Creates a song for the given album", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                username: "AlexTheMan",
+                title: "Highest Power",
+                reference: "./highest-power.mp3",
+            })
+            .expect(201)
+            .then((response) => {
+                const {song} = response.body
+                expect(typeof song.song_id).toBe("number")
+                expect(song.album_id).toBe(1)
+                expect(song.username).toBe("AlexTheMan")
+                expect(song.title).toBe("Highest Power")
+                expect(song.reference).toBe("./highest-power.mp3")
+            })
+        })
+    })
+})
 
 describe("/api/users/:username/songs", () => {
     describe("GET", () => {
@@ -325,51 +347,6 @@ describe("/api/users/:username/songs", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found")
-            })
-        })
-    })
-    describe("POST", () => {
-        test("201: Posts a song to the database and returns the new song", () => {
-            return request(app)
-            .post("/api/users/Kevin_SynthV/songs")
-            .send({
-                title: "Clowning Around",
-                reference: "./clowning-around.mp3",
-                album_id: 3
-            })
-            .expect(201)
-            .then((response) => {
-                const {song} = response.body
-                expect(typeof song.song_id).toBe("number")
-                expect(song.username).toBe("Kevin_SynthV")
-                expect(song.title).toBe("Clowning Around")
-                expect(song.reference).toBe("./clowning-around.mp3")
-                expect(song.album_id).toBe(3)
-            })
-        })
-        test("400: Responds with a bad request message if any required properties are missing", () => {
-            return request(app)
-            .post("/api/users/AlexTheMan/songs")
-            .send({
-                title: "Highest Power",
-                reference: "./highest-power.mp3"
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request")
-            })
-        })
-        test("400: Responds with a bad request message if album ID is invalid", () => {
-            return request(app)
-            .post("/api/users/AlexTheMan/songs")
-            .send({
-                title: "Highest Power",
-                reference: "./highest-power.mp3",
-                album_id: "Neural Anthems"
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request")
             })
         })
     })

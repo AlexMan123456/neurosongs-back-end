@@ -28,7 +28,7 @@ function getSongsFromUser(request, response, next){
 }
 
 function postSong(request, response, next){
-    uploadSong(request.params.username, request.body).then((song) => {
+    uploadSong(request.params.album_id, request.body).then((song) => {
         response.status(201).send({song});
     }).catch((err) => {
         next(err);
