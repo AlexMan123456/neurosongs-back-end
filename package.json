@@ -27,6 +27,6 @@
     "express": "^4.21.2"
   },
   "prisma": {
-    "seed": "node ./database/run-seed.js"
+    "seed": "node ./prisma/run-seed.js"
   }
 }
