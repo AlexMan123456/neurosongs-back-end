@@ -16,4 +16,10 @@ function fetchSongById(stringifiedSongID){
     })
 }
 
-module.exports = { fetchAllSongs, fetchSongById }
+function fetchSongsFromUser(username){
+    return database.song.findMany({
+        where: {username}
+    })
+}
+
+module.exports = { fetchAllSongs, fetchSongById, fetchSongsFromUser }
