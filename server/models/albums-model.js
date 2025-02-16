@@ -15,6 +15,11 @@ function fetchAlbumById(stringifiedAlbumID){
         include: {
             songs: true
         }
+    }).then((album) => {
+        if(!album){
+            return Promise.reject({status: 404, message: "Album not found"});
+        }
+        return album;
     })
 }
 
