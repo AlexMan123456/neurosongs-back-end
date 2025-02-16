@@ -339,6 +339,32 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(response.body.message).toBe("Bad request")
             })
         })
+        test("404: Responds with a not found message when given an album ID that does not exist", () => {
+            return request(app)
+            .post("/api/albums/231/songs")
+            .send({
+                username: "AlexTheMan",
+                title: "Highest Power",
+                reference: "./highest-power.mp3",
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found")
+            })
+        })
+        test("404: Responds with a not found message when given a username that does not exist", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                username: "InvalidUser",
+                title: "Highest Power",
+                reference: "./highest-power.mp3"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found")
+            })
+        })
     })
 })
 
