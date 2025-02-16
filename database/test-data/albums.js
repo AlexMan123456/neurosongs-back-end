@@ -4,18 +4,18 @@ module.exports = [
     {
         username: "AlexTheMan",
         title: "Identities",
-        front_cover_url: identities,
-        back_cover_url: captainKevinPhoto
+        front_cover_reference: identities,
+        back_cover_reference: captainKevinPhoto
     },
     {
         username: "Kevin_SynthV",
         title: "Kevin's Greatest Hits",
-        front_cover_url: captainKevinPhoto,
+        front_cover_reference: captainKevinPhoto,
     },
     {
         username: "AlexGB231",
         title: "Lockdown",
-        front_cover_url: lockdownPhoto,
-        back_cover_url: koolAlex
+        front_cover_reference: lockdownPhoto,
+        back_cover_reference: koolAlex
     }
 ]

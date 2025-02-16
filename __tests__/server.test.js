@@ -163,7 +163,7 @@ describe("/api/users/:username/songs", () => {
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
                     expect(song.username).toBe("AlexTheMan")
-                    expect(typeof song.url).toBe("string")
+                    expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
                 })
             })
@@ -185,18 +185,51 @@ describe("/api/users/:username/songs", () => {
             })
         })
     })
-    /*describe("POST", () => {
+    describe("POST", () => {
         test("201: Posts a song to the database and returns the new song", () => {
             return request(app)
-            .post("/api/songs")
+            .post("/api/users/Kevin_SynthV/songs")
             .send({
-                username: "Kevin_SynthV",
                 title: "Clowning Around",
-                url: "./highest-power.mp3",
+                reference: "./clowning-around.mp3",
                 album_id: 2
             })
+            .expect(201)
+            .then((response) => {
+                const {song} = response.body
+                expect(typeof song.song_id).toBe("number")
+                expect(song.username).toBe("Kevin_SynthV")
+                expect(song.title).toBe("Clowning Around")
+                expect(song.reference).toBe("./clowning-around.mp3")
+                expect(song.album_id).toBe(2)
+            })
         })
-    })*/
+        test("400: Responds with a bad request message if any required properties are missing", () => {
+            return request(app)
+            .post("/api/users/AlexTheMan/songs")
+            .send({
+                title: "Highest Power",
+                reference: "./highest-power.mp3"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if album ID is invalid", () => {
+            return request(app)
+            .post("/api/users/AlexTheMan/songs")
+            .send({
+                title: "Highest Power",
+                reference: "./highest-power.mp3",
+                album_id: "Neural Anthems"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+    })
 })
 
 describe("/api/songs", () => {
@@ -210,7 +243,7 @@ describe("/api/songs", () => {
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
                     expect(typeof song.username).toBe("string")
-                    expect(typeof song.url).toBe("string")
+                    expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
                 })
             })
@@ -230,7 +263,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.song_id).toBe(1)
                 expect(song.title).toBe("Captain Kevin")
                 expect(song.username).toBe("AlexTheMan")
-                expect(song.url).toBe("./captain-kevin.mp3")
+                expect(song.reference).toBe("./captain-kevin.mp3")
                 expect(song.album_id).toBe(1)
             })
         })
