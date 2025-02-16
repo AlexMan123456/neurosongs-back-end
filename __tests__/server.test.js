@@ -253,6 +253,47 @@ describe("/api/users/:username/albums", () => {
     })
 })
 
+describe("/api/albums/:album_id", () => {
+    describe("GET", () => {
+        test("200: Responds with the album with the corresponding album ID, along with its songs", () => {
+            return request(app)
+            .get("/api/albums/1")
+            .expect(200)
+            .then((response) => {
+                const {album} = response.body;
+                expect(album.album_id).toBe(1)
+                expect(album.username).toBe("AlexTheMan")
+                expect(album.title).toBe("Identities")
+                expect(album.front_cover_reference).toBe("./identities-front-cover.png")
+                expect(album.back_cover_reference).toBe("./identities-back-cover.png")
+                expect(album.songs.length).not.toBe(0)
+                album.songs.forEach((song) => {
+                    expect(typeof song.username).toBe("string")
+                    expect(typeof song.title).toBe("string")
+                    expect(typeof song.reference).toBe("string")
+                    expect(song.album_id).toBe(1)
+                })
+            })
+        })
+        test("400: Responds with a bad request message when given an invalid album ID", () => {
+            return request(app)
+            .get("/api/albums/invalid_id")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if album ID does not exist", () => {
+            return request(app)
+            .get("/api/albums/231")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Album not found");
+            })
+        })
+    })
+})
+
 
 describe("/api/users/:username/songs", () => {
     describe("GET", () => {
