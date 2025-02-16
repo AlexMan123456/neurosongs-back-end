@@ -204,6 +204,31 @@ describe("/api/users/:username/songs", () => {
                 expect(song.album_id).toBe(2)
             })
         })
+        test("400: Responds with a bad request message if any required properties are missing", () => {
+            return request(app)
+            .post("/api/users/AlexTheMan/songs")
+            .send({
+                title: "Highest Power",
+                url: "./highest-power.mp3"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if album ID is invalid", () => {
+            return request(app)
+            .post("/api/users/AlexTheMan/songs")
+            .send({
+                title: "Highest Power",
+                url: "./highest-power.mp3",
+                album_id: "Neural Anthems"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
     })
 })
 
