@@ -23,7 +23,7 @@ function fetchSongsFromUser(username){
 }
 
 function uploadSong(username, song){
-    data = {...song};
+    const data = {...song};
     data.username = username;
     return database.song.create({data})
 }

@@ -6,4 +6,17 @@ function fetchAlbumsFromUser(username){
     })
 }
 
-module.exports = { fetchAlbumsFromUser };
+function uploadAlbum(username, album){
+    const data = {...album}
+    data.username = username
+
+    for(const key in data){
+        if(!["username", "title", "front_cover_reference", "back_cover_reference"].includes(key)){
+            delete data[key];
+        }
+    }
+
+    return database.album.create({data})
+}
+
+module.exports = { fetchAlbumsFromUser, uploadAlbum };

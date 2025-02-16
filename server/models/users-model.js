@@ -15,7 +15,8 @@ function fetchUserByUsername(username){
     })
 }
 
-function uploadUser(data){
+function uploadUser(user){
+    const data = {...user}
     for(const key in data){
         if(!["username", "global_name", "email", "is_verified"].includes(key)){
             delete data[key]

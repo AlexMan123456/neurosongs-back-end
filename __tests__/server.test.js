@@ -186,7 +186,73 @@ describe("/api/users/:username/albums", () => {
             })
         })
     })
+    describe("POST", () => {
+        test("201: Posts an album to the database and returns the created album", () => {
+            return Promise.all([
+                request(app)
+                .post("/api/users/AlexTheMan/albums")
+                .send({
+                    title: "Neural Anthems",
+                    front_cover_reference: "./neural-anthems.png"
+                })
+                .expect(201)
+                .then((response) => {
+                    const {album} = response.body;
+                    expect(album.username).toBe("AlexTheMan")
+                    expect(album.title).toBe("Neural Anthems")
+                    expect(album.front_cover_reference).toBe("./neural-anthems.png")
+                }),
+                request(app)
+                .post("/api/users/AlexGB231/albums")
+                .send({
+                    title: "Universal Expedition",
+                    front_cover_reference: "./universal-expedition.png",
+                    back_cover_reference: "./back-cover.png"
+                })
+                .expect(201)
+                .then((response) => {
+                    const {album} = response.body;
+                    expect(album.username).toBe("AlexGB231")
+                    expect(album.title).toBe("Universal Expedition")
+                    expect(album.front_cover_reference).toBe("./universal-expedition.png")
+                    expect(album.back_cover_reference).toBe("./back-cover.png")
+                })
+            ])
+        })
+        test("201: Ignores any extra keys on request object", () => {
+            return request(app)
+            .post("/api/users/AlexTheMan/albums")
+            .send({
+                title: "Extraordinary Escapade",
+                front_cover_reference: "./extraordinary-escapade.png",
+                back_cover_reference: "./back-cover.png",
+                extraKey: "Extra property"
+            })
+            .expect(201)
+            .then((response) => {
+                const {album} = response.body;
+                expect(album.username).toBe("AlexTheMan")
+                expect(album.title).toBe("Extraordinary Escapade")
+                expect(album.front_cover_reference).toBe("./extraordinary-escapade.png")
+                expect(album.back_cover_reference).toBe("./back-cover.png")
+            })
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .post("/api/users/nonexistent_user/albums")
+            .send({
+                title: "Test album",
+                front_cover_reference: "./front-cover.png",
+                back_cover_reference: "./back-cover.png"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found")
+            })
+        })
+    })
 })
+
 
 describe("/api/users/:username/songs", () => {
     describe("GET", () => {
