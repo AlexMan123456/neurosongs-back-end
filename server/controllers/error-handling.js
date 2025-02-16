@@ -4,7 +4,7 @@ function endpointNotFound(request, response, next){
 
 function prismaErrors(error, request, response, next){
     if(error.name === "PrismaClientValidationError"){
-        return response.status(400).send({message: "Required properties missing"})
+        return response.status(400).send({message: "Bad request"})
     }
     if(error.code === "P2002"){
         return response.status(400).send({message: "Unique constraint violation"})

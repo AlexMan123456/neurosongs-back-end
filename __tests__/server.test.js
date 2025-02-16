@@ -1,10 +1,6 @@
-const seed = require("../database/seed");
-const data = require("../database/test-data");
 const request = require("supertest");
 const app = require("../server/app");
 const { execSync } = require("node:child_process")
-
-jest.setTimeout(60000);
 
 beforeEach(() => {
     execSync("dotenv -e ./.env.test -- yarn prisma db seed");
@@ -73,7 +69,7 @@ describe("/api/users", () => {
             })
             .expect(400)
             .then((response) => {
-                expect(response.body.message).toBe("Required properties missing");
+                expect(response.body.message).toBe("Bad request");
             })
         })
         test("400: Responds with a bad request message if username has spaces", () => {
@@ -151,6 +147,59 @@ describe("/api/user/:username", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found")
+            })
+        })
+    })
+})
+
+describe("/api/songs", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all songs", () => {
+            return request(app)
+            .get("/api/songs")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.songs.length).not.toBe(0);
+                response.body.songs.map((song) => {
+                    expect(typeof song.song_id).toBe("number")
+                    expect(typeof song.username).toBe("string")
+                    expect(typeof song.url).toBe("string")
+                    expect(typeof song.album_id).toBe("number")
+                })
+            })
+        })
+    })
+})
+
+describe("/api/songs/:song_id", () => {
+    describe("GET", () => {
+        test("200: Responds with the song with the given ID", () => {
+            return request(app)
+            .get("/api/songs/1")
+            .expect(200)
+            .then((response) => {
+                const {song} = response.body
+                expect(song.song_id).toBe(1)
+                expect(song.title).toBe("Captain Kevin")
+                expect(song.username).toBe("AlexTheMan")
+                expect(song.url).toBe("./captain-kevin.mp3")
+                expect(song.album_id).toBe(1)
+            })
+        })
+        test("400: Responds with a bad request message when given an invalid ID", () => {
+            return request(app)
+            .get("/api/songs/invalid_id")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("404: Responds with a not found message when ID does not exist", () => {
+            return request(app)
+            .get("/api/songs/231")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Song not found")
             })
         })
     })
