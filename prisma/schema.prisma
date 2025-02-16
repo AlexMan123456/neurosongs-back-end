@@ -19,25 +19,25 @@ model User {
 }
 
 model Song {
-  song_id  Int    @id @default(autoincrement())
-  title    String @db.VarChar(100)
-  url      String
-  album_id Int
-  username String
-  album    Album  @relation(fields: [album_id], references: [album_id])
-  artist   User   @relation(fields: [username], references: [username])
+  song_id   Int    @id @default(autoincrement())
+  title     String @db.VarChar(100)
+  album_id  Int
+  username  String
+  reference String
+  album     Album  @relation(fields: [album_id], references: [album_id])
+  artist    User   @relation(fields: [username], references: [username])
 
   @@map("songs")
 }
 
 model Album {
-  album_id        Int     @id @default(autoincrement())
-  title           String  @db.VarChar(100)
-  front_cover_url String
-  back_cover_url  String?
-  username        String
-  artist          User    @relation(fields: [username], references: [username])
-  songs           Song[]
+  album_id              Int     @id @default(autoincrement())
+  title                 String  @db.VarChar(100)
+  username              String
+  back_cover_reference  String?
+  front_cover_reference String
+  artist                User    @relation(fields: [username], references: [username])
+  songs                 Song[]
 
   @@map("albums")
 }

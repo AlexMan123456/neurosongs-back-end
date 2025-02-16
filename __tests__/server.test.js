@@ -163,7 +163,7 @@ describe("/api/users/:username/songs", () => {
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
                     expect(song.username).toBe("AlexTheMan")
-                    expect(typeof song.url).toBe("string")
+                    expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
                 })
             })
@@ -191,7 +191,7 @@ describe("/api/users/:username/songs", () => {
             .post("/api/users/Kevin_SynthV/songs")
             .send({
                 title: "Clowning Around",
-                url: "./clowning-around.mp3",
+                reference: "./clowning-around.mp3",
                 album_id: 2
             })
             .expect(201)
@@ -200,7 +200,7 @@ describe("/api/users/:username/songs", () => {
                 expect(typeof song.song_id).toBe("number")
                 expect(song.username).toBe("Kevin_SynthV")
                 expect(song.title).toBe("Clowning Around")
-                expect(song.url).toBe("./clowning-around.mp3")
+                expect(song.reference).toBe("./clowning-around.mp3")
                 expect(song.album_id).toBe(2)
             })
         })
@@ -209,7 +209,7 @@ describe("/api/users/:username/songs", () => {
             .post("/api/users/AlexTheMan/songs")
             .send({
                 title: "Highest Power",
-                url: "./highest-power.mp3"
+                reference: "./highest-power.mp3"
             })
             .expect(400)
             .then((response) => {
@@ -221,7 +221,7 @@ describe("/api/users/:username/songs", () => {
             .post("/api/users/AlexTheMan/songs")
             .send({
                 title: "Highest Power",
-                url: "./highest-power.mp3",
+                reference: "./highest-power.mp3",
                 album_id: "Neural Anthems"
             })
             .expect(400)
@@ -243,7 +243,7 @@ describe("/api/songs", () => {
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
                     expect(typeof song.username).toBe("string")
-                    expect(typeof song.url).toBe("string")
+                    expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
                 })
             })
@@ -263,7 +263,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.song_id).toBe(1)
                 expect(song.title).toBe("Captain Kevin")
                 expect(song.username).toBe("AlexTheMan")
-                expect(song.url).toBe("./captain-kevin.mp3")
+                expect(song.reference).toBe("./captain-kevin.mp3")
                 expect(song.album_id).toBe(1)
             })
         })

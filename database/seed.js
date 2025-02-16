@@ -8,7 +8,7 @@ async function seed({userData, songData, albumData}){
         await database.user.createMany({
             data: userData
         })
-        const albums = await database.album.createManyAndReturn({
+        await database.album.createMany({
             data: albumData
         })
         await database.song.createMany({
