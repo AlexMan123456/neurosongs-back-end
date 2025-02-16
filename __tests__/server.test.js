@@ -169,6 +169,22 @@ describe("/api/users/:username/albums", () => {
                 })
             })
         })
+        test("200: Responds with an empty array if user has no albums", () => {
+            return request(app)
+            .get("/api/users/Badstagram/albums")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.albums.length).toBe(0)
+            })
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .get("/api/users/nonexistent_user/albums")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
     })
 })
 

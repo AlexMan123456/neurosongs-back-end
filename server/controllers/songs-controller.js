@@ -18,8 +18,7 @@ function getSongById(request, response, next){
 }
 
 function getSongsFromUser(request, response, next){
-    const {username} = request.params;
-    fetchUserByUsername(username).then((user) => {
+    fetchUserByUsername(request.params.username).then((user) => {
         return fetchSongsFromUser(user.username);
     }).then((songs) => {
         response.status(200).send({songs});
