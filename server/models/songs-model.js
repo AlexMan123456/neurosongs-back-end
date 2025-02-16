@@ -4,7 +4,8 @@ function fetchAllSongs(){
     return database.song.findMany({})
 }
 
-function fetchSongById(song_id){
+function fetchSongById(stringifiedSongID){
+    const song_id = parseInt(stringifiedSongID);
     return database.song.findUnique({
         where: {song_id}
     })

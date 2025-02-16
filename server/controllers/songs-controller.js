@@ -9,8 +9,10 @@ function getAllSongs(request, response, next){
 }
 
 function getSongById(request, response, next){
-    fetchSongById(parseInt(request.params.song_id)).then((song) => {
+    fetchSongById(request.params.song_id).then((song) => {
         response.status(200).send({song})
+    }).catch((err) => {
+        next(err)
     })
 }
 

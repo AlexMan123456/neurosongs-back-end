@@ -69,7 +69,7 @@ describe("/api/users", () => {
             })
             .expect(400)
             .then((response) => {
-                expect(response.body.message).toBe("Required properties missing");
+                expect(response.body.message).toBe("Bad request");
             })
         })
         test("400: Responds with a bad request message if username has spaces", () => {
@@ -184,6 +184,14 @@ describe("/api/songs/:song_id", () => {
                 expect(song.username).toBe("AlexTheMan")
                 expect(song.url).toBe("./captain-kevin.mp3")
                 expect(song.album_id).toBe(1)
+            })
+        })
+        test("400: Responds with a bad request message when given an invalid ID", () => {
+            return request(app)
+            .get("/api/songs/invalid_id")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
             })
         })
     })
