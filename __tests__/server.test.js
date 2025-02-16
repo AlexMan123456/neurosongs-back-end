@@ -275,6 +275,14 @@ describe("/api/albums/:album_id", () => {
                 })
             })
         })
+        test("400: Responds with a bad request message when given an invalid album ID", () => {
+            return request(app)
+            .get("/api/albums/invalid_id")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
     })
 })
 

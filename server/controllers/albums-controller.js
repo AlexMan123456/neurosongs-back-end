@@ -15,7 +15,6 @@ function getAlbumById(request, response, next){
     fetchAlbumById(request.params.album_id).then((album) => {
         response.status(200).send({album});
     }).catch((err) => {
-        console.log(err)
         next(err);
     })
 }
