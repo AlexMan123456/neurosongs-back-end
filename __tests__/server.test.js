@@ -6,7 +6,7 @@ const { execSync } = require("node:child_process")
 
 jest.setTimeout(60000);
 
-beforeEach(async () => {
+beforeEach(() => {
     execSync("dotenv -e ./.env.test -- yarn prisma db seed");
 })
 
