@@ -58,11 +58,62 @@ describe("/api/users", () => {
             .expect(201)
             .then((response) => {
                 const {user} = response.body
-                expect(user.username).toBe("TestUser123")
-                expect(user.global_name).toBe("Test User")
-                expect(user.email).toBe("testuser2@test.com")
-                expect(user.is_verified).toBe(false)
-                expect(user).not.toHaveProperty("extraKey")
+                expect(user.username).toBe("TestUser123");
+                expect(user.global_name).toBe("Test User");
+                expect(user.email).toBe("testuser2@test.com");
+                expect(user.is_verified).toBe(false);
+                expect(user).not.toHaveProperty("extraKey");
+            })
+        })
+        test("400: Responds with a bad request message if any required properties are missing", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                global_name: "Test User",
+                email: "test@test.com"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Required properties missing");
+            })
+        })
+        test("400: Responds with a bad request message if username has spaces", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                username: "Test User 123",
+                global_name: "Test User 2",
+                email: "test@test.com"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid username");
+            })
+        })
+        test("400: Responds with a bad request message if email does not contain @ symbol", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                username: "TestUser123",
+                global_name: "Test User 3",
+                email: "veryAwesomeTestUserEmail"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid email");
+            })
+        })
+        test("400: Responds with a bad request message if username is not unique", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                username: "AlexTheMan",
+                global_name: "Test User",
+                email: "test@test.com"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Unique constraint violation");
             })
         })
     })

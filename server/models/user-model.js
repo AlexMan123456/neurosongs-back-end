@@ -22,6 +22,18 @@ function uploadUser(data){
         }
     }
 
+    if(data.username){
+        if(data.username.includes(" ")){
+            return Promise.reject({status: 400, message: "Invalid username"});
+        }
+    }
+
+    if(data.email){
+        if(!data.email.includes("@")){
+            return Promise.reject({status: 400, message: "Invalid email"});
+        }
+    }
+
     return database.user.create({
         data
     })
