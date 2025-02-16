@@ -13,7 +13,8 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "test": "yarn docker:up && jest -i",
-    "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force && node database/run-seed.js",
+    "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force && node prisma/run-seed.js",
+    "dev": "dotenv -e ./.env.development -- npx prisma migrate deploy && nodemon server/listen.js",
     "prepare": "husky"
   },
   "keywords": [],
@@ -24,7 +25,8 @@
     "@prisma/client": "^6.3.1",
     "@prisma/extension-accelerate": "^1.2.2",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
   },
   "prisma": {
     "seed": "node ./prisma/run-seed.js"
