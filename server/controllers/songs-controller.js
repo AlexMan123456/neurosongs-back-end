@@ -1,4 +1,5 @@
-const { fetchAllSongs, fetchSongById, fetchSongsFromUser } = require("../models/songs-model")
+const { fetchAllSongs, fetchSongById, fetchSongsFromUser } = require("../models/songs-model");
+const { fetchUserByUsername } = require("../models/user-model");
 
 function getAllSongs(request, response, next){
     fetchAllSongs().then((songs) => {
@@ -17,7 +18,10 @@ function getSongById(request, response, next){
 }
 
 function getSongsFromUser(request, response, next){
-    fetchSongsFromUser(request.params.username).then((songs) => {
+    const {username} = request.params;
+    fetchUserByUsername(username).then((user) => {
+        return fetchSongsFromUser(user.username)
+    }).then((songs) => {
         response.status(200).send({songs});
     }).catch((err) => {
         next(err);

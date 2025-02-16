@@ -168,6 +168,14 @@ describe("/api/users/:username/songs", () => {
                 })
             })
         })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .get("/api/users/invalid_user/songs")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
     })
     /*describe("POST", () => {
         test("201: Posts a song to the database and returns the new song", () => {
