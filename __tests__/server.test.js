@@ -7,8 +7,7 @@ const { execSync } = require("node:child_process")
 jest.setTimeout(60000);
 
 beforeEach(async () => {
-    execSync("dotenv -e ./.env.test -- yarn prisma migrate reset --force");
-    await seed(data);
+    execSync("dotenv -e ./.env.test -- yarn prisma db seed");
 })
 
 describe("/api/users", () => {
