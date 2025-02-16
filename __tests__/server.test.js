@@ -127,7 +127,7 @@ describe("/api/users", () => {
     })
 })
 
-describe("/api/user/:username", () => {
+describe("/api/users/:username", () => {
     describe("GET", () => {
         test("200: Responds with the user with the given username", () => {
             return request(app)
@@ -147,6 +147,26 @@ describe("/api/user/:username", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found")
+            })
+        })
+    })
+})
+
+describe("/api/users/:username/albums", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all albums from a given user", () => {
+            return request(app)
+            .get("/api/users/AlexTheMan/albums")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.albums.length).not.toBe(0)
+                response.body.albums.forEach((album) => {
+                    expect(typeof album.album_id).toBe("number")
+                    expect(album.username).toBe("AlexTheMan")
+                    expect(typeof album.title).toBe("string")
+                    expect(typeof album.front_cover_reference).toBe("string")
+                    expect(album).toHaveProperty("back_cover_reference")
+                })
             })
         })
     })
@@ -192,7 +212,7 @@ describe("/api/users/:username/songs", () => {
             .send({
                 title: "Clowning Around",
                 reference: "./clowning-around.mp3",
-                album_id: 2
+                album_id: 3
             })
             .expect(201)
             .then((response) => {
@@ -201,7 +221,7 @@ describe("/api/users/:username/songs", () => {
                 expect(song.username).toBe("Kevin_SynthV")
                 expect(song.title).toBe("Clowning Around")
                 expect(song.reference).toBe("./clowning-around.mp3")
-                expect(song.album_id).toBe(2)
+                expect(song.album_id).toBe(3)
             })
         })
         test("400: Responds with a bad request message if any required properties are missing", () => {

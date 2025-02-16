@@ -1,4 +1,4 @@
-const { fetchAllUsers, fetchUserByUsername, uploadUser } = require("../models/user-model")
+const { fetchAllUsers, fetchUserByUsername, uploadUser } = require("../models/users-model")
 
 function getAllUsers(request, response, next){
     fetchAllUsers().then((users) => {

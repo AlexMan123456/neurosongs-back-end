@@ -1,5 +1,5 @@
 const { fetchAllSongs, fetchSongById, fetchSongsFromUser, uploadSong } = require("../models/songs-model");
-const { fetchUserByUsername } = require("../models/user-model");
+const { fetchUserByUsername } = require("../models/users-model");
 
 function getAllSongs(request, response, next){
     fetchAllSongs().then((songs) => {
