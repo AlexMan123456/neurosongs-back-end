@@ -314,6 +314,31 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.reference).toBe("./highest-power.mp3")
             })
         })
+        test("400: Responds with a bad request message when missing required properties", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                username: "AlexTheMan",
+                title: "Highest Power"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message when given an invalid album ID", () => {
+            return request(app)
+            .post("/api/albums/invalid_id/songs")
+            .send({
+                username: "AlexTheMan",
+                title: "Highest Power",
+                reference: "./highest-power.mp3",
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
     })
 })
 
