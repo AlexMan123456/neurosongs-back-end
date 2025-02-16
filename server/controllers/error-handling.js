@@ -1,3 +1,7 @@
+function endpointNotFound(request, response, next){
+    response.status(404).send({message: "Endpoint not found"})
+}
+
 function prismaErrors(error, request, response, next){
     if(error.name === "PrismaClientValidationError"){
         return response.status(400).send({message: "Required properties missing"})
@@ -20,4 +24,4 @@ function internalServerError(error, request, response, next){
     response.status(500).send({message: "Internal server error"})
 }
 
-module.exports = { prismaErrors, customErrors, internalServerError };
+module.exports = { endpointNotFound, prismaErrors, customErrors, internalServerError };

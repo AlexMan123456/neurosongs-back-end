@@ -156,3 +156,14 @@ describe("/api/user/:username", () => {
         })
     })
 })
+
+describe("/*", () => {
+    test("404: Responds with a not found message if endpoint does not exist", () => {
+        return request(app)
+        .get("/invalid_endpoint")
+        .expect(404)
+        .then((response) => {
+            expect(response.body.message).toBe("Endpoint not found")
+        })
+    })
+})
