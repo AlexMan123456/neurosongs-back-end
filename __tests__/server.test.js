@@ -152,6 +152,37 @@ describe("/api/user/:username", () => {
     })
 })
 
+describe("/api/users/:username/songs", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all songs from a given user", () => {
+            return request(app)
+            .get("/api/users/AlexTheMan/songs")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.songs.length).not.toBe(0)
+                response.body.songs.forEach((song) => {
+                    expect(typeof song.song_id).toBe("number")
+                    expect(song.username).toBe("AlexTheMan")
+                    expect(typeof song.url).toBe("string")
+                    expect(typeof song.album_id).toBe("number")
+                })
+            })
+        })
+    })
+    /*describe("POST", () => {
+        test("201: Posts a song to the database and returns the new song", () => {
+            return request(app)
+            .post("/api/songs")
+            .send({
+                username: "Kevin_SynthV",
+                title: "Clowning Around",
+                url: "./highest-power.mp3",
+                album_id: 2
+            })
+        })
+    })*/
+})
+
 describe("/api/songs", () => {
     describe("GET", () => {
         test("200: Responds with an array of all songs", () => {
@@ -160,7 +191,7 @@ describe("/api/songs", () => {
             .expect(200)
             .then((response) => {
                 expect(response.body.songs.length).not.toBe(0);
-                response.body.songs.map((song) => {
+                response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
                     expect(typeof song.username).toBe("string")
                     expect(typeof song.url).toBe("string")
@@ -170,6 +201,7 @@ describe("/api/songs", () => {
         })
     })
 })
+
 
 describe("/api/songs/:song_id", () => {
     describe("GET", () => {
