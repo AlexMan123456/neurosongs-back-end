@@ -16,7 +16,7 @@ describe("/api/users", () => {
                 expect(response.body.users.length).not.toBe(0)
                 response.body.users.forEach((user) => {
                     expect(typeof user.username).toBe("string");
-                    expect(typeof user.global_name).toBe("string");
+                    expect(typeof user.artist_name).toBe("string");
                     expect(typeof user.email).toBe("string");
                     expect(typeof user.is_verified).toBe("boolean");
                 })
@@ -29,14 +29,14 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "TestUser123",
-                global_name: "Test User",
+                artist_name: "Test User",
                 email: "testuser2@test.com"
             })
             .expect(201)
             .then((response) => {
                 const {user} = response.body
                 expect(user.username).toBe("TestUser123")
-                expect(user.global_name).toBe("Test User")
+                expect(user.artist_name).toBe("Test User")
                 expect(user.email).toBe("testuser2@test.com")
                 expect(user.is_verified).toBe(false)
             })
@@ -46,7 +46,7 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "TestUser123",
-                global_name: "Test User",
+                artist_name: "Test User",
                 email: "testuser2@test.com",
                 extraKey: "Extra property"
             })
@@ -54,7 +54,7 @@ describe("/api/users", () => {
             .then((response) => {
                 const {user} = response.body
                 expect(user.username).toBe("TestUser123");
-                expect(user.global_name).toBe("Test User");
+                expect(user.artist_name).toBe("Test User");
                 expect(user.email).toBe("testuser2@test.com");
                 expect(user.is_verified).toBe(false);
                 expect(user).not.toHaveProperty("extraKey");
@@ -64,7 +64,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                global_name: "Test User",
+                artist_name: "Test User",
                 email: "test@test.com"
             })
             .expect(400)
@@ -77,7 +77,7 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "Test User 123",
-                global_name: "Test User",
+                artist_name: "Test User",
                 email: "test@test.com"
             })
             .expect(400)
@@ -90,7 +90,7 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "TestUser123",
-                global_name: "Test User",
+                artist_name: "Test User",
                 email: "veryAwesomeTestUserEmail"
             })
             .expect(400)
@@ -103,7 +103,7 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "AlexTheMan",
-                global_name: "Test User",
+                artist_name: "Test User",
                 email: "test@test.com"
             })
             .expect(400)
@@ -116,7 +116,7 @@ describe("/api/users", () => {
             .post("/api/users")
             .send({
                 username: "FakeUser123",
-                global_name: "Faker",
+                artist_name: "Faker",
                 email: "captain-kevin@thefarisland.com"
             })
             .expect(400)
@@ -136,7 +136,7 @@ describe("/api/users/:username", () => {
             .then((response) => {
                 const {user} = response.body;
                 expect(user.username).toBe("AlexTheMan");
-                expect(user.global_name).toBe("Alex The Man");
+                expect(user.artist_name).toBe("Alex The Man");
                 expect(user.email).toBe("alextheman231231@gmail.com");
                 expect(user.is_verified).toBe(true);
             })
@@ -163,6 +163,7 @@ describe("/api/users/:username/albums", () => {
                 response.body.albums.forEach((album) => {
                     expect(typeof album.album_id).toBe("number")
                     expect(album.username).toBe("AlexTheMan")
+                    expect(album.artist.artist_name).toBe("Alex The Man")
                     expect(typeof album.title).toBe("string")
                     expect(typeof album.front_cover_reference).toBe("string")
                     expect(album).toHaveProperty("back_cover_reference")
@@ -199,6 +200,7 @@ describe("/api/users/:username/albums", () => {
                 .then((response) => {
                     const {album} = response.body;
                     expect(album.username).toBe("AlexTheMan")
+                    expect(album.artist.artist_name).toBe("Alex The Man")
                     expect(album.title).toBe("Neural Anthems")
                     expect(album.front_cover_reference).toBe("./neural-anthems.png")
                 }),
@@ -213,6 +215,7 @@ describe("/api/users/:username/albums", () => {
                 .then((response) => {
                     const {album} = response.body;
                     expect(album.username).toBe("AlexGB231")
+                    expect(album.artist.artist_name).toBe("AlexGB231")
                     expect(album.title).toBe("Universal Expedition")
                     expect(album.front_cover_reference).toBe("./universal-expedition.png")
                     expect(album.back_cover_reference).toBe("./back-cover.png")
@@ -232,6 +235,7 @@ describe("/api/users/:username/albums", () => {
             .then((response) => {
                 const {album} = response.body;
                 expect(album.username).toBe("AlexTheMan")
+                expect(album.artist.artist_name).toBe("Alex The Man")
                 expect(album.title).toBe("Extraordinary Escapade")
                 expect(album.front_cover_reference).toBe("./extraordinary-escapade.png")
                 expect(album.back_cover_reference).toBe("./back-cover.png")
@@ -263,15 +267,16 @@ describe("/api/albums/:album_id", () => {
                 const {album} = response.body;
                 expect(album.album_id).toBe(1)
                 expect(album.username).toBe("AlexTheMan")
+                expect(album.artist.artist_name).toBe("Alex The Man")
                 expect(album.title).toBe("Identities")
                 expect(album.front_cover_reference).toBe("./identities-front-cover.png")
                 expect(album.back_cover_reference).toBe("./identities-back-cover.png")
                 expect(album.songs.length).not.toBe(0)
                 album.songs.forEach((song) => {
                     expect(typeof song.username).toBe("string")
+                    expect(typeof song.artist.artist_name).toBe("string")
                     expect(typeof song.title).toBe("string")
                     expect(typeof song.reference).toBe("string")
-                    expect(song.album_id).toBe(1)
                 })
             })
         })
@@ -310,6 +315,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(typeof song.song_id).toBe("number")
                 expect(song.album_id).toBe(1)
                 expect(song.username).toBe("AlexTheMan")
+                expect(song.artist.artist_name).toBe("Alex The Man")
                 expect(song.title).toBe("Highest Power")
                 expect(song.reference).toBe("./highest-power.mp3")
             })
@@ -379,6 +385,7 @@ describe("/api/users/:username/songs", () => {
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
                     expect(song.username).toBe("AlexTheMan")
+                    expect(song.artist.artist_name).toBe("Alex The Man")
                     expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
                 })
@@ -414,6 +421,7 @@ describe("/api/songs", () => {
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
                     expect(typeof song.username).toBe("string")
+                    expect(typeof song.artist.artist_name).toBe("string")
                     expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
                 })
@@ -434,6 +442,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.song_id).toBe(1)
                 expect(song.title).toBe("Captain Kevin")
                 expect(song.username).toBe("AlexTheMan")
+                expect(song.artist.artist_name).toBe("Alex The Man")
                 expect(song.reference).toBe("./captain-kevin.mp3")
                 expect(song.album_id).toBe(1)
             })
