@@ -1,10 +1,6 @@
-const seed = require("../database/seed");
-const data = require("../database/test-data");
 const request = require("supertest");
 const app = require("../server/app");
 const { execSync } = require("node:child_process")
-
-jest.setTimeout(60000);
 
 beforeEach(() => {
     execSync("dotenv -e ./.env.test -- yarn prisma db seed");
@@ -151,6 +147,25 @@ describe("/api/user/:username", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found")
+            })
+        })
+    })
+})
+
+describe("/api/songs", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all songs", () => {
+            return request(app)
+            .get("/api/songs")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.songs.length).not.toBe(0);
+                response.body.songs.map((song) => {
+                    expect(typeof song.song_id).toBe("number")
+                    expect(typeof song.username).toBe("string")
+                    expect(typeof song.url).toBe("string")
+                    expect(typeof song.album_id).toBe("number")
+                })
             })
         })
     })
