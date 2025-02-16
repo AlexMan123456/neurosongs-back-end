@@ -9,6 +9,9 @@ function prismaErrors(error, request, response, next){
     if(error.code === "P2002"){
         return response.status(400).send({message: "Unique constraint violation"})
     }
+    if(error.code === "P2003"){
+        return response.status(404).send({message: "Related property not found"})
+    }
     next(error);
 }
 

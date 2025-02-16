@@ -237,6 +237,19 @@ describe("/api/users/:username/albums", () => {
                 expect(album.back_cover_reference).toBe("./back-cover.png")
             })
         })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .post("/api/users/nonexistent_user/albums")
+            .send({
+                title: "Test album",
+                front_cover_reference: "./front-cover.png",
+                back_cover_reference: "./back-cover.png"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found")
+            })
+        })
     })
 })
 
