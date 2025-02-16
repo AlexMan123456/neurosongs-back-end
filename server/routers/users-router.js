@@ -1,6 +1,6 @@
 const express = require("express")
 const { getAllUsers, getUserByUsername, postUser } = require("../controllers/user-controller")
-const { getSongsFromUser } = require("../controllers/songs-controller")
+const { getSongsFromUser, postSong } = require("../controllers/songs-controller")
 const users = express.Router()
 
 users.route("/")
@@ -12,5 +12,6 @@ users.route("/:username")
 
 users.route("/:username/songs")
 .get(getSongsFromUser)
+.post(postSong)
 
 module.exports = users

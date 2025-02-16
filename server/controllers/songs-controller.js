@@ -1,4 +1,4 @@
-const { fetchAllSongs, fetchSongById, fetchSongsFromUser } = require("../models/songs-model");
+const { fetchAllSongs, fetchSongById, fetchSongsFromUser, uploadSong } = require("../models/songs-model");
 const { fetchUserByUsername } = require("../models/user-model");
 
 function getAllSongs(request, response, next){
@@ -20,7 +20,7 @@ function getSongById(request, response, next){
 function getSongsFromUser(request, response, next){
     const {username} = request.params;
     fetchUserByUsername(username).then((user) => {
-        return fetchSongsFromUser(user.username)
+        return fetchSongsFromUser(user.username);
     }).then((songs) => {
         response.status(200).send({songs});
     }).catch((err) => {
@@ -28,4 +28,12 @@ function getSongsFromUser(request, response, next){
     })
 }
 
-module.exports = { getAllSongs, getSongById, getSongsFromUser }
+function postSong(request, response, next){
+    uploadSong(request.params.username, request.body).then((song) => {
+        response.status(201).send({song});
+    }).catch((err) => {
+        next(err);
+    })
+}
+
+module.exports = { getAllSongs, getSongById, getSongsFromUser, postSong }

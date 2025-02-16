@@ -185,18 +185,26 @@ describe("/api/users/:username/songs", () => {
             })
         })
     })
-    /*describe("POST", () => {
+    describe("POST", () => {
         test("201: Posts a song to the database and returns the new song", () => {
             return request(app)
-            .post("/api/songs")
+            .post("/api/users/Kevin_SynthV/songs")
             .send({
-                username: "Kevin_SynthV",
                 title: "Clowning Around",
-                url: "./highest-power.mp3",
+                url: "./clowning-around.mp3",
                 album_id: 2
             })
+            .expect(201)
+            .then((response) => {
+                const {song} = response.body
+                expect(typeof song.song_id).toBe("number")
+                expect(song.username).toBe("Kevin_SynthV")
+                expect(song.title).toBe("Clowning Around")
+                expect(song.url).toBe("./clowning-around.mp3")
+                expect(song.album_id).toBe(2)
+            })
         })
-    })*/
+    })
 })
 
 describe("/api/songs", () => {
