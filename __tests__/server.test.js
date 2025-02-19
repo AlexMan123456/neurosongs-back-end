@@ -263,6 +263,28 @@ describe("/api/users/:username/albums", () => {
     })
 })
 
+describe("/api/albums", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all albums", () => {
+            return request(app)
+            .get("/api/albums")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.albums.length).not.toBe(0);
+                response.body.albums.forEach((album) => {
+                    expect(typeof album.album_id).toBe("number")
+                    expect(typeof album.username).toBe("string")
+                    expect(typeof album.artist.artist_name).toBe("string")
+                    expect(typeof album.is_featured).toBe("boolean")
+                    expect(typeof album.title).toBe("string")
+                    expect(typeof album.front_cover_reference).toBe("string")
+                    expect(album).toHaveProperty("back_cover_reference")
+                })
+            })
+        })
+    })
+})
+
 describe("/api/albums/:album_id", () => {
     describe("GET", () => {
         test("200: Responds with the album with the corresponding album ID, along with its songs", () => {
@@ -438,7 +460,7 @@ describe("/api/songs", () => {
             })
         })
         describe("Queries: is_featured", () => {
-            test("200: Gets only the featured songs from the database", () => {
+            test("200: Responds with an array of all featured songs", () => {
                 return request(app)
                 .get("/api/songs?is_featured=true")
                 .expect(200)

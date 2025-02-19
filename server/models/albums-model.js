@@ -1,5 +1,18 @@
 const database = require("../../client")
 
+function fetchAlbums(){
+
+    return database.album.findMany({
+        include: {
+            artist: {
+                select: {
+                    artist_name: true
+                }
+            }
+        }
+    })
+}
+
 function fetchAlbumsFromUser(username){
     return database.album.findMany({
         where: {username},
@@ -68,4 +81,4 @@ function uploadAlbum(username, album){
     });
 }
 
-module.exports = { fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };
+module.exports = { fetchAlbums, fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };

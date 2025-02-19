@@ -1,7 +1,10 @@
 const express = require("express")
-const { getAlbumById } = require("../controllers/albums-controller")
+const { getAlbumById, getAlbums } = require("../controllers/albums-controller")
 const { postSong } = require("../controllers/songs-controller")
 const albums = express.Router()
+
+albums.route("/")
+.get(getAlbums)
 
 albums.route("/:album_id")
 .get(getAlbumById)
