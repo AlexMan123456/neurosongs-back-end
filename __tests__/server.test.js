@@ -263,6 +263,55 @@ describe("/api/users/:username/albums", () => {
     })
 })
 
+describe("/api/albums", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all albums", () => {
+            return request(app)
+            .get("/api/albums")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.albums.length).not.toBe(0);
+                response.body.albums.forEach((album) => {
+                    expect(typeof album.album_id).toBe("number")
+                    expect(typeof album.username).toBe("string")
+                    expect(typeof album.artist.artist_name).toBe("string")
+                    expect(typeof album.is_featured).toBe("boolean")
+                    expect(typeof album.title).toBe("string")
+                    expect(typeof album.front_cover_reference).toBe("string")
+                    expect(album).toHaveProperty("back_cover_reference")
+                })
+            })
+        })
+        describe("Queries: is_featured", () => {
+            test("200: Responds with an array of all featured albums", () => {
+                return request(app)
+                .get("/api/albums?is_featured=true")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).not.toBe(0);
+                    response.body.albums.forEach((album) => {
+                        expect(typeof album.album_id).toBe("number")
+                        expect(typeof album.username).toBe("string")
+                        expect(typeof album.artist.artist_name).toBe("string")
+                        expect(album.is_featured).toBe(true)
+                        expect(typeof album.title).toBe("string")
+                        expect(typeof album.front_cover_reference).toBe("string")
+                        expect(album).toHaveProperty("back_cover_reference")
+                    })
+                })
+            })
+            test("400: Responds with a bad request message if is_featured is not a boolean", () => {
+                return request(app)
+                .get("/api/albums?is_featured=not_a_boolean")
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request");
+                })
+            })
+        })
+    })
+})
+
 describe("/api/albums/:album_id", () => {
     describe("GET", () => {
         test("200: Responds with the album with the corresponding album ID, along with its songs", () => {
@@ -438,7 +487,7 @@ describe("/api/songs", () => {
             })
         })
         describe("Queries: is_featured", () => {
-            test("200: Gets only the featured songs from the database", () => {
+            test("200: Responds with an array of all featured songs", () => {
                 return request(app)
                 .get("/api/songs?is_featured=true")
                 .expect(200)

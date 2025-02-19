@@ -1,5 +1,27 @@
 const database = require("../../client")
 
+function fetchAlbums(queries){
+    const request = {
+        include: {
+            artist: {
+                select: {
+                    artist_name: true
+                }
+            }
+        }
+    }
+
+    if(queries.is_featured){
+        if(queries.is_featured.toLowerCase() !== "true" && queries.is_featured.toLowerCase() !== "false"){
+            return Promise.reject({status: 400, message: "Bad request"});
+        }
+        const is_featured = queries.is_featured.toLowerCase() === "true";
+        request.where = {is_featured};
+    }
+
+    return database.album.findMany(request)
+}
+
 function fetchAlbumsFromUser(username){
     return database.album.findMany({
         where: {username},
@@ -68,4 +90,4 @@ function uploadAlbum(username, album){
     });
 }
 
-module.exports = { fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };
+module.exports = { fetchAlbums, fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };
