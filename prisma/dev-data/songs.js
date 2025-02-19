@@ -3,7 +3,8 @@ module.exports = [
         username: "AlexTheMan",
         title: "A New Era",
         reference: "a-new-era.mp3",
-        album_id: 1
+        album_id: 1,
+        is_featured: true
     },
     {
         username: "AlexTheMan",
@@ -21,7 +22,8 @@ module.exports = [
         username: "AlexTheMan",
         title: "Highest Power",
         reference: "highest-power.mp3",
-        album_id: 1
+        album_id: 1,
+        is_featured: true
     },
     {
         username: "AlexTheMan",

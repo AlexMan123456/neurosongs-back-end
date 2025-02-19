@@ -8,7 +8,8 @@ module.exports = [
     {
         username: "AlexTheMan",
         title: "Show Them What You've Got",
-        front_cover_reference: "./show-them-what-you've-got.png"
+        front_cover_reference: "./show-them-what-you've-got.png",
+        is_featured: true
     },
     {
         username: "Kevin_SynthV",
