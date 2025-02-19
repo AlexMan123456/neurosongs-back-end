@@ -1,8 +1,8 @@
-const { fetchAllSongs, fetchSongById, fetchSongsFromUser, uploadSong } = require("../models/songs-model");
+const { fetchSongs, fetchSongById, fetchSongsFromUser, uploadSong } = require("../models/songs-model");
 const { fetchUserByUsername } = require("../models/users-model");
 
-function getAllSongs(request, response, next){
-    fetchAllSongs().then((songs) => {
+function getSongs(request, response, next){
+    fetchSongs(request.query).then((songs) => {
         response.status(200).send({songs});
     }).catch((err) => {
         next(err);
@@ -35,4 +35,4 @@ function postSong(request, response, next){
     })
 }
 
-module.exports = { getAllSongs, getSongById, getSongsFromUser, postSong }
+module.exports = { getSongs, getSongById, getSongsFromUser, postSong }

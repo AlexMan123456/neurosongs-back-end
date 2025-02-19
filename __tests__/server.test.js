@@ -437,6 +437,48 @@ describe("/api/songs", () => {
                 })
             })
         })
+        describe("Queries: is_featured", () => {
+            test("200: Gets only the featured songs from the database", () => {
+                return request(app)
+                .get("/api/songs?is_featured=true")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs.length).not.toBe(0)
+                    response.body.songs.forEach((song) => {
+                        expect(typeof song.song_id).toBe("number")
+                        expect(typeof song.username).toBe("string")
+                        expect(typeof song.artist.artist_name).toBe("string")
+                        expect(typeof song.reference).toBe("string")
+                        expect(typeof song.album_id).toBe("number")
+                        expect(song.is_featured).toBe(true)
+                    })
+                })
+            })
+            test("200: The query value is case insensitive", () => {
+                return request(app)
+                .get("/api/songs?is_featured=True")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs.length).not.toBe(0)
+                    response.body.songs.forEach((song) => {
+                        expect(typeof song.song_id).toBe("number")
+                        expect(typeof song.username).toBe("string")
+                        expect(typeof song.artist.artist_name).toBe("string")
+                        expect(typeof song.reference).toBe("string")
+                        expect(typeof song.album_id).toBe("number")
+                        expect(song.is_featured).toBe(true)
+                    })
+                })
+            })
+            test("400: Responds with a bad request message if is_featured is not a boolean", () => {
+                return request(app)
+                .get("/api/songs?is_featured=not_a_boolean")
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request")
+                })
+            })
+        })
     })
 })
 
