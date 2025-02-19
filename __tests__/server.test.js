@@ -166,6 +166,7 @@ describe("/api/users/:username/albums", () => {
                     expect(typeof album.album_id).toBe("number")
                     expect(album.username).toBe("AlexTheMan")
                     expect(album.artist.artist_name).toBe("Alex The Man")
+                    expect(typeof album.is_featured).toBe("boolean")
                     expect(typeof album.title).toBe("string")
                     expect(typeof album.front_cover_reference).toBe("string")
                     expect(album).toHaveProperty("back_cover_reference")
@@ -205,6 +206,7 @@ describe("/api/users/:username/albums", () => {
                     expect(album.artist.artist_name).toBe("Alex The Man")
                     expect(album.title).toBe("Neural Anthems")
                     expect(album.front_cover_reference).toBe("./neural-anthems.png")
+                    expect(album.is_featured).toBe(false)
                 }),
                 request(app)
                 .post("/api/users/AlexGB231/albums")
@@ -221,6 +223,7 @@ describe("/api/users/:username/albums", () => {
                     expect(album.title).toBe("Universal Expedition")
                     expect(album.front_cover_reference).toBe("./universal-expedition.png")
                     expect(album.back_cover_reference).toBe("./back-cover.png")
+                    expect(album.is_featured).toBe(false)
                 })
             ])
         })
@@ -241,6 +244,7 @@ describe("/api/users/:username/albums", () => {
                 expect(album.title).toBe("Extraordinary Escapade")
                 expect(album.front_cover_reference).toBe("./extraordinary-escapade.png")
                 expect(album.back_cover_reference).toBe("./back-cover.png")
+                expect(album.is_featured).toBe(false)
             })
         })
         test("404: Responds with a not found message if user does not exist", () => {
@@ -273,6 +277,7 @@ describe("/api/albums/:album_id", () => {
                 expect(album.title).toBe("Identities")
                 expect(album.front_cover_reference).toBe("./identities-front-cover.png")
                 expect(album.back_cover_reference).toBe("./identities-back-cover.png")
+                expect(album.is_featured).toBe(false)
                 expect(album.songs.length).not.toBe(0)
                 album.songs.forEach((song) => {
                     expect(typeof song.username).toBe("string")
@@ -320,6 +325,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.artist.artist_name).toBe("Alex The Man")
                 expect(song.title).toBe("Highest Power")
                 expect(song.reference).toBe("./highest-power.mp3")
+                expect(song.is_featured).toBe(false)
             })
         })
         test("400: Responds with a bad request message when missing required properties", () => {
@@ -390,6 +396,7 @@ describe("/api/users/:username/songs", () => {
                     expect(song.artist.artist_name).toBe("Alex The Man")
                     expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
+                    expect(typeof song.is_featured).toBe("boolean")
                 })
             })
         })
@@ -426,6 +433,7 @@ describe("/api/songs", () => {
                     expect(typeof song.artist.artist_name).toBe("string")
                     expect(typeof song.reference).toBe("string")
                     expect(typeof song.album_id).toBe("number")
+                    expect(typeof song.is_featured).toBe("boolean")
                 })
             })
         })
@@ -447,6 +455,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.artist.artist_name).toBe("Alex The Man")
                 expect(song.reference).toBe("./captain-kevin.mp3")
                 expect(song.album_id).toBe(1)
+                expect(song.is_featured).toBe(true)
             })
         })
         test("400: Responds with a bad request message when given an invalid ID", () => {

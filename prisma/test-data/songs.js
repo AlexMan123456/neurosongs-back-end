@@ -3,7 +3,8 @@ module.exports = [
         username: "AlexTheMan",
         title: "Captain Kevin",
         reference: "./captain-kevin.mp3",
-        album_id: 1
+        album_id: 1,
+        is_featured: true
     },
     {
         username: "AlexTheMan",
