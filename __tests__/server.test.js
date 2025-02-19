@@ -282,6 +282,33 @@ describe("/api/albums", () => {
                 })
             })
         })
+        describe("Queries: is_featured", () => {
+            test("200: Responds with an array of all featured albums", () => {
+                return request(app)
+                .get("/api/albums?is_featured=true")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).not.toBe(0);
+                    response.body.albums.forEach((album) => {
+                        expect(typeof album.album_id).toBe("number")
+                        expect(typeof album.username).toBe("string")
+                        expect(typeof album.artist.artist_name).toBe("string")
+                        expect(album.is_featured).toBe(true)
+                        expect(typeof album.title).toBe("string")
+                        expect(typeof album.front_cover_reference).toBe("string")
+                        expect(album).toHaveProperty("back_cover_reference")
+                    })
+                })
+            })
+            test("400: Responds with a bad request message if is_featured is not a boolean", () => {
+                return request(app)
+                .get("/api/albums?is_featured=not_a_boolean")
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request");
+                })
+            })
+        })
     })
 })
 

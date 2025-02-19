@@ -1,8 +1,7 @@
 const database = require("../../client")
 
-function fetchAlbums(){
-
-    return database.album.findMany({
+function fetchAlbums(queries){
+    const request = {
         include: {
             artist: {
                 select: {
@@ -10,7 +9,17 @@ function fetchAlbums(){
                 }
             }
         }
-    })
+    }
+
+    if(queries.is_featured){
+        if(queries.is_featured.toLowerCase() !== "true" && queries.is_featured.toLowerCase() !== "false"){
+            return Promise.reject({status: 400, message: "Bad request"});
+        }
+        const is_featured = queries.is_featured.toLowerCase() === "true";
+        request.where = {is_featured};
+    }
+
+    return database.album.findMany(request)
 }
 
 function fetchAlbumsFromUser(username){

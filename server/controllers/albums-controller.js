@@ -2,7 +2,7 @@ const { fetchAlbumsFromUser, uploadAlbum, fetchAlbumById, fetchAlbums } = requir
 const { fetchUserByUsername } = require("../models/users-model");
 
 function getAlbums(request, response, next){
-    fetchAlbums().then((albums) => {
+    fetchAlbums(request.query).then((albums) => {
         response.status(200).send({albums});
     }).catch((err) => {
         next(err);
