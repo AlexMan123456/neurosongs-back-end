@@ -40,7 +40,8 @@ module.exports = [
         username: "AlexTheMan",
         title: "Crazy Lab",
         reference: "./crazy-lab.mp3",
-        album_id: 2
+        album_id: 2,
+        is_featured: true
     },
     {
         username: "AlexTheMan",
@@ -58,7 +59,8 @@ module.exports = [
         username: "AlexTheMan",
         title: "Show Them What You've Got",
         reference: "./show-them-what-you've-got.mp3",
-        album_id: 2
+        album_id: 2,
+        is_featured: true
     },
     {
         username: "Kevin_SynthV",
@@ -70,7 +72,8 @@ module.exports = [
         username: "Kevin_SynthV",
         title: "The Pirate Who Wanted Treasure",
         reference: "./the-pirate-who-wanted-treasure.mp3",
-        album_id: 3
+        album_id: 3,
+        is_featured: true
     },
     {
         username: "AlexGB231",

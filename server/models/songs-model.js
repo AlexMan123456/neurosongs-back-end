@@ -1,7 +1,7 @@
 const database = require("../../client")
 
-function fetchAllSongs(){
-    return database.song.findMany({
+function fetchSongs(queries){
+    const request = {
         include: {
             artist: {
                 select: {
@@ -9,7 +9,17 @@ function fetchAllSongs(){
                 }
             }
         }
-    })
+    }
+
+    if(queries.is_featured){
+        if(queries.is_featured.toLowerCase() !== "true" && queries.is_featured.toLowerCase() !== "false"){
+            return Promise.reject({status: 400, message: "Bad request"});
+        }
+        const is_featured = queries.is_featured.toLowerCase() === "true";
+        request.where = {is_featured};
+    }
+
+    return database.song.findMany(request);
 }
 
 function fetchSongById(stringifiedSongID){
@@ -61,4 +71,4 @@ function uploadSong(album_id, song){
     });
 }
 
-module.exports = { fetchAllSongs, fetchSongById, fetchSongsFromUser, uploadSong }
+module.exports = { fetchSongs, fetchSongById, fetchSongsFromUser, uploadSong }
