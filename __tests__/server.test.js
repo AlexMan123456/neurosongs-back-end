@@ -2,6 +2,8 @@ const request = require("supertest");
 const app = require("../server/app");
 const { execSync } = require("node:child_process")
 
+jest.setTimeout(30000)
+
 beforeEach(() => {
     execSync("dotenv -e ./.env.test -- yarn prisma db seed");
 })
