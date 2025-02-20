@@ -44,6 +44,7 @@ function fetchAlbumById(stringifiedAlbumID){
         include: {
             songs: {
                 select: {
+                    song_id: true,
                     username: true,
                     title: true,
                     reference: true,

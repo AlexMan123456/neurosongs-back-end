@@ -329,6 +329,7 @@ describe("/api/albums/:album_id", () => {
                 expect(album.is_featured).toBe(false)
                 expect(album.songs.length).not.toBe(0)
                 album.songs.forEach((song) => {
+                    expect(typeof song.song_id).toBe("number")
                     expect(typeof song.username).toBe("string")
                     expect(typeof song.artist.artist_name).toBe("string")
                     expect(typeof song.title).toBe("string")
