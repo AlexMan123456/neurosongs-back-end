@@ -25,7 +25,10 @@ function uploadUser(user){
 
     if(data.username){
         if(data.username.includes(" ")){
-            return Promise.reject({status: 400, message: "Invalid username"});
+            return Promise.reject({status: 400, message: "Username must not contain spaces."});
+        }
+        if(data.username.includes("@")){
+            return Promise.reject({status: 400, message: "Username must not contain @ symbol."});
         }
     }
 

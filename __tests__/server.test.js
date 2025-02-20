@@ -84,7 +84,20 @@ describe("/api/users", () => {
             })
             .expect(400)
             .then((response) => {
-                expect(response.body.message).toBe("Invalid username");
+                expect(response.body.message).toBe("Username must not contain spaces.");
+            })
+        })
+        test("400: Responds with a bad request message if username has @ symbol", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                username: "TestUser@123",
+                artist_name: "Test User",
+                email: "test@test.com"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Username must not contain @ symbol.");
             })
         })
         test("400: Responds with a bad request message if email does not contain @ symbol", () => {
