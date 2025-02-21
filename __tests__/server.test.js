@@ -214,6 +214,7 @@ describe("/api/users/:username/albums", () => {
                 expect(response.body.albums.length).not.toBe(0)
                 response.body.albums.forEach((album) => {
                     expect(typeof album.album_id).toBe("number")
+                    expect(typeof album.user_id).toBe("string")
                     expect(album.artist.artist_name).toBe("Alex The Man")
                     expect(album.artist.username).toBe("AlexTheMan")
                     expect(typeof album.is_featured).toBe("boolean")
@@ -252,6 +253,7 @@ describe("/api/users/:username/albums", () => {
                 .expect(201)
                 .then((response) => {
                     const {album} = response.body;
+                    expect(album.user_id).toBe("1")
                     expect(album.artist.artist_name).toBe("Alex The Man")
                     expect(album.artist.username).toBe("AlexTheMan")
                     expect(album.title).toBe("Neural Anthems")
@@ -268,6 +270,8 @@ describe("/api/users/:username/albums", () => {
                 .expect(201)
                 .then((response) => {
                     const {album} = response.body;
+                    expect(typeof album.album_id).toBe("number");
+                    expect(album.user_id).toBe("2");
                     expect(album.artist.artist_name).toBe("AlexGB231");
                     expect(album.artist.username).toBe("AlexGB231");
                     expect(album.title).toBe("Universal Expedition");
@@ -289,6 +293,8 @@ describe("/api/users/:username/albums", () => {
             .expect(201)
             .then((response) => {
                 const {album} = response.body;
+                expect(typeof album.album_id).toBe("number");
+                expect(album.user_id).toBe("1");
                 expect(album.artist.artist_name).toBe("Alex The Man");
                 expect(album.artist.username).toBe("AlexTheMan");
                 expect(album.title).toBe("Extraordinary Escapade");
@@ -323,6 +329,7 @@ describe("/api/albums", () => {
                 expect(response.body.albums.length).not.toBe(0);
                 response.body.albums.forEach((album) => {
                     expect(typeof album.album_id).toBe("number");
+                    expect(typeof album.user_id).toBe("string");
                     expect(typeof album.artist.username).toBe("string");
                     expect(typeof album.artist.artist_name).toBe("string");
                     expect(typeof album.is_featured).toBe("boolean");
@@ -341,6 +348,7 @@ describe("/api/albums", () => {
                     expect(response.body.albums.length).not.toBe(0);
                     response.body.albums.forEach((album) => {
                         expect(typeof album.album_id).toBe("number");
+                        expect(typeof album.user_id).toBe("string");
                         expect(typeof album.artist.username).toBe("string");
                         expect(typeof album.artist.artist_name).toBe("string");
                         expect(album.is_featured).toBe(true);
@@ -371,6 +379,7 @@ describe("/api/albums/:album_id", () => {
             .then((response) => {
                 const {album} = response.body;
                 expect(album.album_id).toBe(1);
+                expect(album.user_id).toBe("1");
                 expect(album.artist.username).toBe("AlexTheMan");
                 expect(album.artist.artist_name).toBe("Alex The Man");
                 expect(album.title).toBe("Identities");
@@ -379,11 +388,11 @@ describe("/api/albums/:album_id", () => {
                 expect(album.is_featured).toBe(false);
                 expect(album.songs.length).not.toBe(0);
                 album.songs.forEach((song) => {
-                    expect(typeof song.song_id).toBe("number")
-                    expect(typeof song.artist.username).toBe("string")
-                    expect(typeof song.artist.artist_name).toBe("string")
-                    expect(typeof song.title).toBe("string")
-                    expect(typeof song.reference).toBe("string")
+                    expect(typeof song.song_id).toBe("number");
+                    expect(typeof song.artist.username).toBe("string");
+                    expect(typeof song.artist.artist_name).toBe("string");
+                    expect(typeof song.title).toBe("string");
+                    expect(typeof song.reference).toBe("string");
                 })
             })
         })
@@ -421,6 +430,7 @@ describe("/api/albums/:album_id/songs", () => {
                 const {song} = response.body;
                 expect(typeof song.song_id).toBe("number");
                 expect(song.album_id).toBe(1);
+                expect(song.user_id).toBe("1");
                 expect(song.artist.username).toBe("AlexTheMan");
                 expect(song.artist.artist_name).toBe("Alex The Man");
                 expect(song.title).toBe("Highest Power");
@@ -492,6 +502,7 @@ describe("/api/users/:user_id/songs", () => {
                 expect(response.body.songs.length).not.toBe(0);
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number");
+                    expect(song.user_id).toBe("1");
                     expect(song.artist.username).toBe("AlexTheMan");
                     expect(song.artist.artist_name).toBe("Alex The Man");
                     expect(typeof song.reference).toBe("string");
@@ -529,6 +540,7 @@ describe("/api/songs", () => {
                 expect(response.body.songs.length).not.toBe(0);
                 response.body.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number");
+                    expect(typeof song.user_id).toBe("string");
                     expect(typeof song.artist.username).toBe("string");
                     expect(typeof song.artist.artist_name).toBe("string");
                     expect(typeof song.reference).toBe("string");
@@ -546,6 +558,7 @@ describe("/api/songs", () => {
                     expect(response.body.songs.length).not.toBe(0);
                     response.body.songs.forEach((song) => {
                         expect(typeof song.song_id).toBe("number");
+                        expect(typeof song.user_id).toBe("string");
                         expect(typeof song.artist.username).toBe("string");
                         expect(typeof song.artist.artist_name).toBe("string");
                         expect(typeof song.reference).toBe("string");
@@ -562,6 +575,7 @@ describe("/api/songs", () => {
                     expect(response.body.songs.length).not.toBe(0);
                     response.body.songs.forEach((song) => {
                         expect(typeof song.song_id).toBe("number");
+                        expect(typeof song.user_id).toBe("string");
                         expect(typeof song.artist.username).toBe("string");
                         expect(typeof song.artist.artist_name).toBe("string");
                         expect(typeof song.reference).toBe("string");
@@ -593,6 +607,7 @@ describe("/api/songs/:song_id", () => {
                 const {song} = response.body;
                 expect(song.song_id).toBe(1);
                 expect(song.title).toBe("Captain Kevin");
+                expect(song.user_id).toBe("1");
                 expect(song.artist.username).toBe("AlexTheMan");
                 expect(song.artist.artist_name).toBe("Alex The Man");
                 expect(song.reference).toBe("./captain-kevin.mp3");

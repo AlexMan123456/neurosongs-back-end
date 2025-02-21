@@ -20,12 +20,7 @@ function fetchAlbums(queries){
         request.where = {is_featured};
     }
 
-    return database.album.findMany(request).then((albums) => {
-        albums.forEach((album) => {
-            delete album.user_id;
-        })
-        return albums;
-    })
+    return database.album.findMany(request)
 }
 
 function fetchAlbumsFromUser(user_id){
@@ -39,11 +34,6 @@ function fetchAlbumsFromUser(user_id){
                 }
             }
         }
-    }).then((albums) => {
-        albums.forEach((album) => {
-            delete album.user_id;
-        })
-        return albums;
     })
 }
 
@@ -78,7 +68,6 @@ function fetchAlbumById(stringifiedAlbumID){
         if(!album){
             return Promise.reject({status: 404, message: "Album not found"});
         }
-        delete album.user_id;
         return album;
     })
 }
@@ -103,10 +92,7 @@ function uploadAlbum(user_id, album){
                 }
             }
         }
-    }).then((album) => {
-        delete album.user_id;
-        return album;
-    });
+    })
 }
 
 module.exports = { fetchAlbums, fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };

@@ -20,12 +20,7 @@ function fetchSongs(queries){
         request.where = {is_featured};
     }
 
-    return database.song.findMany(request).then((songs) => {
-        songs.forEach((song) => {
-            delete song.user_id;
-        })
-        return songs;
-    });
+    return database.song.findMany(request)
 }
 
 function fetchSongById(stringifiedSongID){
@@ -44,7 +39,6 @@ function fetchSongById(stringifiedSongID){
         if(!song){
             return Promise.reject({status: 404, message: "Song not found"});
         }
-        delete song.user_id;
         return song;
     })
 }
@@ -62,11 +56,6 @@ function fetchSongsFromUser(user_id){
                 }
             }
         }
-    }).then((songs) => {
-        songs.forEach((song) => {
-            delete song.user_id
-        })
-        return songs;
     })
 }
 
@@ -84,10 +73,7 @@ function uploadSong(album_id, song){
                 }
             }
         }
-    }).then((song) => {
-        delete song.user_id;
-        return song;
-    });
+    })
 }
 
 module.exports = { fetchSongs, fetchSongById, fetchSongsFromUser, uploadSong }
