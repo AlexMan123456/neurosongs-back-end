@@ -4,9 +4,9 @@ function fetchAllUsers(){
     return database.user.findMany({})
 }
 
-function fetchUserByUsername(username){
+function fetchUserById(user_id){
     return database.user.findUnique({
-        where: {username}
+        where: {user_id}
     }).then((user) => {
         if(!user){
             return Promise.reject({status: 404, message: "User not found"});
@@ -18,7 +18,7 @@ function fetchUserByUsername(username){
 function uploadUser(user){
     const data = {...user}
     for(const key in data){
-        if(!["username", "artist_name", "email", "is_verified"].includes(key)){
+        if(!["user_id", "username", "artist_name", "email", "description", "profile_picture"].includes(key)){
             delete data[key]
         }
     }
@@ -43,4 +43,4 @@ function uploadUser(user){
     })
 }
 
-module.exports = { fetchAllUsers, fetchUserByUsername, uploadUser }
+module.exports = { fetchAllUsers, fetchUserById, uploadUser }
