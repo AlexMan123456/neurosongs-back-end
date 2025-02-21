@@ -38,6 +38,12 @@ function uploadUser(user){
         }
     }
 
+    if(data.profile_picture){
+        if(data.profile_picture.includes("/") || !data.profile_picture.includes(".")){
+            return Promise.reject({status: 400, message: "Invalid file name"})
+        }
+    }
+
     return database.user.create({
         data
     })

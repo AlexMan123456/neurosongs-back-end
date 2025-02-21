@@ -63,6 +63,12 @@ function uploadSong(album_id, song){
     const data = {...song};
     data.album_id = parseInt(album_id);
 
+    if(data.reference){
+        if(data.reference.includes("/") || !data.reference.includes(".")){
+            return Promise.reject({status: 400, message: "Invalid file name"})
+        }
+    }
+
     return database.song.create({
         data,
         include: {

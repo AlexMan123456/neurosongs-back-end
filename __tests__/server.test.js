@@ -92,6 +92,38 @@ describe("/api/users", () => {
                 expect(user).not.toHaveProperty("extraKey");
             })
         })
+        test("400: Responds with a bad request message if profile picture is not a valid file name", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                user_id: "5",
+                username: "TestUser123",
+                artist_name: "Test User",
+                email: "test@test.com",
+                profile_picture: "Test profile picture",
+                description: "Test description"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if profile picture is a file directory", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                user_id: "5",
+                username: "TestUser123",
+                artist_name: "Test User",
+                email: "test@test.com",
+                profile_picture: "test-profile/picture.jpg",
+                description: "Test description"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
         test("400: Responds with a bad request message if any required properties are missing", () => {
             return request(app)
             .post("/api/users")
@@ -204,7 +236,7 @@ describe("/api/users/:user_id", () => {
     })
 })
 
-describe("/api/users/:username/albums", () => {
+describe("/api/users/:user_id/albums", () => {
     describe("GET", () => {
         test("200: Responds with an array of all albums from a given user", () => {
             return request(app)
@@ -248,7 +280,7 @@ describe("/api/users/:username/albums", () => {
                 .post("/api/users/1/albums")
                 .send({
                     title: "Neural Anthems",
-                    front_cover_reference: "./neural-anthems.png"
+                    front_cover_reference: "neural-anthems.png"
                 })
                 .expect(201)
                 .then((response) => {
@@ -257,15 +289,15 @@ describe("/api/users/:username/albums", () => {
                     expect(album.artist.artist_name).toBe("Alex The Man")
                     expect(album.artist.username).toBe("AlexTheMan")
                     expect(album.title).toBe("Neural Anthems")
-                    expect(album.front_cover_reference).toBe("./neural-anthems.png")
+                    expect(album.front_cover_reference).toBe("neural-anthems.png")
                     expect(album.is_featured).toBe(false)
                 }),
                 request(app)
                 .post("/api/users/2/albums")
                 .send({
                     title: "Universal Expedition",
-                    front_cover_reference: "./universal-expedition.png",
-                    back_cover_reference: "./back-cover.png"
+                    front_cover_reference: "universal-expedition.png",
+                    back_cover_reference: "back-cover.png"
                 })
                 .expect(201)
                 .then((response) => {
@@ -275,8 +307,8 @@ describe("/api/users/:username/albums", () => {
                     expect(album.artist.artist_name).toBe("AlexGB231");
                     expect(album.artist.username).toBe("AlexGB231");
                     expect(album.title).toBe("Universal Expedition");
-                    expect(album.front_cover_reference).toBe("./universal-expedition.png");
-                    expect(album.back_cover_reference).toBe("./back-cover.png");
+                    expect(album.front_cover_reference).toBe("universal-expedition.png");
+                    expect(album.back_cover_reference).toBe("back-cover.png");
                     expect(album.is_featured).toBe(false);
                 })
             ])
@@ -286,8 +318,8 @@ describe("/api/users/:username/albums", () => {
             .post("/api/users/1/albums")
             .send({
                 title: "Extraordinary Escapade",
-                front_cover_reference: "./extraordinary-escapade.png",
-                back_cover_reference: "./back-cover.png",
+                front_cover_reference: "extraordinary-escapade.png",
+                back_cover_reference: "back-cover.png",
                 extraKey: "Extra property"
             })
             .expect(201)
@@ -298,9 +330,61 @@ describe("/api/users/:username/albums", () => {
                 expect(album.artist.artist_name).toBe("Alex The Man");
                 expect(album.artist.username).toBe("AlexTheMan");
                 expect(album.title).toBe("Extraordinary Escapade");
-                expect(album.front_cover_reference).toBe("./extraordinary-escapade.png");
-                expect(album.back_cover_reference).toBe("./back-cover.png");
+                expect(album.front_cover_reference).toBe("extraordinary-escapade.png");
+                expect(album.back_cover_reference).toBe("back-cover.png");
                 expect(album.is_featured).toBe(false);
+            })
+        })
+        test("400: Responds with a bad request message if front cover reference is not a valid file name", () => {
+            return request(app)
+            .post("/api/users/1/albums")
+            .send({
+                title: "Universal Expedition",
+                front_cover_reference: "Universal Expedition",
+                back_cover_reference: "back-cover.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if front cover reference is a file directory", () => {
+            return request(app)
+            .post("/api/users/1/albums")
+            .send({
+                title: "Universal Expedition",
+                front_cover_reference: "universal/expedition.mp3",
+                back_cover_reference: "back-cover.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if back cover reference is not a valid file name", () => {
+            return request(app)
+            .post("/api/users/1/albums")
+            .send({
+                title: "Universal Expedition",
+                front_cover_reference: "universal-expedition.mp3",
+                back_cover_reference: "Back Cover"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if back cover reference is a file directory", () => {
+            return request(app)
+            .post("/api/users/1/albums")
+            .send({
+                title: "Universal Expedition",
+                front_cover_reference: "universal-expedition.mp3",
+                back_cover_reference: "back/cover.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
             })
         })
         test("404: Responds with a not found message if user does not exist", () => {
@@ -308,8 +392,8 @@ describe("/api/users/:username/albums", () => {
             .post("/api/users/nonexistent_user/albums")
             .send({
                 title: "Test album",
-                front_cover_reference: "./front-cover.png",
-                back_cover_reference: "./back-cover.png"
+                front_cover_reference: "front-cover.png",
+                back_cover_reference: "back-cover.png"
             })
             .expect(404)
             .then((response) => {
@@ -383,8 +467,8 @@ describe("/api/albums/:album_id", () => {
                 expect(album.artist.username).toBe("AlexTheMan");
                 expect(album.artist.artist_name).toBe("Alex The Man");
                 expect(album.title).toBe("Identities");
-                expect(album.front_cover_reference).toBe("./identities-front-cover.png");
-                expect(album.back_cover_reference).toBe("./identities-back-cover.png");
+                expect(album.front_cover_reference).toBe("identities-front-cover.png");
+                expect(album.back_cover_reference).toBe("identities-back-cover.png");
                 expect(album.is_featured).toBe(false);
                 expect(album.songs.length).not.toBe(0);
                 album.songs.forEach((song) => {
@@ -423,7 +507,7 @@ describe("/api/albums/:album_id/songs", () => {
             .send({
                 user_id: "1",
                 title: "Highest Power",
-                reference: "./highest-power.mp3"
+                reference: "highest-power.mp3"
             })
             .expect(201)
             .then((response) => {
@@ -434,7 +518,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.artist.username).toBe("AlexTheMan");
                 expect(song.artist.artist_name).toBe("Alex The Man");
                 expect(song.title).toBe("Highest Power");
-                expect(song.reference).toBe("./highest-power.mp3");
+                expect(song.reference).toBe("highest-power.mp3");
                 expect(song.is_featured).toBe(false);
             })
         })
@@ -450,13 +534,39 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(response.body.message).toBe("Bad request");
             })
         })
+        test("400: Responds with a bad request message if song reference is not a valid file name", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                user_id: "1",
+                title: "Highest Power",
+                reference: "You think that I am at my HIIIIGHEST POOOOWER!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name");
+            })
+        })
+        test("400: Responds with a bad request message if song reference is a file directory", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                user_id: "1",
+                title: "Highest Power",
+                reference: "highest/power.mp3"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name");
+            })
+        })
         test("400: Responds with a bad request message when given an invalid album ID", () => {
             return request(app)
             .post("/api/albums/invalid_id/songs")
             .send({
                 user_id: "1",
                 title: "Highest Power",
-                reference: "./highest-power.mp3",
+                reference: "highest-power.mp3"
             })
             .expect(400)
             .then((response) => {
@@ -469,7 +579,7 @@ describe("/api/albums/:album_id/songs", () => {
             .send({
                 user_id: "1",
                 title: "Highest Power",
-                reference: "./highest-power.mp3",
+                reference: "highest-power.mp3"
             })
             .expect(404)
             .then((response) => {
@@ -482,7 +592,7 @@ describe("/api/albums/:album_id/songs", () => {
             .send({
                 user_id: "InvalidUser",
                 title: "Highest Power",
-                reference: "./highest-power.mp3"
+                reference: "highest-power.mp3"
             })
             .expect(404)
             .then((response) => {
@@ -610,7 +720,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.user_id).toBe("1");
                 expect(song.artist.username).toBe("AlexTheMan");
                 expect(song.artist.artist_name).toBe("Alex The Man");
-                expect(song.reference).toBe("./captain-kevin.mp3");
+                expect(song.reference).toBe("captain-kevin.mp3");
                 expect(song.album_id).toBe(1);
                 expect(song.is_featured).toBe(true);
             })

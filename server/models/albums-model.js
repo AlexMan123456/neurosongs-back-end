@@ -82,6 +82,18 @@ function uploadAlbum(user_id, album){
         }
     }
 
+    if(data.front_cover_reference){
+        if(data.front_cover_reference.includes("/") || !data.front_cover_reference.includes(".")){
+            return Promise.reject({status: 400, message: "Invalid file name"})
+        }
+    }
+
+    if(data.back_cover_reference){
+        if(data.back_cover_reference.includes("/") || !data.back_cover_reference.includes(".")){
+            return Promise.reject({status: 400, message: "Invalid file name"})
+        }
+    }
+
     return database.album.create({
         data,
         include: {
