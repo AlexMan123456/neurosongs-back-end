@@ -23,6 +23,12 @@ function uploadUser(user){
         }
     }
 
+    if(data.user_id){
+        if(data.user_id.includes("/")){
+            return Promise.reject({status: 400, message: "Invalid user ID"})
+        }
+    }
+
     if(data.username){
         if(data.username.includes(" ")){
             return Promise.reject({status: 400, message: "Username must not contain spaces."});
