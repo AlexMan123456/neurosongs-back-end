@@ -92,6 +92,22 @@ describe("/api/users", () => {
                 expect(user).not.toHaveProperty("extraKey");
             })
         })
+        test("400: Responds with a bad request message if user ID contains forward slash", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                user_id: "5/e",
+                username: "TestUser123",
+                artist_name: "Test User",
+                email: "test@test.com",
+                profile_picture: "test-profile-picture.jpg",
+                description: "Test description"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid user ID");
+            })
+        })
         test("400: Responds with a bad request message if profile picture is not a valid file name", () => {
             return request(app)
             .post("/api/users")
