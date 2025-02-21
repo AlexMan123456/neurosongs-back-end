@@ -250,6 +250,116 @@ describe("/api/users/:user_id", () => {
             })
         })
     })
+    describe("PATCH", () => {
+        test("200: Updates the given user with the new given properties", () => {
+            return request(app)
+            .patch("/api/users/1")
+            .send({
+                username: "Alex.Reborn",
+                artist_name: "Alex Reborn",
+                description: "And now I feel reborn!",
+                email: "alexreborn@gmail.com",
+                profile_picture: "i-feel-reborn.png"
+            })
+            .expect(200)
+            .then((response) => {
+                const {user} = response.body
+                expect(user.user_id).toBe("1");
+                expect(user.username).toBe("Alex.Reborn");
+                expect(user.artist_name).toBe("Alex Reborn");
+                expect(user.description).toBe("And now I feel reborn!");
+                expect(user.email).toBe("alexreborn@gmail.com");
+                expect(user.profile_picture).toBe("i-feel-reborn.png");
+            })
+        })
+        test("200: Updates existing properties even if some are missing", () => {
+            return request(app)
+            .patch("/api/users/1")
+            .send({
+                username: "Alex.Reborn",
+                artist_name: "Alex Reborn",
+                profile_picture: "i-feel-reborn.png"
+            })
+            .expect(200)
+            .then((response) => {
+                const {user} = response.body
+                expect(user.user_id).toBe("1");
+                expect(user.username).toBe("Alex.Reborn");
+                expect(user.artist_name).toBe("Alex Reborn");
+                expect(user.description).toBe("I am cool!");
+                expect(user.email).toBe("alextheman231231@gmail.com");
+                expect(user.profile_picture).toBe("i-feel-reborn.png");
+            })
+        })
+        test("200: Updates the given user with the new given properties", () => {
+            return request(app)
+            .patch("/api/users/1")
+            .send({
+                username: "Alex.Reborn",
+                artist_name: "Alex Reborn",
+                description: "And now I feel reborn!",
+                email: "alexreborn@gmail.com",
+                profile_picture: "i-feel-reborn.png",
+                extraKey: "Extra property"
+            })
+            .expect(200)
+            .then((response) => {
+                const {user} = response.body
+                expect(user.user_id).toBe("1");
+                expect(user.username).toBe("Alex.Reborn");
+                expect(user.artist_name).toBe("Alex Reborn");
+                expect(user.description).toBe("And now I feel reborn!");
+                expect(user.email).toBe("alexreborn@gmail.com");
+                expect(user.profile_picture).toBe("i-feel-reborn.png");
+            })
+        })
+        test("400: Does not allow user to update the user ID", () => {
+            return request(app)
+            .patch("/api/users/1")
+            .send({
+                user_id: "I'm feeling so reborn, I'm updating my ID!",
+                username: "Alex.Reborn",
+                artist_name: "Alex Reborn",
+                description: "And now I feel reborn!",
+                email: "alexreborn@gmail.com",
+                profile_picture: "i-feel-reborn.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if profile picture reference is not a valid file name", () => {
+            return request(app)
+            .patch("/api/users/1")
+            .send({
+                username: "Alex.Reborn",
+                artist_name: "Alex Reborn",
+                description: "And now I feel reborn!",
+                email: "alexreborn@gmail.com",
+                profile_picture: "I feel reborn"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if profile picture reference is a file directory", () => {
+            return request(app)
+            .patch("/api/users/1")
+            .send({
+                username: "Alex.Reborn",
+                artist_name: "Alex Reborn",
+                description: "And now I feel reborn!",
+                email: "alexreborn@gmail.com",
+                profile_picture: "i-feel/reborn.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+    })
 })
 
 describe("/api/users/:user_id/albums", () => {

@@ -55,4 +55,27 @@ function uploadUser(user){
     })
 }
 
-module.exports = { fetchAllUsers, fetchUserById, uploadUser }
+function updateUser(user_id, data){
+    if(Object.keys(data).includes("user_id")){
+        return Promise.reject({status: 400, message: "Bad request"});
+    }
+
+    for(const key in data){
+        if(!["username", "email", "artist_name", "description", "profile_picture"].includes(key)){
+            delete data[key];
+        }
+    }
+
+    if(data.profile_picture){
+        if(data.profile_picture.includes("/") || !data.profile_picture.includes(".")){
+            return Promise.reject({status: 400, message: "Invalid file name"});
+        }
+    }
+
+    return database.user.update({
+        where: {user_id},
+        data
+    })
+}
+
+module.exports = { fetchAllUsers, fetchUserById, uploadUser, updateUser }
