@@ -1,5 +1,5 @@
 const express = require("express")
-const { getAllUsers, getUserByUsername, postUser } = require("../controllers/users-controller")
+const { getAllUsers, getUserById, postUser } = require("../controllers/users-controller")
 const { getSongsFromUser, postSong } = require("../controllers/songs-controller")
 const { getAlbumsFromUser, postAlbum } = require("../controllers/albums-controller")
 const users = express.Router()
@@ -8,13 +8,13 @@ users.route("/")
 .get(getAllUsers)
 .post(postUser)
 
-users.route("/:username")
-.get(getUserByUsername)
+users.route("/:user_id")
+.get(getUserById)
 
-users.route("/:username/songs")
+users.route("/:user_id/songs")
 .get(getSongsFromUser)
 
-users.route("/:username/albums")
+users.route("/:user_id/albums")
 .get(getAlbumsFromUser)
 .post(postAlbum)
 

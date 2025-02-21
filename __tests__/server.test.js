@@ -17,10 +17,12 @@ describe("/api/users", () => {
             .then((response) => {
                 expect(response.body.users.length).not.toBe(0)
                 response.body.users.forEach((user) => {
+                    expect(typeof user.user_id).toBe("string");
                     expect(typeof user.username).toBe("string");
                     expect(typeof user.artist_name).toBe("string");
                     expect(typeof user.email).toBe("string");
-                    expect(typeof user.is_verified).toBe("boolean");
+                    expect(typeof user.profile_picture).toBe("string");
+                    expect(user).toHaveProperty("description");
                 })
             })
         })
@@ -30,23 +32,49 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
+                user_id: "5",
                 username: "TestUser123",
                 artist_name: "Test User",
-                email: "testuser2@test.com"
+                email: "test@test.com",
+                profile_picture: "test-profile-picture.jpg",
+                description: "Test description"
             })
             .expect(201)
             .then((response) => {
-                const {user} = response.body
-                expect(user.username).toBe("TestUser123")
-                expect(user.artist_name).toBe("Test User")
-                expect(user.email).toBe("testuser2@test.com")
-                expect(user.is_verified).toBe(false)
+                const {user} = response.body;
+                expect(user.user_id).toBe("5");
+                expect(user.username).toBe("TestUser123");
+                expect(user.artist_name).toBe("Test User");
+                expect(user.email).toBe("test@test.com");
+                expect(user.profile_picture).toBe("test-profile-picture.jpg");
+                expect(user.description).toBe("Test description");
+            })
+        })
+        test("201: Any optional properties can be left out of request", () => {
+            return request(app)
+            .post("/api/users")
+            .send({
+                user_id: "5",
+                username: "TestUser123",
+                artist_name: "Test User",
+                email: "test@test.com"
+            })
+            .expect(201)
+            .then((response) => {
+                const {user} = response.body;
+                expect(user.user_id).toBe("5");
+                expect(user.username).toBe("TestUser123");
+                expect(user.artist_name).toBe("Test User");
+                expect(user.email).toBe("test@test.com");
+                expect(user.profile_picture).toBe("default-profile-picture.jpg");
+                expect(user.description).toBe(null);
             })
         })
         test("201: Ignores any extra properties on request object", () => {
             return request(app)
             .post("/api/users")
             .send({
+                user_id: "5",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "testuser2@test.com",
@@ -54,11 +82,13 @@ describe("/api/users", () => {
             })
             .expect(201)
             .then((response) => {
-                const {user} = response.body
+                const {user} = response.body;
+                expect(user.user_id).toBe("5");
                 expect(user.username).toBe("TestUser123");
                 expect(user.artist_name).toBe("Test User");
                 expect(user.email).toBe("testuser2@test.com");
-                expect(user.is_verified).toBe(false);
+                expect(user.profile_picture).toBe("default-profile-picture.jpg");
+                expect(user.description).toBe(null);
                 expect(user).not.toHaveProperty("extraKey");
             })
         })
@@ -78,6 +108,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
+                user_id: "5",
                 username: "Test User 123",
                 artist_name: "Test User",
                 email: "test@test.com"
@@ -91,6 +122,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
+                user_id: "5",
                 username: "TestUser@123",
                 artist_name: "Test User",
                 email: "test@test.com"
@@ -104,6 +136,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
+                user_id: "5",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "veryAwesomeTestUserEmail"
@@ -117,6 +150,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
+                user_id: "5",
                 username: "AlexTheMan",
                 artist_name: "Test User",
                 email: "test@test.com"
@@ -130,6 +164,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
+                user_id: "5",
                 username: "FakeUser123",
                 artist_name: "Faker",
                 email: "captain-kevin@thefarisland.com"
@@ -142,18 +177,20 @@ describe("/api/users", () => {
     })
 })
 
-describe("/api/users/:username", () => {
+describe("/api/users/:user_id", () => {
     describe("GET", () => {
-        test("200: Responds with the user with the given username", () => {
+        test("200: Responds with the user with the given user ID", () => {
             return request(app)
-            .get("/api/users/AlexTheMan")
+            .get("/api/users/1")
             .expect(200)
             .then((response) => {
                 const {user} = response.body;
+                expect(user.user_id).toBe("1");
                 expect(user.username).toBe("AlexTheMan");
                 expect(user.artist_name).toBe("Alex The Man");
                 expect(user.email).toBe("alextheman231231@gmail.com");
-                expect(user.is_verified).toBe(true);
+                expect(user.profile_picture).toBe("KoolAlex.png");
+                expect(user.description).toBe("I am cool!");
             })
         })
         test("404: Responds with a not found message if user not found in database", () => {
@@ -171,14 +208,14 @@ describe("/api/users/:username/albums", () => {
     describe("GET", () => {
         test("200: Responds with an array of all albums from a given user", () => {
             return request(app)
-            .get("/api/users/AlexTheMan/albums")
+            .get("/api/users/1/albums")
             .expect(200)
             .then((response) => {
                 expect(response.body.albums.length).not.toBe(0)
                 response.body.albums.forEach((album) => {
                     expect(typeof album.album_id).toBe("number")
-                    expect(album.username).toBe("AlexTheMan")
                     expect(album.artist.artist_name).toBe("Alex The Man")
+                    expect(album.artist.username).toBe("AlexTheMan")
                     expect(typeof album.is_featured).toBe("boolean")
                     expect(typeof album.title).toBe("string")
                     expect(typeof album.front_cover_reference).toBe("string")
@@ -188,10 +225,10 @@ describe("/api/users/:username/albums", () => {
         })
         test("200: Responds with an empty array if user has no albums", () => {
             return request(app)
-            .get("/api/users/Badstagram/albums")
+            .get("/api/users/4/albums")
             .expect(200)
             .then((response) => {
-                expect(response.body.albums.length).toBe(0)
+                expect(response.body.albums.length).toBe(0);
             })
         })
         test("404: Responds with a not found message if user does not exist", () => {
@@ -199,7 +236,7 @@ describe("/api/users/:username/albums", () => {
             .get("/api/users/nonexistent_user/albums")
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("User not found")
+                expect(response.body.message).toBe("User not found");
             })
         })
     })
@@ -207,7 +244,7 @@ describe("/api/users/:username/albums", () => {
         test("201: Posts an album to the database and returns the created album", () => {
             return Promise.all([
                 request(app)
-                .post("/api/users/AlexTheMan/albums")
+                .post("/api/users/1/albums")
                 .send({
                     title: "Neural Anthems",
                     front_cover_reference: "./neural-anthems.png"
@@ -215,14 +252,14 @@ describe("/api/users/:username/albums", () => {
                 .expect(201)
                 .then((response) => {
                     const {album} = response.body;
-                    expect(album.username).toBe("AlexTheMan")
                     expect(album.artist.artist_name).toBe("Alex The Man")
+                    expect(album.artist.username).toBe("AlexTheMan")
                     expect(album.title).toBe("Neural Anthems")
                     expect(album.front_cover_reference).toBe("./neural-anthems.png")
                     expect(album.is_featured).toBe(false)
                 }),
                 request(app)
-                .post("/api/users/AlexGB231/albums")
+                .post("/api/users/2/albums")
                 .send({
                     title: "Universal Expedition",
                     front_cover_reference: "./universal-expedition.png",
@@ -231,18 +268,18 @@ describe("/api/users/:username/albums", () => {
                 .expect(201)
                 .then((response) => {
                     const {album} = response.body;
-                    expect(album.username).toBe("AlexGB231")
-                    expect(album.artist.artist_name).toBe("AlexGB231")
-                    expect(album.title).toBe("Universal Expedition")
-                    expect(album.front_cover_reference).toBe("./universal-expedition.png")
-                    expect(album.back_cover_reference).toBe("./back-cover.png")
-                    expect(album.is_featured).toBe(false)
+                    expect(album.artist.artist_name).toBe("AlexGB231");
+                    expect(album.artist.username).toBe("AlexGB231");
+                    expect(album.title).toBe("Universal Expedition");
+                    expect(album.front_cover_reference).toBe("./universal-expedition.png");
+                    expect(album.back_cover_reference).toBe("./back-cover.png");
+                    expect(album.is_featured).toBe(false);
                 })
             ])
         })
         test("201: Ignores any extra keys on request object", () => {
             return request(app)
-            .post("/api/users/AlexTheMan/albums")
+            .post("/api/users/1/albums")
             .send({
                 title: "Extraordinary Escapade",
                 front_cover_reference: "./extraordinary-escapade.png",
@@ -252,12 +289,12 @@ describe("/api/users/:username/albums", () => {
             .expect(201)
             .then((response) => {
                 const {album} = response.body;
-                expect(album.username).toBe("AlexTheMan")
-                expect(album.artist.artist_name).toBe("Alex The Man")
-                expect(album.title).toBe("Extraordinary Escapade")
-                expect(album.front_cover_reference).toBe("./extraordinary-escapade.png")
-                expect(album.back_cover_reference).toBe("./back-cover.png")
-                expect(album.is_featured).toBe(false)
+                expect(album.artist.artist_name).toBe("Alex The Man");
+                expect(album.artist.username).toBe("AlexTheMan");
+                expect(album.title).toBe("Extraordinary Escapade");
+                expect(album.front_cover_reference).toBe("./extraordinary-escapade.png");
+                expect(album.back_cover_reference).toBe("./back-cover.png");
+                expect(album.is_featured).toBe(false);
             })
         })
         test("404: Responds with a not found message if user does not exist", () => {
@@ -270,7 +307,7 @@ describe("/api/users/:username/albums", () => {
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Related property not found")
+                expect(response.body.message).toBe("Related property not found");
             })
         })
     })
@@ -285,13 +322,13 @@ describe("/api/albums", () => {
             .then((response) => {
                 expect(response.body.albums.length).not.toBe(0);
                 response.body.albums.forEach((album) => {
-                    expect(typeof album.album_id).toBe("number")
-                    expect(typeof album.username).toBe("string")
-                    expect(typeof album.artist.artist_name).toBe("string")
-                    expect(typeof album.is_featured).toBe("boolean")
-                    expect(typeof album.title).toBe("string")
-                    expect(typeof album.front_cover_reference).toBe("string")
-                    expect(album).toHaveProperty("back_cover_reference")
+                    expect(typeof album.album_id).toBe("number");
+                    expect(typeof album.artist.username).toBe("string");
+                    expect(typeof album.artist.artist_name).toBe("string");
+                    expect(typeof album.is_featured).toBe("boolean");
+                    expect(typeof album.title).toBe("string");
+                    expect(typeof album.front_cover_reference).toBe("string");
+                    expect(album).toHaveProperty("back_cover_reference");
                 })
             })
         })
@@ -303,13 +340,13 @@ describe("/api/albums", () => {
                 .then((response) => {
                     expect(response.body.albums.length).not.toBe(0);
                     response.body.albums.forEach((album) => {
-                        expect(typeof album.album_id).toBe("number")
-                        expect(typeof album.username).toBe("string")
-                        expect(typeof album.artist.artist_name).toBe("string")
-                        expect(album.is_featured).toBe(true)
-                        expect(typeof album.title).toBe("string")
-                        expect(typeof album.front_cover_reference).toBe("string")
-                        expect(album).toHaveProperty("back_cover_reference")
+                        expect(typeof album.album_id).toBe("number");
+                        expect(typeof album.artist.username).toBe("string");
+                        expect(typeof album.artist.artist_name).toBe("string");
+                        expect(album.is_featured).toBe(true);
+                        expect(typeof album.title).toBe("string");
+                        expect(typeof album.front_cover_reference).toBe("string");
+                        expect(album).toHaveProperty("back_cover_reference");
                     })
                 })
             })
@@ -333,17 +370,17 @@ describe("/api/albums/:album_id", () => {
             .expect(200)
             .then((response) => {
                 const {album} = response.body;
-                expect(album.album_id).toBe(1)
-                expect(album.username).toBe("AlexTheMan")
-                expect(album.artist.artist_name).toBe("Alex The Man")
-                expect(album.title).toBe("Identities")
-                expect(album.front_cover_reference).toBe("./identities-front-cover.png")
-                expect(album.back_cover_reference).toBe("./identities-back-cover.png")
-                expect(album.is_featured).toBe(false)
-                expect(album.songs.length).not.toBe(0)
+                expect(album.album_id).toBe(1);
+                expect(album.artist.username).toBe("AlexTheMan");
+                expect(album.artist.artist_name).toBe("Alex The Man");
+                expect(album.title).toBe("Identities");
+                expect(album.front_cover_reference).toBe("./identities-front-cover.png");
+                expect(album.back_cover_reference).toBe("./identities-back-cover.png");
+                expect(album.is_featured).toBe(false);
+                expect(album.songs.length).not.toBe(0);
                 album.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number")
-                    expect(typeof song.username).toBe("string")
+                    expect(typeof song.artist.username).toBe("string")
                     expect(typeof song.artist.artist_name).toBe("string")
                     expect(typeof song.title).toBe("string")
                     expect(typeof song.reference).toBe("string")
@@ -375,100 +412,100 @@ describe("/api/albums/:album_id/songs", () => {
             return request(app)
             .post("/api/albums/1/songs")
             .send({
-                username: "AlexTheMan",
+                user_id: "1",
                 title: "Highest Power",
-                reference: "./highest-power.mp3",
+                reference: "./highest-power.mp3"
             })
             .expect(201)
             .then((response) => {
-                const {song} = response.body
-                expect(typeof song.song_id).toBe("number")
-                expect(song.album_id).toBe(1)
-                expect(song.username).toBe("AlexTheMan")
-                expect(song.artist.artist_name).toBe("Alex The Man")
-                expect(song.title).toBe("Highest Power")
-                expect(song.reference).toBe("./highest-power.mp3")
-                expect(song.is_featured).toBe(false)
+                const {song} = response.body;
+                expect(typeof song.song_id).toBe("number");
+                expect(song.album_id).toBe(1);
+                expect(song.artist.username).toBe("AlexTheMan");
+                expect(song.artist.artist_name).toBe("Alex The Man");
+                expect(song.title).toBe("Highest Power");
+                expect(song.reference).toBe("./highest-power.mp3");
+                expect(song.is_featured).toBe(false);
             })
         })
         test("400: Responds with a bad request message when missing required properties", () => {
             return request(app)
             .post("/api/albums/1/songs")
             .send({
-                username: "AlexTheMan",
+                user_id: "1",
                 title: "Highest Power"
             })
             .expect(400)
             .then((response) => {
-                expect(response.body.message).toBe("Bad request")
+                expect(response.body.message).toBe("Bad request");
             })
         })
         test("400: Responds with a bad request message when given an invalid album ID", () => {
             return request(app)
             .post("/api/albums/invalid_id/songs")
             .send({
-                username: "AlexTheMan",
+                user_id: "1",
                 title: "Highest Power",
                 reference: "./highest-power.mp3",
             })
             .expect(400)
             .then((response) => {
-                expect(response.body.message).toBe("Bad request")
+                expect(response.body.message).toBe("Bad request");
             })
         })
         test("404: Responds with a not found message when given an album ID that does not exist", () => {
             return request(app)
             .post("/api/albums/231/songs")
             .send({
-                username: "AlexTheMan",
+                user_id: "1",
                 title: "Highest Power",
                 reference: "./highest-power.mp3",
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Related property not found")
+                expect(response.body.message).toBe("Related property not found");
             })
         })
         test("404: Responds with a not found message when given a username that does not exist", () => {
             return request(app)
             .post("/api/albums/1/songs")
             .send({
-                username: "InvalidUser",
+                user_id: "InvalidUser",
                 title: "Highest Power",
                 reference: "./highest-power.mp3"
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Related property not found")
+                expect(response.body.message).toBe("Related property not found");
             })
         })
     })
 })
 
-describe("/api/users/:username/songs", () => {
+describe("/api/users/:user_id/songs", () => {
     describe("GET", () => {
         test("200: Responds with an array of all songs from a given user", () => {
             return request(app)
-            .get("/api/users/AlexTheMan/songs")
+            .get("/api/users/1/songs")
             .expect(200)
             .then((response) => {
-                expect(response.body.songs.length).not.toBe(0)
+                expect(response.body.songs.length).not.toBe(0);
                 response.body.songs.forEach((song) => {
-                    expect(typeof song.song_id).toBe("number")
-                    expect(song.username).toBe("AlexTheMan")
-                    expect(song.artist.artist_name).toBe("Alex The Man")
-                    expect(typeof song.reference).toBe("string")
-                    expect(typeof song.album_id).toBe("number")
-                    expect(typeof song.is_featured).toBe("boolean")
+                    expect(typeof song.song_id).toBe("number");
+                    expect(song.artist.username).toBe("AlexTheMan");
+                    expect(song.artist.artist_name).toBe("Alex The Man");
+                    expect(typeof song.reference).toBe("string");
+                    expect(typeof song.album_id).toBe("number");
+                    expect(typeof song.is_featured).toBe("boolean");
                 })
             })
         })
         test("200: Responds with an empty array if user exists but has no songs", () => {
             return request(app)
-            .get("/api/users/Badstagram/songs")
+            .get("/api/users/4/songs")
             .expect(200)
             .then((response) => {
-                expect(response.body.songs.length).toBe(0)
+                expect(response.body.songs.length).toBe(0);
             })
         })
         test("404: Responds with a not found message if user does not exist", () => {
@@ -476,7 +513,7 @@ describe("/api/users/:username/songs", () => {
             .get("/api/users/invalid_user/songs")
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("User not found")
+                expect(response.body.message).toBe("User not found");
             })
         })
     })
@@ -491,12 +528,12 @@ describe("/api/songs", () => {
             .then((response) => {
                 expect(response.body.songs.length).not.toBe(0);
                 response.body.songs.forEach((song) => {
-                    expect(typeof song.song_id).toBe("number")
-                    expect(typeof song.username).toBe("string")
-                    expect(typeof song.artist.artist_name).toBe("string")
-                    expect(typeof song.reference).toBe("string")
-                    expect(typeof song.album_id).toBe("number")
-                    expect(typeof song.is_featured).toBe("boolean")
+                    expect(typeof song.song_id).toBe("number");
+                    expect(typeof song.artist.username).toBe("string");
+                    expect(typeof song.artist.artist_name).toBe("string");
+                    expect(typeof song.reference).toBe("string");
+                    expect(typeof song.album_id).toBe("number");
+                    expect(typeof song.is_featured).toBe("boolean");
                 })
             })
         })
@@ -506,14 +543,14 @@ describe("/api/songs", () => {
                 .get("/api/songs?is_featured=true")
                 .expect(200)
                 .then((response) => {
-                    expect(response.body.songs.length).not.toBe(0)
+                    expect(response.body.songs.length).not.toBe(0);
                     response.body.songs.forEach((song) => {
-                        expect(typeof song.song_id).toBe("number")
-                        expect(typeof song.username).toBe("string")
-                        expect(typeof song.artist.artist_name).toBe("string")
-                        expect(typeof song.reference).toBe("string")
-                        expect(typeof song.album_id).toBe("number")
-                        expect(song.is_featured).toBe(true)
+                        expect(typeof song.song_id).toBe("number");
+                        expect(typeof song.artist.username).toBe("string");
+                        expect(typeof song.artist.artist_name).toBe("string");
+                        expect(typeof song.reference).toBe("string");
+                        expect(typeof song.album_id).toBe("number");
+                        expect(song.is_featured).toBe(true);
                     })
                 })
             })
@@ -522,14 +559,14 @@ describe("/api/songs", () => {
                 .get("/api/songs?is_featured=True")
                 .expect(200)
                 .then((response) => {
-                    expect(response.body.songs.length).not.toBe(0)
+                    expect(response.body.songs.length).not.toBe(0);
                     response.body.songs.forEach((song) => {
-                        expect(typeof song.song_id).toBe("number")
-                        expect(typeof song.username).toBe("string")
-                        expect(typeof song.artist.artist_name).toBe("string")
-                        expect(typeof song.reference).toBe("string")
-                        expect(typeof song.album_id).toBe("number")
-                        expect(song.is_featured).toBe(true)
+                        expect(typeof song.song_id).toBe("number");
+                        expect(typeof song.artist.username).toBe("string");
+                        expect(typeof song.artist.artist_name).toBe("string");
+                        expect(typeof song.reference).toBe("string");
+                        expect(typeof song.album_id).toBe("number");
+                        expect(song.is_featured).toBe(true);
                     })
                 })
             })
@@ -538,7 +575,7 @@ describe("/api/songs", () => {
                 .get("/api/songs?is_featured=not_a_boolean")
                 .expect(400)
                 .then((response) => {
-                    expect(response.body.message).toBe("Bad request")
+                    expect(response.body.message).toBe("Bad request");
                 })
             })
         })
@@ -553,14 +590,14 @@ describe("/api/songs/:song_id", () => {
             .get("/api/songs/1")
             .expect(200)
             .then((response) => {
-                const {song} = response.body
-                expect(song.song_id).toBe(1)
-                expect(song.title).toBe("Captain Kevin")
-                expect(song.username).toBe("AlexTheMan")
-                expect(song.artist.artist_name).toBe("Alex The Man")
-                expect(song.reference).toBe("./captain-kevin.mp3")
-                expect(song.album_id).toBe(1)
-                expect(song.is_featured).toBe(true)
+                const {song} = response.body;
+                expect(song.song_id).toBe(1);
+                expect(song.title).toBe("Captain Kevin");
+                expect(song.artist.username).toBe("AlexTheMan");
+                expect(song.artist.artist_name).toBe("Alex The Man");
+                expect(song.reference).toBe("./captain-kevin.mp3");
+                expect(song.album_id).toBe(1);
+                expect(song.is_featured).toBe(true);
             })
         })
         test("400: Responds with a bad request message when given an invalid ID", () => {
@@ -568,7 +605,7 @@ describe("/api/songs/:song_id", () => {
             .get("/api/songs/invalid_id")
             .expect(400)
             .then((response) => {
-                expect(response.body.message).toBe("Bad request")
+                expect(response.body.message).toBe("Bad request");
             })
         })
         test("404: Responds with a not found message when ID does not exist", () => {
@@ -576,7 +613,7 @@ describe("/api/songs/:song_id", () => {
             .get("/api/songs/231")
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Song not found")
+                expect(response.body.message).toBe("Song not found");
             })
         })
     })
@@ -588,7 +625,7 @@ describe("/*", () => {
         .get("/invalid_endpoint")
         .expect(404)
         .then((response) => {
-            expect(response.body.message).toBe("Endpoint not found")
+            expect(response.body.message).toBe("Endpoint not found");
         })
     })
 })

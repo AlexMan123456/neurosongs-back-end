@@ -1,82 +1,82 @@
 module.exports = [
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Captain Kevin",
         reference: "./captain-kevin.mp3",
         album_id: 1,
         is_featured: true
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Place In Society",
         reference: "./place-in-society.mp3",
         album_id: 1
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Domination",
         reference: "./domination.mp3",
         album_id: 1
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Burnout",
         reference: "./burnout.mp3",
         album_id: 1
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "See The Light",
         reference: "./see-the-light.mp3",
         album_id: 1
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Fun Times",
         reference: "./fun-times.mp3",
         album_id: 2
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Crazy Lab",
         reference: "./crazy-lab.mp3",
         album_id: 2,
         is_featured: true
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Thunder Road",
         reference: "./thunder-road.mp3",
         album_id: 2
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "New Opportunities",
         reference: "./new-opportunities.mp3",
         album_id: 2
     },
     {
-        username: "AlexTheMan",
+        user_id: "1",
         title: "Show Them What You've Got",
         reference: "./show-them-what-you've-got.mp3",
         album_id: 2,
         is_featured: true
     },
     {
-        username: "Kevin_SynthV",
+        user_id: "2",
         title: "Captain Kevin",
         reference: "./captain-kevin.mp3",
         album_id: 3
     },
     {
-        username: "Kevin_SynthV",
+        user_id: "2",
         title: "The Pirate Who Wanted Treasure",
         reference: "./the-pirate-who-wanted-treasure.mp3",
         album_id: 3,
         is_featured: true
     },
     {
-        username: "AlexGB231",
+        user_id: "3",
         title: "Lockdown",
         reference: "./lockdown.mp3",
         album_id: 4

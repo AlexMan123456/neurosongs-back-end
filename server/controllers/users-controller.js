@@ -1,4 +1,4 @@
-const { fetchAllUsers, fetchUserByUsername, uploadUser } = require("../models/users-model")
+const { fetchAllUsers, fetchUserById, uploadUser } = require("../models/users-model")
 
 function getAllUsers(request, response, next){
     fetchAllUsers().then((users) => {
@@ -8,8 +8,8 @@ function getAllUsers(request, response, next){
     })
 }
 
-function getUserByUsername(request, response, next){
-    fetchUserByUsername(request.params.username).then((user) => {
+function getUserById(request, response, next){
+    fetchUserById(request.params.user_id).then((user) => {
         response.status(200).send({user})
     }).catch((err) => {
         next(err)
@@ -24,4 +24,4 @@ function postUser(request, response, next){
     })
 }
 
-module.exports = { getAllUsers, getUserByUsername, postUser }
+module.exports = { getAllUsers, getUserById, postUser }

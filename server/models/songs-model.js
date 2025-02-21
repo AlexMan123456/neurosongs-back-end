@@ -5,6 +5,7 @@ function fetchSongs(queries){
         include: {
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
@@ -19,7 +20,12 @@ function fetchSongs(queries){
         request.where = {is_featured};
     }
 
-    return database.song.findMany(request);
+    return database.song.findMany(request).then((songs) => {
+        songs.forEach((song) => {
+            delete song.user_id;
+        })
+        return songs;
+    });
 }
 
 function fetchSongById(stringifiedSongID){
@@ -29,6 +35,7 @@ function fetchSongById(stringifiedSongID){
         include: {
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
@@ -37,37 +44,49 @@ function fetchSongById(stringifiedSongID){
         if(!song){
             return Promise.reject({status: 404, message: "Song not found"});
         }
-        return song
+        delete song.user_id;
+        return song;
     })
 }
 
-function fetchSongsFromUser(username){
+function fetchSongsFromUser(user_id){
     return database.song.findMany({
         where: {
-            username
+            user_id
         },
         include: {
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
         }
+    }).then((songs) => {
+        songs.forEach((song) => {
+            delete song.user_id
+        })
+        return songs;
     })
 }
 
 function uploadSong(album_id, song){
     const data = {...song};
     data.album_id = parseInt(album_id);
+
     return database.song.create({
         data,
         include: {
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
         }
+    }).then((song) => {
+        delete song.user_id;
+        return song;
     });
 }
 

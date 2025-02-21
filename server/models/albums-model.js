@@ -5,6 +5,7 @@ function fetchAlbums(queries){
         include: {
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
@@ -19,19 +20,30 @@ function fetchAlbums(queries){
         request.where = {is_featured};
     }
 
-    return database.album.findMany(request)
+    return database.album.findMany(request).then((albums) => {
+        albums.forEach((album) => {
+            delete album.user_id;
+        })
+        return albums;
+    })
 }
 
-function fetchAlbumsFromUser(username){
+function fetchAlbumsFromUser(user_id){
     return database.album.findMany({
-        where: {username},
+        where: {user_id},
         include: {
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
         }
+    }).then((albums) => {
+        albums.forEach((album) => {
+            delete album.user_id;
+        })
+        return albums;
     })
 }
 
@@ -45,11 +57,11 @@ function fetchAlbumById(stringifiedAlbumID){
             songs: {
                 select: {
                     song_id: true,
-                    username: true,
                     title: true,
                     reference: true,
                     artist: {
                         select: {
+                            username: true,
                             artist_name: true
                         }
                     }
@@ -57,6 +69,7 @@ function fetchAlbumById(stringifiedAlbumID){
             },
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
@@ -65,16 +78,17 @@ function fetchAlbumById(stringifiedAlbumID){
         if(!album){
             return Promise.reject({status: 404, message: "Album not found"});
         }
+        delete album.user_id;
         return album;
     })
 }
 
-function uploadAlbum(username, album){
+function uploadAlbum(user_id, album){
     const data = {...album};
-    data.username = username;
+    data.user_id = user_id;
 
     for(const key in data){
-        if(!["username", "title", "front_cover_reference", "back_cover_reference"].includes(key)){
+        if(!["user_id", "title", "front_cover_reference", "back_cover_reference"].includes(key)){
             delete data[key];
         }
     }
@@ -84,10 +98,14 @@ function uploadAlbum(username, album){
         include: {
             artist: {
                 select: {
+                    username: true,
                     artist_name: true
                 }
             }
         }
+    }).then((album) => {
+        delete album.user_id;
+        return album;
     });
 }
 

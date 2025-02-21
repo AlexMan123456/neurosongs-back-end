@@ -8,12 +8,14 @@ datasource db {
 }
 
 model User {
-  username    String  @id @db.VarChar(100)
-  email       String  @unique
-  is_verified Boolean @default(false)
-  artist_name String  @db.VarChar(100)
-  albums      Album[]
-  songs       Song[]
+  username        String  @unique @db.VarChar(100)
+  email           String  @unique
+  artist_name     String  @db.VarChar(100)
+  description     String?
+  profile_picture String  @default("default-profile-picture.jpg")
+  user_id         String  @id
+  albums          Album[]
+  songs           Song[]
 
   @@map("users")
 }
@@ -22,11 +24,11 @@ model Song {
   song_id     Int     @id @default(autoincrement())
   title       String  @db.VarChar(100)
   album_id    Int
-  username    String
   reference   String
   is_featured Boolean @default(false)
+  user_id     String
   album       Album   @relation(fields: [album_id], references: [album_id])
-  artist      User    @relation(fields: [username], references: [username])
+  artist      User    @relation(fields: [user_id], references: [user_id])
 
   @@map("songs")
 }
@@ -34,11 +36,11 @@ model Song {
 model Album {
   album_id              Int     @id @default(autoincrement())
   title                 String  @db.VarChar(100)
-  username              String
   back_cover_reference  String?
   front_cover_reference String
   is_featured           Boolean @default(false)
-  artist                User    @relation(fields: [username], references: [username])
+  user_id               String
+  artist                User    @relation(fields: [user_id], references: [user_id])
   songs                 Song[]
 
   @@map("albums")
