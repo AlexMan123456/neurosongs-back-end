@@ -37,7 +37,8 @@ describe("/api/users", () => {
                 artist_name: "Test User",
                 email: "test@test.com",
                 profile_picture: "test-profile-picture.jpg",
-                description: "Test description"
+                description: "Test description",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
             })
             .expect(201)
             .then((response) => {
@@ -48,6 +49,7 @@ describe("/api/users", () => {
                 expect(user.email).toBe("test@test.com");
                 expect(user.profile_picture).toBe("test-profile-picture.jpg");
                 expect(user.description).toBe("Test description");
+                expect(user.date_of_birth).toBe("2003-02-22T00:00:00.000Z");
             })
         })
         test("201: Any optional properties can be left out of request", () => {
@@ -57,7 +59,8 @@ describe("/api/users", () => {
                 user_id: "5",
                 username: "TestUser123",
                 artist_name: "Test User",
-                email: "test@test.com"
+                email: "test@test.com",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
             })
             .expect(201)
             .then((response) => {
@@ -78,6 +81,7 @@ describe("/api/users", () => {
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "testuser2@test.com",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z"),
                 extraKey: "Extra property"
             })
             .expect(201)
@@ -101,6 +105,7 @@ describe("/api/users", () => {
                 artist_name: "Test User",
                 email: "test@test.com",
                 profile_picture: "test-profile-picture.jpg",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z"),
                 description: "Test description"
             })
             .expect(400)
@@ -117,6 +122,7 @@ describe("/api/users", () => {
                 artist_name: "Test User",
                 email: "test@test.com",
                 profile_picture: "Test profile picture",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z"),
                 description: "Test description"
             })
             .expect(400)
@@ -133,6 +139,7 @@ describe("/api/users", () => {
                 artist_name: "Test User",
                 email: "test@test.com",
                 profile_picture: "test-profile/picture.jpg",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z"),
                 description: "Test description"
             })
             .expect(400)
@@ -159,7 +166,8 @@ describe("/api/users", () => {
                 user_id: "5",
                 username: "Test User 123",
                 artist_name: "Test User",
-                email: "test@test.com"
+                email: "test@test.com",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
             })
             .expect(400)
             .then((response) => {
@@ -173,7 +181,8 @@ describe("/api/users", () => {
                 user_id: "5",
                 username: "TestUser@123",
                 artist_name: "Test User",
-                email: "test@test.com"
+                email: "test@test.com",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
             })
             .expect(400)
             .then((response) => {
@@ -187,7 +196,8 @@ describe("/api/users", () => {
                 user_id: "5",
                 username: "TestUser123",
                 artist_name: "Test User",
-                email: "veryAwesomeTestUserEmail"
+                email: "veryAwesomeTestUserEmail",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
             })
             .expect(400)
             .then((response) => {
@@ -201,7 +211,8 @@ describe("/api/users", () => {
                 user_id: "5",
                 username: "AlexTheMan",
                 artist_name: "Test User",
-                email: "test@test.com"
+                email: "test@test.com",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
             })
             .expect(400)
             .then((response) => {
@@ -215,7 +226,8 @@ describe("/api/users", () => {
                 user_id: "5",
                 username: "FakeUser123",
                 artist_name: "Faker",
-                email: "captain-kevin@thefarisland.com"
+                email: "captain-kevin@thefarisland.com",
+                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
             })
             .expect(400)
             .then((response) => {
@@ -239,6 +251,8 @@ describe("/api/users/:user_id", () => {
                 expect(user.email).toBe("alextheman231231@gmail.com");
                 expect(user.profile_picture).toBe("KoolAlex.png");
                 expect(user.description).toBe("I am cool!");
+                expect(user.date_of_birth).toBe("2003-07-16T00:00:00.000Z");
+                expect(user.member_since).toBe("2024-02-15T00:00:00.000Z");
             })
         })
         test("404: Responds with a not found message if user not found in database", () => {

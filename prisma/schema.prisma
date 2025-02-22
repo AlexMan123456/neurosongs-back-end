@@ -8,12 +8,14 @@ datasource db {
 }
 
 model User {
-  username        String  @unique @db.VarChar(100)
-  email           String  @unique
-  artist_name     String  @db.VarChar(100)
+  username        String   @unique @db.VarChar(100)
+  email           String   @unique
+  artist_name     String   @db.VarChar(100)
   description     String?
-  profile_picture String  @default("default-profile-picture.jpg")
-  user_id         String  @id
+  profile_picture String   @default("default-profile-picture.jpg")
+  user_id         String   @id
+  date_of_birth   DateTime
+  member_since    DateTime @default(now())
   albums          Album[]
   songs           Song[]
 
