@@ -18,7 +18,7 @@ function fetchUserById(user_id){
 function uploadUser(user){
     const data = {...user}
     for(const key in data){
-        if(!["user_id", "username", "artist_name", "email", "description", "profile_picture"].includes(key)){
+        if(!["user_id", "username", "artist_name", "email", "description", "profile_picture", "date_of_birth"].includes(key)){
             delete data[key]
         }
     }
