@@ -1,18 +1,19 @@
-const { fetchAlbumsFromUser, uploadAlbum, fetchAlbumById, fetchAlbums } = require("../models/albums-model");
-const { fetchUserById: fetchUserById } = require("../models/users-model");
+const { uploadAlbum, fetchAlbumById, fetchAlbums } = require("../models/albums-model");
+const { fetchUserById } = require("../models/users-model");
 
-function getAlbums(request, response, next){
-    fetchAlbums(request.query).then((albums) => {
+async function getAlbums(request, response, next){
+    try {
+        if(request.query){
+            if(request.query.user_id){
+                await fetchUserById(request.query.user_id);
+            }
+        }
+        const albums = await fetchAlbums(request.query);
         response.status(200).send({albums});
-    }).catch((err) => {
+    } catch(err) {
         next(err);
-    })
-}
-
-function getAlbumsFromUser(request, response, next){
-    fetchUserById(request.params.user_id).then((user) => {
-        return fetchAlbumsFromUser(user.user_id);
-    }).then((albums) => {
+    }
+    fetchAlbums(request.query).then((albums) => {
         response.status(200).send({albums});
     }).catch((err) => {
         next(err);
@@ -36,4 +37,4 @@ function postAlbum(request, response, next){
 }
 
 
-module.exports = { getAlbumsFromUser, getAlbumById, postAlbum, getAlbums };
+module.exports = { getAlbumById, postAlbum, getAlbums };

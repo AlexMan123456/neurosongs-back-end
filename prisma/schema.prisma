@@ -29,6 +29,7 @@ model Song {
   reference   String
   is_featured Boolean @default(false)
   user_id     String
+  description String?
   album       Album   @relation(fields: [album_id], references: [album_id])
   artist      User    @relation(fields: [user_id], references: [user_id])
 
@@ -42,6 +43,7 @@ model Album {
   front_cover_reference String
   is_featured           Boolean @default(false)
   user_id               String
+  description           String?
   artist                User    @relation(fields: [user_id], references: [user_id])
   songs                 Song[]
 

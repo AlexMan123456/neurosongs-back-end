@@ -8,8 +8,14 @@ function fetchAlbums(queries){
                     username: true,
                     artist_name: true
                 }
-            }
+            },
+            description: false
         }
+    }
+
+    if(queries.user_id){
+        const {user_id} = queries;
+        request.where = {user_id};
     }
 
     if(queries.is_featured){
@@ -21,20 +27,6 @@ function fetchAlbums(queries){
     }
 
     return database.album.findMany(request)
-}
-
-function fetchAlbumsFromUser(user_id){
-    return database.album.findMany({
-        where: {user_id},
-        include: {
-            artist: {
-                select: {
-                    username: true,
-                    artist_name: true
-                }
-            }
-        }
-    })
 }
 
 function fetchAlbumById(stringifiedAlbumID){
@@ -107,4 +99,4 @@ function uploadAlbum(user_id, album){
     })
 }
 
-module.exports = { fetchAlbums, fetchAlbumsFromUser, fetchAlbumById, uploadAlbum };
+module.exports = { fetchAlbums, fetchAlbumById, uploadAlbum };

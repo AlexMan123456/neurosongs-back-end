@@ -392,42 +392,6 @@ describe("/api/users/:user_id", () => {
 })
 
 describe("/api/users/:user_id/albums", () => {
-    describe("GET", () => {
-        test("200: Responds with an array of all albums from a given user", () => {
-            return request(app)
-            .get("/api/users/1/albums")
-            .expect(200)
-            .then((response) => {
-                expect(response.body.albums.length).not.toBe(0)
-                response.body.albums.forEach((album) => {
-                    expect(typeof album.album_id).toBe("number")
-                    expect(typeof album.user_id).toBe("string")
-                    expect(album.artist.artist_name).toBe("Alex The Man")
-                    expect(album.artist.username).toBe("AlexTheMan")
-                    expect(typeof album.is_featured).toBe("boolean")
-                    expect(typeof album.title).toBe("string")
-                    expect(typeof album.front_cover_reference).toBe("string")
-                    expect(album).toHaveProperty("back_cover_reference")
-                })
-            })
-        })
-        test("200: Responds with an empty array if user has no albums", () => {
-            return request(app)
-            .get("/api/users/4/albums")
-            .expect(200)
-            .then((response) => {
-                expect(response.body.albums.length).toBe(0);
-            })
-        })
-        test("404: Responds with a not found message if user does not exist", () => {
-            return request(app)
-            .get("/api/users/nonexistent_user/albums")
-            .expect(404)
-            .then((response) => {
-                expect(response.body.message).toBe("User not found");
-            })
-        })
-    })
     describe("POST", () => {
         test("201: Posts an album to the database and returns the created album", () => {
             return Promise.all([
@@ -575,6 +539,43 @@ describe("/api/albums", () => {
                     expect(typeof album.title).toBe("string");
                     expect(typeof album.front_cover_reference).toBe("string");
                     expect(album).toHaveProperty("back_cover_reference");
+                    expect(album).not.toHaveProperty("description");
+                })
+            })
+        })
+        describe("Queries: user_id", () => {
+            test("200: Responds with an array of all albums from a given user", () => {
+                return request(app)
+                .get("/api/albums?user_id=1")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).not.toBe(0)
+                    response.body.albums.forEach((album) => {
+                        expect(typeof album.album_id).toBe("number")
+                        expect(album.user_id).toBe("1")
+                        expect(album.artist.artist_name).toBe("Alex The Man")
+                        expect(album.artist.username).toBe("AlexTheMan")
+                        expect(typeof album.is_featured).toBe("boolean")
+                        expect(typeof album.title).toBe("string")
+                        expect(typeof album.front_cover_reference).toBe("string")
+                        expect(album).toHaveProperty("back_cover_reference")
+                    })
+                })
+            })
+            test("200: Responds with an empty array if user has no albums", () => {
+                return request(app)
+                .get("/api/albums?user_id=4")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).toBe(0);
+                })
+            })
+            test("404: Responds with a not found message if user does not exist", () => {
+                return request(app)
+                .get("/api/albums?user_id=nonexistent_user")
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("User not found");
                 })
             })
         })
@@ -613,18 +614,19 @@ describe("/api/albums/:album_id", () => {
     describe("GET", () => {
         test("200: Responds with the album with the corresponding album ID, along with its songs", () => {
             return request(app)
-            .get("/api/albums/1")
+            .get("/api/albums/3")
             .expect(200)
             .then((response) => {
                 const {album} = response.body;
-                expect(album.album_id).toBe(1);
-                expect(album.user_id).toBe("1");
-                expect(album.artist.username).toBe("AlexTheMan");
-                expect(album.artist.artist_name).toBe("Alex The Man");
-                expect(album.title).toBe("Identities");
-                expect(album.front_cover_reference).toBe("identities-front-cover.png");
-                expect(album.back_cover_reference).toBe("identities-back-cover.png");
+                expect(album.album_id).toBe(3);
+                expect(album.user_id).toBe("3");
+                expect(album.artist.username).toBe("Kevin_SynthV");
+                expect(album.artist.artist_name).toBe("Kevin");
+                expect(album.title).toBe("Kevin's Greatest Hits");
+                expect(album.front_cover_reference).toBe("captain-kevin.png");
+                expect(album.back_cover_reference).toBe("clown-kevin.png");
                 expect(album.is_featured).toBe(false);
+                expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
                 expect(album.songs.length).not.toBe(0);
                 album.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number");
@@ -775,6 +777,7 @@ describe("/api/songs", () => {
                     expect(typeof song.is_featured).toBe("boolean");
                     expect(typeof song.album.front_cover_reference).toBe("string");
                     expect(typeof song.album.title).toBe("string");
+                    expect(song).not.toHaveProperty("description");
                 })
             })
         })
@@ -883,7 +886,8 @@ describe("/api/songs/:song_id", () => {
                 expect(song.is_featured).toBe(true);
                 expect(song.album.front_cover_reference).toBe("identities-front-cover.png");
                 expect(song.album.back_cover_reference).toBe("identities-back-cover.png");
-                expect(song.album.title).toBe("Identities")
+                expect(song.album.title).toBe("Identities");
+                expect(song.description).toBe("He's Captain Kevin, the best there is, he's been collecting treasure for the best of years!");
             })
         })
         test("400: Responds with a bad request message when given an invalid ID", () => {
