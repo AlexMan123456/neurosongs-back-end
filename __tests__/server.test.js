@@ -906,7 +906,7 @@ describe("/api/songs", () => {
 
 
 describe("/api/songs/:song_id", () => {
-    describe.only("GET", () => {
+    describe("GET", () => {
         test("200: Responds with the song with the given ID", () => {
             return request(app)
             .get("/api/songs/1")
