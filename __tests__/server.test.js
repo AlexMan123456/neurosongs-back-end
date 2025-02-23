@@ -69,7 +69,7 @@ describe("/api/users", () => {
                 expect(user.username).toBe("TestUser123");
                 expect(user.artist_name).toBe("Test User");
                 expect(user.email).toBe("test@test.com");
-                expect(user.profile_picture).toBe("default-profile-picture.jpg");
+                expect(user.profile_picture).toBe("Default");
                 expect(user.description).toBe(null);
             })
         })
@@ -91,7 +91,7 @@ describe("/api/users", () => {
                 expect(user.username).toBe("TestUser123");
                 expect(user.artist_name).toBe("Test User");
                 expect(user.email).toBe("testuser2@test.com");
-                expect(user.profile_picture).toBe("default-profile-picture.jpg");
+                expect(user.profile_picture).toBe("Default");
                 expect(user.description).toBe(null);
                 expect(user).not.toHaveProperty("extraKey");
             })
@@ -328,6 +328,18 @@ describe("/api/users/:user_id", () => {
                 expect(user.email).toBe("alexreborn@gmail.com");
                 expect(user.profile_picture).toBe("i-feel-reborn.png");
                 expect(user).not.toHaveProperty("extraKey");
+            })
+        })
+        test("200: Can change back to a default profile picture", () => {
+            return request(app)
+            .patch("/api/users/1")
+            .send({
+                profile_picture: "Default",
+            })
+            .expect(200)
+            .then((response) => {
+                const {user} = response.body
+                expect(user.profile_picture).toBe("Default");
             })
         })
         test("400: Does not allow user to update the user ID", () => {

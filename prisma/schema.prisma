@@ -12,7 +12,7 @@ model User {
   email           String   @unique
   artist_name     String   @db.VarChar(100)
   description     String?
-  profile_picture String   @default("default-profile-picture.jpg")
+  profile_picture String   @default("Default")
   user_id         String   @id
   date_of_birth   DateTime
   member_since    DateTime @default(now())
