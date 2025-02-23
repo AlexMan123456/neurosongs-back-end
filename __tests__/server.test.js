@@ -273,7 +273,8 @@ describe("/api/users/:user_id", () => {
                 artist_name: "Alex Reborn",
                 description: "And now I feel reborn!",
                 email: "alexreborn@gmail.com",
-                profile_picture: "i-feel-reborn.png"
+                profile_picture: "i-feel-reborn.png",
+                date_of_birth: new Date("2002-07-16T00:00:00Z")
             })
             .expect(200)
             .then((response) => {
@@ -284,6 +285,7 @@ describe("/api/users/:user_id", () => {
                 expect(user.description).toBe("And now I feel reborn!");
                 expect(user.email).toBe("alexreborn@gmail.com");
                 expect(user.profile_picture).toBe("i-feel-reborn.png");
+                expect(user.date_of_birth).toBe("2002-07-16T00:00:00.000Z");
             })
         })
         test("200: Updates existing properties even if some are missing", () => {
@@ -305,7 +307,7 @@ describe("/api/users/:user_id", () => {
                 expect(user.profile_picture).toBe("i-feel-reborn.png");
             })
         })
-        test("200: Updates the given user with the new given properties", () => {
+        test("200: Ignores any extra keys on request object", () => {
             return request(app)
             .patch("/api/users/1")
             .send({
@@ -325,6 +327,7 @@ describe("/api/users/:user_id", () => {
                 expect(user.description).toBe("And now I feel reborn!");
                 expect(user.email).toBe("alexreborn@gmail.com");
                 expect(user.profile_picture).toBe("i-feel-reborn.png");
+                expect(user).not.toHaveProperty("extraKey");
             })
         })
         test("400: Does not allow user to update the user ID", () => {

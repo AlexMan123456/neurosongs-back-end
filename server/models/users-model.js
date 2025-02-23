@@ -61,7 +61,7 @@ function updateUser(user_id, data){
     }
 
     for(const key in data){
-        if(!["username", "email", "artist_name", "description", "profile_picture"].includes(key)){
+        if(!["username", "email", "artist_name", "description", "profile_picture", "date_of_birth"].includes(key)){
             delete data[key];
         }
     }
