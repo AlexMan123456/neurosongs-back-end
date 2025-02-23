@@ -12,14 +12,15 @@ module.exports = [
         is_featured: true
     },
     {
-        user_id: "2",
+        user_id: "3",
         title: "Kevin's Greatest Hits",
         front_cover_reference: "captain-kevin.png",
+        back_cover_reference: "clown-kevin.png",
+        description: "CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!"
     },
     {
-        user_id: "3",
+        user_id: "2",
         title: "Lockdown",
-        front_cover_reference: "lockdown.png",
-        back_cover_reference: "kool-alex.png"
+        front_cover_reference: "lockdown.png"
     }
 ]

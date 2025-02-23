@@ -14,7 +14,8 @@ function fetchSongs(queries){
                     front_cover_reference: true,
                     title: true
                 }
-            }
+            },
+            description: false
         }
     }
 
@@ -62,28 +63,6 @@ function fetchSongById(stringifiedSongID){
     })
 }
 
-function fetchSongsFromUser(user_id){
-    return database.song.findMany({
-        where: {
-            user_id
-        },
-        include: {
-            artist: {
-                select: {
-                    username: true,
-                    artist_name: true,
-                }
-            },
-            album: {
-                select: {
-                    front_cover_reference: true,
-                    title: true
-                }
-            }
-        }
-    })
-}
-
 function uploadSong(album_id, song){
     const data = {...song};
     data.album_id = parseInt(album_id);
@@ -107,4 +86,4 @@ function uploadSong(album_id, song){
     })
 }
 
-module.exports = { fetchSongs, fetchSongById, fetchSongsFromUser, uploadSong }
+module.exports = { fetchSongs, fetchSongById, uploadSong }

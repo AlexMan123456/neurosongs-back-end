@@ -4,7 +4,8 @@ module.exports = [
         title: "Captain Kevin",
         reference: "captain-kevin.mp3",
         album_id: 1,
-        is_featured: true
+        is_featured: true,
+        description: "He's Captain Kevin, the best there is, he's been collecting treasure for the best of years!"
     },
     {
         user_id: "1",
