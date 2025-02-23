@@ -757,44 +757,6 @@ describe("/api/albums/:album_id/songs", () => {
     })
 })
 
-describe("/api/users/:user_id/songs", () => {
-    describe("GET", () => {
-        test("200: Responds with an array of all songs from a given user", () => {
-            return request(app)
-            .get("/api/users/1/songs")
-            .expect(200)
-            .then((response) => {
-                expect(response.body.songs.length).not.toBe(0);
-                response.body.songs.forEach((song) => {
-                    expect(typeof song.song_id).toBe("number");
-                    expect(song.user_id).toBe("1");
-                    expect(song.artist.username).toBe("AlexTheMan");
-                    expect(song.artist.artist_name).toBe("Alex The Man");
-                    expect(typeof song.reference).toBe("string");
-                    expect(typeof song.album_id).toBe("number");
-                    expect(typeof song.is_featured).toBe("boolean");
-                })
-            })
-        })
-        test("200: Responds with an empty array if user exists but has no songs", () => {
-            return request(app)
-            .get("/api/users/4/songs")
-            .expect(200)
-            .then((response) => {
-                expect(response.body.songs.length).toBe(0);
-            })
-        })
-        test("404: Responds with a not found message if user does not exist", () => {
-            return request(app)
-            .get("/api/users/invalid_user/songs")
-            .expect(404)
-            .then((response) => {
-                expect(response.body.message).toBe("User not found");
-            })
-        })
-    })
-})
-
 describe("/api/songs", () => {
     describe("GET", () => {
         test("200: Responds with an array of all songs", () => {
@@ -811,6 +773,8 @@ describe("/api/songs", () => {
                     expect(typeof song.reference).toBe("string");
                     expect(typeof song.album_id).toBe("number");
                     expect(typeof song.is_featured).toBe("boolean");
+                    expect(typeof song.album.front_cover_reference).toBe("string");
+                    expect(typeof song.album.title).toBe("string");
                 })
             })
         })
@@ -829,6 +793,8 @@ describe("/api/songs", () => {
                         expect(typeof song.reference).toBe("string");
                         expect(typeof song.album_id).toBe("number");
                         expect(song.is_featured).toBe(true);
+                        expect(typeof song.album.front_cover_reference).toBe("string");
+                        expect(typeof song.album.title).toBe("string");
                     })
                 })
             })
@@ -858,6 +824,43 @@ describe("/api/songs", () => {
                 })
             })
         })
+        describe("Queries: user_id", () => {
+            test("200: Responds with an array of all songs from a given user", () => {
+                return request(app)
+                .get("/api/songs?user_id=1")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs.length).not.toBe(0);
+                    response.body.songs.forEach((song) => {
+                        expect(typeof song.song_id).toBe("number");
+                        expect(song.user_id).toBe("1");
+                        expect(song.artist.username).toBe("AlexTheMan");
+                        expect(song.artist.artist_name).toBe("Alex The Man");
+                        expect(typeof song.reference).toBe("string");
+                        expect(typeof song.album_id).toBe("number");
+                        expect(typeof song.is_featured).toBe("boolean");
+                        expect(typeof song.album.title).toBe("string");
+                        expect(typeof song.album.front_cover_reference).toBe("string");
+                    })
+                })
+            })
+            test("200: Responds with an empty array if user exists but has no songs", () => {
+                return request(app)
+                .get("/api/songs?user_id=4")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs.length).toBe(0);
+                })
+            })
+            test("404: Responds with a not found message if user does not exist", () => {
+                return request(app)
+                .get("/api/songs?user_id=invalid_user")
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("User not found");
+                })
+            })
+        })
     })
 })
 
@@ -878,6 +881,9 @@ describe("/api/songs/:song_id", () => {
                 expect(song.reference).toBe("captain-kevin.mp3");
                 expect(song.album_id).toBe(1);
                 expect(song.is_featured).toBe(true);
+                expect(song.album.front_cover_reference).toBe("identities-front-cover.png");
+                expect(song.album.back_cover_reference).toBe("identities-back-cover.png");
+                expect(song.album.title).toBe("Identities")
             })
         })
         test("400: Responds with a bad request message when given an invalid ID", () => {

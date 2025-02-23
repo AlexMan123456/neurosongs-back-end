@@ -8,8 +8,19 @@ function fetchSongs(queries){
                     username: true,
                     artist_name: true
                 }
+            },
+            album: {
+                select: {
+                    front_cover_reference: true,
+                    title: true
+                }
             }
         }
+    }
+
+    if(queries.user_id){
+        const user_id = queries.user_id;
+        request.where = {user_id}
     }
 
     if(queries.is_featured){
@@ -20,7 +31,8 @@ function fetchSongs(queries){
         request.where = {is_featured};
     }
 
-    return database.song.findMany(request)
+
+    return database.song.findMany(request);
 }
 
 function fetchSongById(stringifiedSongID){
@@ -32,6 +44,13 @@ function fetchSongById(stringifiedSongID){
                 select: {
                     username: true,
                     artist_name: true
+                }
+            },
+            album: {
+                select: {
+                    title: true,
+                    front_cover_reference: true,
+                    back_cover_reference: true
                 }
             }
         }
@@ -52,7 +71,13 @@ function fetchSongsFromUser(user_id){
             artist: {
                 select: {
                     username: true,
-                    artist_name: true
+                    artist_name: true,
+                }
+            },
+            album: {
+                select: {
+                    front_cover_reference: true,
+                    title: true
                 }
             }
         }
