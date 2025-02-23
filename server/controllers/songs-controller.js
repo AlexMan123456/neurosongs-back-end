@@ -1,7 +1,23 @@
 const { fetchSongs, fetchSongById, fetchSongsFromUser, uploadSong } = require("../models/songs-model");
-const { fetchUserById: fetchUserByUsername } = require("../models/users-model");
+const { fetchUserById } = require("../models/users-model");
 
-function getSongs(request, response, next){
+async function getSongs(request, response, next){
+    try {
+        if(request.query){
+            if(request.query.user_id){
+                const {user_id} = request.query;
+                await fetchUserById(user_id);
+            }
+        }
+        const songs = await fetchSongs(request.query);
+        response.status(200).send({songs});
+    } catch(err) {
+        next(err);
+    }
+
+    
+    
+
     fetchSongs(request.query).then((songs) => {
         response.status(200).send({songs});
     }).catch((err) => {
@@ -18,7 +34,7 @@ function getSongById(request, response, next){
 }
 
 function getSongsFromUser(request, response, next){
-    fetchUserByUsername(request.params.user_id).then((user) => {
+    fetchUserById(request.params.user_id).then((user) => {
         return fetchSongsFromUser(user.user_id);
     }).then((songs) => {
         response.status(200).send({songs});
