@@ -45,7 +45,7 @@ function uploadUser(user){
     }
 
     if(data.profile_picture){
-        if(data.profile_picture.includes("/") || !data.profile_picture.includes(".")){
+        if((data.profile_picture.includes("/") || !data.profile_picture.includes(".")) && data.profile_picture !== "Default"){
             return Promise.reject({status: 400, message: "Invalid file name"})
         }
     }
@@ -67,7 +67,7 @@ function updateUser(user_id, data){
     }
 
     if(data.profile_picture){
-        if(data.profile_picture.includes("/") || !data.profile_picture.includes(".")){
+        if((data.profile_picture.includes("/") || !data.profile_picture.includes(".")) && data.profile_picture !== "Default"){
             return Promise.reject({status: 400, message: "Invalid file name"});
         }
     }
