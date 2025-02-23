@@ -906,7 +906,7 @@ describe("/api/songs", () => {
 
 
 describe("/api/songs/:song_id", () => {
-    describe("GET", () => {
+    describe.only("GET", () => {
         test("200: Responds with the song with the given ID", () => {
             return request(app)
             .get("/api/songs/1")
@@ -921,6 +921,9 @@ describe("/api/songs/:song_id", () => {
                 expect(song.reference).toBe("captain-kevin.mp3");
                 expect(song.album_id).toBe(1);
                 expect(song.is_featured).toBe(true);
+                expect(song.album.front_cover_reference).toBe("identities-front-cover.png");
+                expect(song.album.back_cover_reference).toBe("identities-back-cover.png");
+                expect(song.album.title).toBe("Identities")
             })
         })
         test("400: Responds with a bad request message when given an invalid ID", () => {

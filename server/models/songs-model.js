@@ -1,7 +1,6 @@
 const database = require("../../client")
 
 function fetchSongs(queries){
-    console.log(queries)
     const request = {
         include: {
             artist: {
@@ -45,6 +44,13 @@ function fetchSongById(stringifiedSongID){
                 select: {
                     username: true,
                     artist_name: true
+                }
+            },
+            album: {
+                select: {
+                    title: true,
+                    front_cover_reference: true,
+                    back_cover_reference: true
                 }
             }
         }
