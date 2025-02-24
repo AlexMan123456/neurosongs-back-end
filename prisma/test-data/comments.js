@@ -25,6 +25,18 @@ module.exports = [
     },
     {
         user_id: "1",
+        song_id: 1,
+        body: "More Captain Kevin!",
+        rating: 7
+    },
+    {
+        user_id: "3",
+        song_id: 1,
+        body: "Oh hi, it's me!",
+        rating: 8
+    },
+    {
+        user_id: "1",
         album_id: 2,
         body: "I worked very hard on this album, so I hope everyone enjoys it!",
         rating: 9

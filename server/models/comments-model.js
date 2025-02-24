@@ -17,21 +17,11 @@ function fetchCommentsFromContent(params){
     request.where[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
     request.include[params.song_id ? "album_id" : "song_id"] = false;
 
-    return Promise.all([
-        database.comment.findMany(request),
-        database.comment.aggregate({
-            _avg: {
-                rating: true
-            }
+    return database.comment.findMany(request).then((comments) => {
+        return comments.map((comment) => {
+            comment.rating = parseFloat(comment.rating);
+            return comment;
         })
-    ]).then(([comments, {_avg}]) => {
-        return {
-            comments: comments.map((comment) => {
-                comment.rating = parseFloat(comment.rating);
-                return comment;
-            }),
-            average_rating: Math.round(parseFloat(_avg.rating)*10)/10
-        };
     })
 }
 

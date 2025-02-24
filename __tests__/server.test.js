@@ -634,6 +634,7 @@ describe("/api/albums/:album_id", () => {
                 expect(album.back_cover_reference).toBe("clown-kevin.png");
                 expect(album.is_featured).toBe(false);
                 expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
+                expect(typeof album.average_rating).toBe("number");
                 expect(album.songs.length).not.toBe(0);
                 expect(album).toHaveProperty("created_at");
                 album.songs.forEach((song) => {
@@ -643,6 +644,22 @@ describe("/api/albums/:album_id", () => {
                     expect(typeof song.title).toBe("string");
                     expect(typeof song.reference).toBe("string");
                 })
+            })
+        })
+        test("200: Average rating is rounded to one decimal place", () => {
+            return request(app)
+            .get("/api/albums/3")
+            .expect(200)
+            .then((response) => {
+                expect((response.body.album.average_rating*10)%1).toBe(0)
+            })
+        })
+        test("200: Average rating is null if album has not been rated yet", () => {
+            return request(app)
+            .get("/api/albums/1")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.album.average_rating).toBe(null)
             })
         })
         test("400: Responds with a bad request message when given an invalid album ID", () => {
@@ -904,7 +921,24 @@ describe("/api/songs/:song_id", () => {
                 expect(song.album.back_cover_reference).toBe("identities-back-cover.png");
                 expect(song.album.title).toBe("Identities");
                 expect(song.description).toBe("He's Captain Kevin, the best there is, he's been collecting treasure for the best of years!");
+                expect(typeof song.average_rating).toBe("number");
                 expect(song).toHaveProperty("created_at");
+            })
+        })
+        test("200: Average rating is rounded to one decimal place", () => {
+            return request(app)
+            .get("/api/songs/13")
+            .expect(200)
+            .then((response) => {
+                expect((response.body.song.average_rating*10)%1).toBe(0)
+            })
+        })
+        test("200: Average rating is null if song has not been rated yet", () => {
+            return request(app)
+            .get("/api/songs/2")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.song.average_rating).toBe(null)
             })
         })
         test("400: Responds with a bad request message when given an invalid ID", () => {
@@ -934,7 +968,6 @@ describe("/api/songs/:song_id/comments", () => {
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).not.toBe(0)
-                expect(typeof response.body.average_rating).toBe("number");
                 response.body.comments.forEach((comment) => {
                     expect(typeof comment.user_id).toBe("string");
                     expect(comment.song_id).toBe(13);
@@ -948,17 +981,9 @@ describe("/api/songs/:song_id/comments", () => {
                 })
             })
         })
-        test("200: Average rating is rounded to one decimal place", () => {
-            return request(app)
-            .get("/api/songs/13/comments")
-            .expect(200)
-            .then((response) => {
-                expect((response.body.average_rating*10)%1).toBe(0);
-            })
-        })
         test("200: Responds with an empty array if song has no comments", () => {
             return request(app)
-            .get("/api/songs/1/comments")
+            .get("/api/songs/2/comments")
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).toBe(0);
@@ -1137,7 +1162,6 @@ describe("/api/albums/:album_id/comments", () => {
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).not.toBe(0)
-                expect(typeof response.body.average_rating).toBe("number");
                 response.body.comments.forEach((comment) => {
                     expect(typeof comment.user_id).toBe("string");
                     expect(comment.album_id).toBe(3);
@@ -1149,14 +1173,6 @@ describe("/api/albums/:album_id/comments", () => {
                     expect(comment).toHaveProperty("created_at");
                     expect(comment).not.toHaveProperty("song_id");
                 })
-            })
-        })
-        test("200: Average rating is rounded to one decimal place", () => {
-            return request(app)
-            .get("/api/albums/3/comments")
-            .expect(200)
-            .then((response) => {
-                expect((response.body.average_rating*10)%1).toBe(0);
             })
         })
         test("200: Responds with an empty array if album has no comments", () => {
@@ -1358,7 +1374,7 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment).not.toHaveProperty("album_id")
                 }),
                 request(app)
-                .patch("/api/comments/5")
+                .patch("/api/comments/7")
                 .send({
                     body: "Ultimate perfection!",
                     rating: 10

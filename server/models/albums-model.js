@@ -31,35 +31,46 @@ function fetchAlbums(queries){
 
 function fetchAlbumById(stringifiedAlbumID){
     const album_id = parseInt(stringifiedAlbumID);
-    return database.album.findUnique({
-        where: {
-            album_id
-        },
-        include: {
-            songs: {
-                select: {
-                    song_id: true,
-                    title: true,
-                    reference: true,
-                    artist: {
-                        select: {
-                            username: true,
-                            artist_name: true
+    return Promise.all([
+        database.album.findUnique({
+            where: {
+                album_id
+            },
+            include: {
+                songs: {
+                    select: {
+                        song_id: true,
+                        title: true,
+                        reference: true,
+                        artist: {
+                            select: {
+                                username: true,
+                                artist_name: true
+                            }
                         }
                     }
-                }
-            },
-            artist: {
-                select: {
-                    username: true,
-                    artist_name: true
+                },
+                artist: {
+                    select: {
+                        username: true,
+                        artist_name: true
+                    }
                 }
             }
-        }
-    }).then((album) => {
+        }),
+        database.comment.aggregate({
+            where: {
+                album_id
+            },
+            _avg: {
+                rating: true
+            }
+        })
+    ]).then(([album, {_avg}]) => {
         if(!album){
             return Promise.reject({status: 404, message: "Album not found"});
         }
+        album.average_rating = Math.round(parseFloat(_avg.rating)*10)/10;
         return album;
     })
 }

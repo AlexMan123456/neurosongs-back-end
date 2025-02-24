@@ -7,8 +7,8 @@ function getCommentsFromContent(request, response, next){
     const getContent = params.album_id ? fetchAlbumById(params.album_id) : fetchSongById(params.song_id)
     getContent.then(() => {
         return fetchCommentsFromContent(params)
-    }).then((data) => {
-        response.status(200).send(data);
+    }).then((comments) => {
+        response.status(200).send({comments});
     }).catch((err) => {
         next(err);
     })
