@@ -1,11 +1,12 @@
 const { fetchAlbumById } = require("../models/albums-model");
-const { fetchCommentsFromContent } = require("../models/comments-model");
+const { fetchCommentsFromContent, uploadComment } = require("../models/comments-model");
 const { fetchSongById } = require("../models/songs-model");
 
 function getCommentsFromContent(request, response, next){
-    const getData = request.params.album_id ? fetchAlbumById(request.params.album_id) : fetchSongById(request.params.song_id)
-    getData.then(() => {
-        return fetchCommentsFromContent(request.params)
+    const {params} = request
+    const getContent = params.album_id ? fetchAlbumById(params.album_id) : fetchSongById(params.song_id)
+    getContent.then(() => {
+        return fetchCommentsFromContent(params)
     }).then((data) => {
         response.status(200).send(data);
     }).catch((err) => {
@@ -13,4 +14,16 @@ function getCommentsFromContent(request, response, next){
     })
 }
 
-module.exports = { getCommentsFromContent };
+function postComment(request, response, next){
+    const {params} = request
+    const getContent = params.song_id ? fetchSongById(params.song_id) : fetchAlbumById(params.album_id)
+    getContent.then(() => {
+        return uploadComment(params, request.body)
+    }).then((comment) => {
+        response.status(201).send({comment});
+    }).catch((err) => {
+        next(err);
+    })
+}
+
+module.exports = { getCommentsFromContent, postComment };
