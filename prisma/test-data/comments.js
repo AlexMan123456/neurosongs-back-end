@@ -37,7 +37,7 @@ module.exports = [
     },
     {
         user_id: "4",
-        album_id: "4",
+        album_id: 4,
         body: "This is very cringe",
         rating: 1
     }

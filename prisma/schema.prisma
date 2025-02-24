@@ -63,6 +63,7 @@ model Comment {
   album      Album?   @relation(fields: [album_id], references: [album_id])
   song       Song?    @relation(fields: [song_id], references: [song_id])
   author     User     @relation(fields: [user_id], references: [user_id])
+  created_at DateTime @default(now())
 
   @@map("comments")
 }

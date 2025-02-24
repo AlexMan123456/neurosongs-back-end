@@ -1,6 +1,7 @@
 const request = require("supertest");
 const app = require("../server/app");
-const { execSync } = require("node:child_process")
+const { execSync } = require("node:child_process");
+const data = require("../prisma/test-data")
 
 jest.setTimeout(30000)
 
@@ -906,6 +907,42 @@ describe("/api/songs/:song_id", () => {
                 expect(response.body.message).toBe("Song not found");
             })
         })
+    })
+})
+
+describe("/api/songs/:song_id/comments", () => {
+    describe.only("GET", () => {
+        test("200: Responds with an array of all comments associated with a given song", () => {
+            return request(app)
+            .get("/api/songs/13/comments")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.comments.length).not.toBe(0)
+                expect(typeof response.body.average_rating).toBe("number");
+                response.body.comments.forEach((comment) => {
+                    expect(typeof comment.user_id).toBe("string");
+                    expect(comment.song_id).toBe(13);
+                    expect(typeof comment.author.artist_name).toBe("string");
+                    expect(typeof comment.author.username).toBe("string");
+                    expect(typeof comment.author.profile_picture).toBe("string");
+                    expect(typeof comment.body).toBe("string");
+                    expect(typeof comment.rating).toBe("number");
+                    expect(comment).toHaveProperty("created_at");
+                })
+            })
+        })
+        test("200: Average rating is rounded to one decimal place", () => {
+            return request(app)
+            .get("/api/songs/13/comments")
+            .expect(200)
+            .then((response) => {
+                expect((response.body.average_rating*10)%1).toBe(0);
+            })
+        })
+        /*test("200: Responds with an empty array if song has no comments", () => {
+            return request(app)
+            .get("/api/songs/")
+        })*/
     })
 })
 

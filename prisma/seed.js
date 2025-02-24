@@ -17,6 +17,7 @@ async function seed({userData, songData, albumData, commentData}){
         await database.song.createMany({
             data: songData
         })
+        console.log(commentData)
         if(commentData){
             await database.comment.createMany({
                 data: commentData
