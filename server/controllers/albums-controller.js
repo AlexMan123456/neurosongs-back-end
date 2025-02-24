@@ -29,7 +29,7 @@ function getAlbumById(request, response, next){
 }
 
 function postAlbum(request, response, next){
-    uploadAlbum(request.params.user_id, request.body).then((album) => {
+    uploadAlbum(request.body).then((album) => {
         response.status(201).send({album});
     }).catch((err) => {
         next(err);
