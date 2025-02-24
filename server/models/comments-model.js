@@ -106,4 +106,9 @@ function editComment(stringifiedCommentID, data){
     })
 }
 
-module.exports = { fetchCommentsFromContent, uploadComment, editComment };
+function removeComment(stringifiedCommentID){
+    const comment_id = parseInt(stringifiedCommentID);
+    return database.comment.delete({ where: { comment_id } });
+}
+
+module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment };
