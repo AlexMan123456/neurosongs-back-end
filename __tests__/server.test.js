@@ -1327,7 +1327,7 @@ describe("/api/albums/:album_id/comments", () => {
 })
 
 describe("/api/comments/:comment_id", () => {
-    describe.only("PATCH", () => {
+    describe("PATCH", () => {
         test("200: Updates a given comment in the database and returns the updated comment", () => {
             return Promise.all([
                 request(app)
