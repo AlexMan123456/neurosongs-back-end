@@ -966,6 +966,143 @@ describe("/api/songs/:song_id/comments", () => {
             })
         })
     })
+    describe.only("POST", () => {
+        test("201: Posts a new comment and responds with the posted comment", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: 8
+            })
+            .expect(201)
+            .then((response) => {
+                const {comment} = response.body;
+                expect(comment.user_id).toBe("3");
+                expect(comment.song_id).toBe(1);
+                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
+                expect(comment.rating).toBe(8);
+                expect(comment).toHaveProperty("created_at")
+            })
+        })
+        test("201: Rating can be optional", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+            })
+            .expect(201)
+            .then((response) => {
+                const {comment} = response.body;
+                expect(comment.user_id).toBe("3");
+                expect(comment.song_id).toBe(1);
+                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
+                expect(comment.rating).toBe(null);
+                expect(comment).toHaveProperty("created_at")
+            })
+        })
+        test("201: Ignores any extra properties on request body", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: 8,
+                extraKey: "CAAAAAPTAAAIN KEEEEVIIIIN! SEARCHING FOR TREASURE FAR AND WIDE!"
+            })
+            .expect(201)
+            .then((response) => {
+                const {comment} = response.body;
+                expect(comment.user_id).toBe("3");
+                expect(comment.song_id).toBe(1);
+                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
+                expect(comment.rating).toBe(8);
+                expect(comment).toHaveProperty("created_at")
+                expect(comment).not.toHaveProperty("extraKey")
+            })
+        })
+        test("400: Responds with a bad request message if song_id is included in request body", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                song_id: 2,
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: 8
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if album_id is included in request body", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                album_id: 2,
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: 8
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if rating is bigger than 10", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: 11
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid rating")
+            })
+        })
+        test("400: Responds with a bad request message if rating is less than 1", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: -1
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid rating")
+            })
+        })
+        test("400: Responds with a bad request message if song_id is invalid", () => {
+            return request(app)
+            .post("/api/songs/invalid_id/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: 8
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("404: Responds with a bad request message if song_id does not exist", () => {
+            return request(app)
+            .post("/api/songs/231/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                rating: 8
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Song not found")
+            })
+        })
+    })
 })
 
 describe("/api/albums/:album_id/comments", () => {
