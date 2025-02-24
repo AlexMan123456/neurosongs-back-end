@@ -17,35 +17,52 @@ model User {
   date_of_birth   DateTime?
   member_since    DateTime  @default(now())
   albums          Album[]
+  comments        Comment[]
   songs           Song[]
 
   @@map("users")
 }
 
 model Song {
-  song_id     Int     @id @default(autoincrement())
-  title       String  @db.VarChar(100)
+  song_id     Int       @id @default(autoincrement())
+  title       String    @db.VarChar(100)
   album_id    Int
   reference   String
-  is_featured Boolean @default(false)
+  is_featured Boolean   @default(false)
   user_id     String
   description String?
-  album       Album   @relation(fields: [album_id], references: [album_id])
-  artist      User    @relation(fields: [user_id], references: [user_id])
+  comments    Comment[]
+  album       Album     @relation(fields: [album_id], references: [album_id])
+  artist      User      @relation(fields: [user_id], references: [user_id])
 
   @@map("songs")
 }
 
 model Album {
-  album_id              Int     @id @default(autoincrement())
-  title                 String  @db.VarChar(100)
+  album_id              Int       @id @default(autoincrement())
+  title                 String    @db.VarChar(100)
   back_cover_reference  String?
   front_cover_reference String
-  is_featured           Boolean @default(false)
+  is_featured           Boolean   @default(false)
   user_id               String
   description           String?
-  artist                User    @relation(fields: [user_id], references: [user_id])
+  artist                User      @relation(fields: [user_id], references: [user_id])
+  comments              Comment[]
   songs                 Song[]
 
   @@map("albums")
+}
+
+model Comment {
+  comment_id Int      @id @default(autoincrement())
+  user_id    String
+  song_id    Int?
+  album_id   Int?
+  body       String
+  rating     Decimal? @db.Decimal(3, 1)
+  album      Album?   @relation(fields: [album_id], references: [album_id])
+  song       Song?    @relation(fields: [song_id], references: [song_id])
+  author     User     @relation(fields: [user_id], references: [user_id])
+
+  @@map("comments")
 }
