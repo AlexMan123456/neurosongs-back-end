@@ -64,9 +64,8 @@ function fetchAlbumById(stringifiedAlbumID){
     })
 }
 
-function uploadAlbum(user_id, album){
+function uploadAlbum(album){
     const data = {...album};
-    data.user_id = user_id;
 
     for(const key in data){
         if(!["user_id", "title", "front_cover_reference", "back_cover_reference"].includes(key)){

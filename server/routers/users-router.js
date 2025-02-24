@@ -11,7 +11,4 @@ users.route("/:user_id")
 .get(getUserById)
 .patch(patchUser)
 
-users.route("/:user_id/albums")
-.post(postAlbum)
-
 module.exports = users

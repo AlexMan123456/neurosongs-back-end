@@ -392,137 +392,6 @@ describe("/api/users/:user_id", () => {
     })
 })
 
-describe("/api/users/:user_id/albums", () => {
-    describe("POST", () => {
-        test("201: Posts an album to the database and returns the created album", () => {
-            return Promise.all([
-                request(app)
-                .post("/api/users/1/albums")
-                .send({
-                    title: "Neural Anthems",
-                    front_cover_reference: "neural-anthems.png"
-                })
-                .expect(201)
-                .then((response) => {
-                    const {album} = response.body;
-                    expect(album.user_id).toBe("1")
-                    expect(album.artist.artist_name).toBe("Alex The Man")
-                    expect(album.artist.username).toBe("AlexTheMan")
-                    expect(album.title).toBe("Neural Anthems")
-                    expect(album.front_cover_reference).toBe("neural-anthems.png")
-                    expect(album.is_featured).toBe(false)
-                }),
-                request(app)
-                .post("/api/users/2/albums")
-                .send({
-                    title: "Universal Expedition",
-                    front_cover_reference: "universal-expedition.png",
-                    back_cover_reference: "back-cover.png"
-                })
-                .expect(201)
-                .then((response) => {
-                    const {album} = response.body;
-                    expect(typeof album.album_id).toBe("number");
-                    expect(album.user_id).toBe("2");
-                    expect(album.artist.artist_name).toBe("AlexGB231");
-                    expect(album.artist.username).toBe("AlexGB231");
-                    expect(album.title).toBe("Universal Expedition");
-                    expect(album.front_cover_reference).toBe("universal-expedition.png");
-                    expect(album.back_cover_reference).toBe("back-cover.png");
-                    expect(album.is_featured).toBe(false);
-                })
-            ])
-        })
-        test("201: Ignores any extra keys on request object", () => {
-            return request(app)
-            .post("/api/users/1/albums")
-            .send({
-                title: "Extraordinary Escapade",
-                front_cover_reference: "extraordinary-escapade.png",
-                back_cover_reference: "back-cover.png",
-                extraKey: "Extra property"
-            })
-            .expect(201)
-            .then((response) => {
-                const {album} = response.body;
-                expect(typeof album.album_id).toBe("number");
-                expect(album.user_id).toBe("1");
-                expect(album.artist.artist_name).toBe("Alex The Man");
-                expect(album.artist.username).toBe("AlexTheMan");
-                expect(album.title).toBe("Extraordinary Escapade");
-                expect(album.front_cover_reference).toBe("extraordinary-escapade.png");
-                expect(album.back_cover_reference).toBe("back-cover.png");
-                expect(album.is_featured).toBe(false);
-            })
-        })
-        test("400: Responds with a bad request message if front cover reference is not a valid file name", () => {
-            return request(app)
-            .post("/api/users/1/albums")
-            .send({
-                title: "Universal Expedition",
-                front_cover_reference: "Universal Expedition",
-                back_cover_reference: "back-cover.png"
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid file name")
-            })
-        })
-        test("400: Responds with a bad request message if front cover reference is a file directory", () => {
-            return request(app)
-            .post("/api/users/1/albums")
-            .send({
-                title: "Universal Expedition",
-                front_cover_reference: "universal/expedition.mp3",
-                back_cover_reference: "back-cover.png"
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid file name")
-            })
-        })
-        test("400: Responds with a bad request message if back cover reference is not a valid file name", () => {
-            return request(app)
-            .post("/api/users/1/albums")
-            .send({
-                title: "Universal Expedition",
-                front_cover_reference: "universal-expedition.mp3",
-                back_cover_reference: "Back Cover"
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid file name")
-            })
-        })
-        test("400: Responds with a bad request message if back cover reference is a file directory", () => {
-            return request(app)
-            .post("/api/users/1/albums")
-            .send({
-                title: "Universal Expedition",
-                front_cover_reference: "universal-expedition.mp3",
-                back_cover_reference: "back/cover.png"
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid file name")
-            })
-        })
-        test("404: Responds with a not found message if user does not exist", () => {
-            return request(app)
-            .post("/api/users/nonexistent_user/albums")
-            .send({
-                title: "Test album",
-                front_cover_reference: "front-cover.png",
-                back_cover_reference: "back-cover.png"
-            })
-            .expect(404)
-            .then((response) => {
-                expect(response.body.message).toBe("Related property not found");
-            })
-        })
-    })
-})
-
 describe("/api/albums", () => {
     describe("GET", () => {
         test("200: Responds with an array of all albums", () => {
@@ -607,6 +476,142 @@ describe("/api/albums", () => {
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request");
                 })
+            })
+        })
+    })
+    describe("POST", () => {
+        test("201: Posts an album to the database and returns the created album", () => {
+            return Promise.all([
+                request(app)
+                .post("/api/albums")
+                .send({
+                    user_id: "1",
+                    title: "Neural Anthems",
+                    front_cover_reference: "neural-anthems.png"
+                })
+                .expect(201)
+                .then((response) => {
+                    const {album} = response.body;
+                    expect(album.user_id).toBe("1")
+                    expect(album.artist.artist_name).toBe("Alex The Man")
+                    expect(album.artist.username).toBe("AlexTheMan")
+                    expect(album.title).toBe("Neural Anthems")
+                    expect(album.front_cover_reference).toBe("neural-anthems.png")
+                    expect(album.is_featured).toBe(false)
+                }),
+                request(app)
+                .post("/api/albums")
+                .send({
+                    user_id: "2",
+                    title: "Universal Expedition",
+                    front_cover_reference: "universal-expedition.png",
+                    back_cover_reference: "back-cover.png"
+                })
+                .expect(201)
+                .then((response) => {
+                    const {album} = response.body;
+                    expect(typeof album.album_id).toBe("number");
+                    expect(album.user_id).toBe("2");
+                    expect(album.artist.artist_name).toBe("AlexGB231");
+                    expect(album.artist.username).toBe("AlexGB231");
+                    expect(album.title).toBe("Universal Expedition");
+                    expect(album.front_cover_reference).toBe("universal-expedition.png");
+                    expect(album.back_cover_reference).toBe("back-cover.png");
+                    expect(album.is_featured).toBe(false);
+                })
+            ])
+        })
+        test("201: Ignores any extra keys on request object", () => {
+            return request(app)
+            .post("/api/albums")
+            .send({
+                user_id: "1",
+                title: "Extraordinary Escapade",
+                front_cover_reference: "extraordinary-escapade.png",
+                back_cover_reference: "back-cover.png",
+                extraKey: "Extra property"
+            })
+            .expect(201)
+            .then((response) => {
+                const {album} = response.body;
+                expect(typeof album.album_id).toBe("number");
+                expect(album.user_id).toBe("1");
+                expect(album.artist.artist_name).toBe("Alex The Man");
+                expect(album.artist.username).toBe("AlexTheMan");
+                expect(album.title).toBe("Extraordinary Escapade");
+                expect(album.front_cover_reference).toBe("extraordinary-escapade.png");
+                expect(album.back_cover_reference).toBe("back-cover.png");
+                expect(album.is_featured).toBe(false);
+            })
+        })
+        test("400: Responds with a bad request message if front cover reference is not a valid file name", () => {
+            return request(app)
+            .post("/api/albums")
+            .send({
+                user_id: "1",
+                title: "Universal Expedition",
+                front_cover_reference: "Universal Expedition",
+                back_cover_reference: "back-cover.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if front cover reference is a file directory", () => {
+            return request(app)
+            .post("/api/albums")
+            .send({
+                user_id: "1",
+                title: "Universal Expedition",
+                front_cover_reference: "universal/expedition.mp3",
+                back_cover_reference: "back-cover.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if back cover reference is not a valid file name", () => {
+            return request(app)
+            .post("/api/albums")
+            .send({
+                user_id: "1",
+                title: "Universal Expedition",
+                front_cover_reference: "universal-expedition.mp3",
+                back_cover_reference: "Back Cover"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("400: Responds with a bad request message if back cover reference is a file directory", () => {
+            return request(app)
+            .post("/api/albums")
+            .send({
+                user_id: "1",
+                title: "Universal Expedition",
+                front_cover_reference: "universal-expedition.mp3",
+                back_cover_reference: "back/cover.png"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid file name")
+            })
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .post("/api/albums")
+            .send({
+                user_id: "nonexistent_user",
+                title: "Test album",
+                front_cover_reference: "front-cover.png",
+                back_cover_reference: "back-cover.png"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found");
             })
         })
     })
