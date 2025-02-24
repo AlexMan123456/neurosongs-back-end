@@ -12,6 +12,10 @@ function prismaErrors(error, request, response, next){
     if(error.code === "P2003"){
         return response.status(404).send({message: "Related property not found"})
     }
+    if(error.code === "P2025"){
+        const message = error.meta.cause.replace("Record to update", error.meta.modelName).split(".").join("")
+        return response.status(404).send({message})
+    }
     next(error);
 }
 

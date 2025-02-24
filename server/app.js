@@ -4,7 +4,8 @@ const { customErrors, internalServerError, prismaErrors, endpointNotFound } = re
 const songs = require("./routers/songs-router");
 const albums = require("./routers/albums-router");
 const app = express();
-const cors = require("cors")
+const cors = require("cors");
+const comments = require("./routers/comments-router");
 
 // Allow Cross Origin Resource Sharing
 app.use(cors());
@@ -15,7 +16,8 @@ app.use(express.json());
 // Routers
 app.use("/api/users", users);
 app.use("/api/songs", songs);
-app.use("/api/albums", albums)
+app.use("/api/albums", albums);
+app.use("/api/comments", comments)
 
 // Errors
 app.use(endpointNotFound)
