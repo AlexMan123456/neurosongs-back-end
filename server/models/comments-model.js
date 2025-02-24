@@ -15,7 +15,7 @@ function fetchCommentsFromContent(params){
     }
 
     request.where[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
-
+    request.include[params.song_id ? "album_id" : "song_id"] = false;
 
     return Promise.all([
         database.comment.findMany(request),
@@ -49,10 +49,14 @@ function uploadComment(params, data){
         return Promise.reject({status: 400, message: "Invalid rating"});
     }
 
-    const {song_id} = params;
-    data.song_id = parseInt(song_id);
+    data[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
 
-    return database.comment.create({data}).then((comment) => {
+    return database.comment.create({
+        data,
+        include: {
+            [params.song_id ? "album_id" : "song_id"]: false
+        }
+    }).then((comment) => {
         comment.rating = parseFloat(comment.rating);
         return comment;
     });
