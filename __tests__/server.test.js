@@ -939,10 +939,30 @@ describe("/api/songs/:song_id/comments", () => {
                 expect((response.body.average_rating*10)%1).toBe(0);
             })
         })
-        /*test("200: Responds with an empty array if song has no comments", () => {
+        test("200: Responds with an empty array if song has no comments", () => {
             return request(app)
-            .get("/api/songs/")
-        })*/
+            .get("/api/songs/1/comments")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.comments.length).toBe(0);
+            })
+        })
+        test("400: Responds with a bad request message if song ID is invalid", () => {
+            return request(app)
+            .get("/api/songs/captain_kevin/comments")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if song does not exist", () => {
+            return request(app)
+            .get("/api/songs/231/comments")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Song not found");
+            })
+        })
     })
 })
 

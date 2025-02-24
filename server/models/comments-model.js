@@ -2,7 +2,6 @@ const database = require("../../client")
 
 function fetchCommentsFromContent(stringifiedSongID){
     const song_id = parseInt(stringifiedSongID);
-    console.log(song_id)
     return Promise.all([
         database.comment.findMany({
             where: {
