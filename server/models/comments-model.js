@@ -54,13 +54,56 @@ function uploadComment(params, data){
     return database.comment.create({
         data,
         include: {
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
+                }
+            },
             [params.song_id ? "album_id" : "song_id"]: false
         }
     }).then((comment) => {
         comment.rating = parseFloat(comment.rating);
         return comment;
     });
-
 }
 
-module.exports = { fetchCommentsFromContent, uploadComment };
+function editComment(stringifiedCommentID, data){
+    const comment_id = parseInt(stringifiedCommentID)
+
+    for(const key in data){
+        if(!["body", "rating"].includes(key)){
+            delete data[key];
+        }
+        if(["user_id", "song_id", "album_id"].includes(key)){
+            return Promise.reject({status: 400, message: "Bad request"})
+        }
+    }
+
+    return database.comment.update({
+        where: {
+            comment_id
+        },
+        data,
+        include: {
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
+                }
+            }
+        }
+    }).then((comment) => {
+        comment.rating = parseFloat(comment.rating);
+        if(comment.song_id){
+            delete comment.album_id;
+        } else if(comment.album_id){
+            delete comment.song_id;
+        }
+        return comment;
+    })
+}
+
+module.exports = { fetchCommentsFromContent, uploadComment, editComment };
