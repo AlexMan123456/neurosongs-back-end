@@ -64,13 +64,13 @@ module.exports = [
         is_featured: true
     },
     {
-        user_id: "2",
+        user_id: "3",
         title: "Captain Kevin",
         reference: "captain-kevin.mp3",
         album_id: 3
     },
     {
-        user_id: "2",
+        user_id: "3",
         title: "The Pirate Who Wanted Treasure",
         reference: "the-pirate-who-wanted-treasure.mp3",
         album_id: 3,
