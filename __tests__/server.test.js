@@ -540,6 +540,7 @@ describe("/api/albums", () => {
                     expect(typeof album.title).toBe("string");
                     expect(typeof album.front_cover_reference).toBe("string");
                     expect(album).toHaveProperty("back_cover_reference");
+                    expect(album).toHaveProperty("created_at");
                     expect(album).not.toHaveProperty("description");
                 })
             })
@@ -629,6 +630,7 @@ describe("/api/albums/:album_id", () => {
                 expect(album.is_featured).toBe(false);
                 expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
                 expect(album.songs.length).not.toBe(0);
+                expect(album).toHaveProperty("created_at");
                 album.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number");
                     expect(typeof song.artist.username).toBe("string");
