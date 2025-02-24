@@ -1,22 +1,24 @@
 const database = require("../../client")
 
-function fetchCommentsFromContent(stringifiedSongID){
-    const song_id = parseInt(stringifiedSongID);
-    return Promise.all([
-        database.comment.findMany({
-            where: {
-                song_id
-            },
-            include: {
-                author: {
-                    select: {
-                        artist_name: true,
-                        username: true,
-                        profile_picture: true
-                    }
+function fetchCommentsFromContent(params){
+    const request = {
+        where: {},
+        include: {
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
                 }
             }
-        }),
+        }
+    }
+
+    request.where[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
+
+
+    return Promise.all([
+        database.comment.findMany(request),
         database.comment.aggregate({
             _avg: {
                 rating: true

@@ -36,6 +36,12 @@ module.exports = [
         rating: 10
     },
     {
+        user_id: "1",
+        album_id: 3,
+        body: "Captain Kevin is good, but I'm better.",
+        rating: 7.5
+    },
+    {
         user_id: "4",
         album_id: 4,
         body: "This is very cringe",
