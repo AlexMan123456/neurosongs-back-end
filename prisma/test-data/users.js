@@ -28,8 +28,8 @@ module.exports = [
     },
     {
         user_id: "4",
-        artist_name: "Badstagram",
-        username: "Badstagram",
+        artist_name: "Bad Developer",
+        username: "Bad_dev",
         email: "bad-developer@bad.com",
         date_of_birth: new Date("2005-06-30T00:00:00+00:00")
     }
