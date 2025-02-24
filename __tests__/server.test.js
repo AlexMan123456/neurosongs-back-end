@@ -685,6 +685,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.title).toBe("Highest Power");
                 expect(song.reference).toBe("highest-power.mp3");
                 expect(song.is_featured).toBe(false);
+                expect(song).toHaveProperty("created_at");
             })
         })
         test("400: Responds with a bad request message when missing required properties", () => {
@@ -785,6 +786,7 @@ describe("/api/songs", () => {
                     expect(typeof song.is_featured).toBe("boolean");
                     expect(typeof song.album.front_cover_reference).toBe("string");
                     expect(typeof song.album.title).toBe("string");
+                    expect(song).toHaveProperty("created_at");
                     expect(song).not.toHaveProperty("description");
                 })
             })
@@ -806,6 +808,8 @@ describe("/api/songs", () => {
                         expect(song.is_featured).toBe(true);
                         expect(typeof song.album.front_cover_reference).toBe("string");
                         expect(typeof song.album.title).toBe("string");
+                        expect(song).not.toHaveProperty("description");
+                        expect(song).toHaveProperty("created_at");
                     })
                 })
             })
@@ -823,6 +827,8 @@ describe("/api/songs", () => {
                         expect(typeof song.reference).toBe("string");
                         expect(typeof song.album_id).toBe("number");
                         expect(song.is_featured).toBe(true);
+                        expect(song).not.toHaveProperty("description");
+                        expect(song).toHaveProperty("created_at");
                     })
                 })
             })
@@ -852,6 +858,8 @@ describe("/api/songs", () => {
                         expect(typeof song.is_featured).toBe("boolean");
                         expect(typeof song.album.title).toBe("string");
                         expect(typeof song.album.front_cover_reference).toBe("string");
+                        expect(song).not.toHaveProperty("description");
+                        expect(song).toHaveProperty("created_at");
                     })
                 })
             })
@@ -896,6 +904,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.album.back_cover_reference).toBe("identities-back-cover.png");
                 expect(song.album.title).toBe("Identities");
                 expect(song.description).toBe("He's Captain Kevin, the best there is, he's been collecting treasure for the best of years!");
+                expect(song).toHaveProperty("created_at");
             })
         })
         test("400: Responds with a bad request message when given an invalid ID", () => {

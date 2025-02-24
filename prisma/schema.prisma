@@ -31,6 +31,7 @@ model Song {
   is_featured Boolean   @default(false)
   user_id     String
   description String?
+  created_at  DateTime  @default(now())
   comments    Comment[]
   album       Album     @relation(fields: [album_id], references: [album_id])
   artist      User      @relation(fields: [user_id], references: [user_id])
