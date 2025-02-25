@@ -73,6 +73,16 @@ function fetchSongById(stringifiedSongID){
 
 function uploadSong(album_id, song){
     const data = {...song};
+
+    for(const key in data){
+        if(!["user_id", "title", "description", "reference"].includes(key)){
+            delete data[key];
+        }
+        if(key === "album_id"){
+            return Promise.reject({status: 400, message: "Bad request"})
+        }
+    }
+
     data.album_id = parseInt(album_id);
 
     if(data.reference){
