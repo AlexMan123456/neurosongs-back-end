@@ -707,6 +707,56 @@ describe("/api/albums/:album_id/songs", () => {
             .send({
                 user_id: "1",
                 title: "Highest Power",
+                description: "You think that I am at my highest power!",
+                reference: "highest-power.mp3"
+            })
+            .expect(201)
+            .then((response) => {
+                const {song} = response.body;
+                expect(typeof song.song_id).toBe("number");
+                expect(song.album_id).toBe(1);
+                expect(song.user_id).toBe("1");
+                expect(song.artist.username).toBe("AlexTheMan");
+                expect(song.artist.artist_name).toBe("Alex The Man");
+                expect(song.title).toBe("Highest Power");
+                expect(song.description).toBe("You think that I am at my highest power!");
+                expect(song.reference).toBe("highest-power.mp3");
+                expect(song.is_featured).toBe(false);
+                expect(song).toHaveProperty("created_at");
+            })
+        })
+        test("201: Ignores any extra properties on request body", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                user_id: "1",
+                title: "Highest Power",
+                description: "You think that I am at my highest power!",
+                reference: "highest-power.mp3",
+                extraKey: "Extra property"
+
+            })
+            .expect(201)
+            .then((response) => {
+                const {song} = response.body;
+                expect(typeof song.song_id).toBe("number");
+                expect(song.album_id).toBe(1);
+                expect(song.user_id).toBe("1");
+                expect(song.artist.username).toBe("AlexTheMan");
+                expect(song.artist.artist_name).toBe("Alex The Man");
+                expect(song.title).toBe("Highest Power");
+                expect(song.description).toBe("You think that I am at my highest power!");
+                expect(song.reference).toBe("highest-power.mp3");
+                expect(song.is_featured).toBe(false);
+                expect(song).toHaveProperty("created_at");
+            })
+        })
+        test("201: Optional properties can be left out", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                user_id: "1",
+                title: "Highest Power",
                 reference: "highest-power.mp3"
             })
             .expect(201)
@@ -761,7 +811,22 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(response.body.message).toBe("Invalid file name");
             })
         })
-        test("400: Responds with a bad request message when given an invalid album ID", () => {
+        test("400: Responds with a bad request message if request body contains album_id", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                album_id: 1,
+                user_id: "1",
+                title: "Highest Power",
+                description: "You think that I am at my highest power!",
+                reference: "highest-power.mp3"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message when given an invalid album_id", () => {
             return request(app)
             .post("/api/albums/invalid_id/songs")
             .send({
@@ -774,7 +839,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(response.body.message).toBe("Bad request");
             })
         })
-        test("404: Responds with a not found message when given an album ID that does not exist", () => {
+        test("404: Responds with a not found message when given an album_id that does not exist", () => {
             return request(app)
             .post("/api/albums/231/songs")
             .send({
@@ -787,7 +852,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(response.body.message).toBe("Related property not found");
             })
         })
-        test("404: Responds with a not found message when given a username that does not exist", () => {
+        test("404: Responds with a not found message when given a user_id that does not exist", () => {
             return request(app)
             .post("/api/albums/1/songs")
             .send({
