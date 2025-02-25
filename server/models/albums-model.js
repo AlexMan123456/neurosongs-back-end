@@ -85,7 +85,7 @@ function uploadAlbum(album){
     }
 
     if(data.front_cover_reference){
-        if(data.front_cover_reference.includes("/") || !data.front_cover_reference.includes(".")){
+        if(data.front_cover_reference.includes("/") || !data.front_cover_reference.includes(".") && data.front_cover_reference !== "Default"){
             return Promise.reject({status: 400, message: "Invalid file name"})
         }
     }

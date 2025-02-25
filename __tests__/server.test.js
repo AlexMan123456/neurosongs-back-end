@@ -544,6 +544,24 @@ describe("/api/albums", () => {
                 expect(album.is_featured).toBe(false);
             })
         })
+        test("201: If left out, front_cover_reference defaults to Default", () => {
+            return request(app)
+            .post("/api/albums")
+            .send({
+                user_id: "1",
+                title: "Neural Anthems"
+            })
+            .expect(201)
+            .then((response) => {
+                const {album} = response.body;
+                expect(album.user_id).toBe("1")
+                expect(album.artist.artist_name).toBe("Alex The Man")
+                expect(album.artist.username).toBe("AlexTheMan")
+                expect(album.title).toBe("Neural Anthems")
+                expect(album.front_cover_reference).toBe("Default")
+                expect(album.is_featured).toBe(false)
+            })
+        })
         test("400: Responds with a bad request message if front cover reference is not a valid file name", () => {
             return request(app)
             .post("/api/albums")
