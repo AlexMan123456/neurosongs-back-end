@@ -43,7 +43,7 @@ model Album {
   album_id              Int       @id @default(autoincrement())
   title                 String    @db.VarChar(100)
   back_cover_reference  String?
-  front_cover_reference String
+  front_cover_reference String    @default("Default")
   is_featured           Boolean   @default(false)
   user_id               String
   description           String?
