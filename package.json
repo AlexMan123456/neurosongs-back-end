@@ -16,7 +16,7 @@
     "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force",
     "dev": "dotenv -e ./.env.development -- npx prisma migrate deploy && nodemon server/listen.js",
     "prepare": "husky",
-    "start": "node server/listen.js"
+    "start": "npx prisma migrate deploy --no-engine && node server/listen.js"
   },
   "keywords": [],
   "author": "",
