@@ -2,7 +2,7 @@ const app = require("./app.js");
 
 const port = process.env.PORT ?? "8080";
 
-app.listen(port, (error) => {
+app.listen(parseInt(port), (error) => {
   if (error) {
     console.log(error);
   } else {
