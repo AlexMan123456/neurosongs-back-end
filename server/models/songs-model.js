@@ -33,6 +33,9 @@ function fetchSongs(queries){
     }
 
 
+    request.orderBy = {[queries.sort_by ?? "created_at"]: queries.order ?? "desc"};
+    
+
     return database.song.findMany(request);
 }
 

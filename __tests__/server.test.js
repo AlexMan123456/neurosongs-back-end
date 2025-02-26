@@ -1,7 +1,7 @@
 const request = require("supertest");
 const app = require("../server/app");
 const { execSync } = require("node:child_process");
-const data = require("../prisma/test-data")
+require("jest-sorted")
 
 jest.setTimeout(30000)
 
@@ -977,6 +977,48 @@ describe("/api/songs", () => {
                 .expect(404)
                 .then((response) => {
                     expect(response.body.message).toBe("User not found");
+                })
+            })
+        })
+        describe("Queries: sorting and order", () => {
+            test("200: Sorts songs by created_at in descending order by default", () => {
+                return request(app)
+                .get("/api/songs")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs).toBeSortedBy("created_at", {descending: true});
+                })
+            })
+            test("200: Sorts by the given sort_by query if given", () => {
+                return request(app)
+                .get("/api/songs?sort_by=title")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs).toBeSortedBy("title", {descending: true});
+                })
+            })
+            test("200: Sorts in ascending order if order query is asc", () => {
+                return request(app)
+                .get("/api/songs?order=asc")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs).toBeSortedBy("created_at", {ascending: true});
+                })
+            })
+            test("400: Responds with a bad request message if sort_by is invalid", () => {
+                return request(app)
+                .get("/api/songs?sort_by=invalid_property")
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request")
+                })
+            })
+            test("400: Responds with a bad request message if order is invalid", () => {
+                return request(app)
+                .get("/api/songs?order=invalid_order")
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request")
                 })
             })
         })

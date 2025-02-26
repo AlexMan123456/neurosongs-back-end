@@ -5,19 +5,22 @@ module.exports = [
         reference: "captain-kevin.mp3",
         album_id: 1,
         is_featured: true,
-        description: "He's Captain Kevin, the best there is, he's been collecting treasure for the best of years!"
+        description: "He's Captain Kevin, the best there is, he's been collecting treasure for the best of years!",
+        created_at: new Date("2024-01-16T00:00:00Z"),
     },
     {
         user_id: "1",
         title: "Place In Society",
         reference: "place-in-society.mp3",
-        album_id: 1
+        album_id: 1,
+        created_at: new Date("2024-02-16T00:00:00Z")
     },
     {
         user_id: "1",
         title: "Domination",
         reference: "domination.mp3",
-        album_id: 1
+        album_id: 1,
+        created_at: new Date("2024-02-24T00:00:00Z")
     },
     {
         user_id: "1",
@@ -29,13 +32,15 @@ module.exports = [
         user_id: "1",
         title: "See The Light",
         reference: "see-the-light.mp3",
-        album_id: 1
+        album_id: 1,
+        created_at: new Date("2023-12-25T00:00:00Z")
     },
     {
         user_id: "1",
         title: "Fun Times",
         reference: "fun-times.mp3",
-        album_id: 2
+        album_id: 2,
+        created_at: new Date("2024-06-25T00:00:00Z")
     },
     {
         user_id: "1",
@@ -61,13 +66,15 @@ module.exports = [
         title: "Show Them What You've Got",
         reference: "show-them-what-you've-got.mp3",
         album_id: 2,
-        is_featured: true
+        is_featured: true,
+        created_at: new Date("2023-10-25T00:00:00Z")
     },
     {
         user_id: "3",
         title: "Captain Kevin",
         reference: "captain-kevin.mp3",
-        album_id: 3
+        album_id: 3,
+        created_at: new Date("2024-01-16T00:00:00Z")
     },
     {
         user_id: "3",
@@ -80,6 +87,7 @@ module.exports = [
         user_id: "3",
         title: "Lockdown",
         reference: "lockdown.mp3",
-        album_id: 4
+        album_id: 4,
+        created_at: new Date("2021-12-15T00:00:00Z")
     }
 ]
