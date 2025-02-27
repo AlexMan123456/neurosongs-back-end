@@ -240,6 +240,30 @@
             }
         }
     },
+    "PATCH /api/albums/:album_id": {
+        "description": "Updates the album with the given ID and responds with the updated album",
+        "exampleRequest": {
+            "endpoint": "/api/albums/3",
+            "body": {
+                "title": "Never Gonna Give You Up",
+                "front_cover_reference": "rickroll.png",
+                "back_cover_reference": "kevinroll.png",
+                "description": "Never gonna give you up, never gonna let you down!"
+            }
+        },
+        "exampleResponse": {
+            "album": {
+              "album_id": 3,
+              "title": "Never Gonna Give You Up",
+              "back_cover_reference": "kevinroll.png",
+              "front_cover_reference": "rickroll.png",
+              "is_featured": false,
+              "user_id": "3",
+              "description": "Never gonna give you up, never gonna let you down!",
+              "created_at": "2025-02-27T18:06:24.165Z"
+            }
+        }
+    },
     "POST /api/albums/:album_id/songs": {
         "description": "Creates a song for the given album and returns that song",
         "exampleRequest": {
