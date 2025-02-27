@@ -809,6 +809,29 @@ describe("/api/albums/:album_id", () => {
             })
         })
     })
+    describe("DELETE", () => {
+        test("204: Deletes the given album from the database", () => {
+            return request(app)
+            .delete("/api/albums/1")
+            .expect(204)
+        })
+        test("400: Responds with a bad request message if album_id is invalid", () => {
+            return request(app)
+            .delete("/api/albums/invalid_id")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if album_id does not exist", () => {
+            return request(app)
+            .delete("/api/albums/231")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Album not found")
+            })
+        })
+    })
 })
 
 describe("/api/albums/:album_id/songs", () => {
