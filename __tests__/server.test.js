@@ -252,7 +252,7 @@ describe("/api/users", () => {
 
 describe("/api/users/:user_id", () => {
     describe("GET", () => {
-        test("200: Responds with the user with the given user ID", () => {
+        test("200: Responds with the user with the given user_id", () => {
             return request(app)
             .get("/api/users/1")
             .expect(200)

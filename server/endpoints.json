@@ -1,1 +1,648 @@
-{}
+{
+    "GET /api": {
+        "description": "Responds with a list of all endpoints"
+    },
+    "GET /api/users": {
+        "users": [
+            {
+                "username": "AlexTheMan",
+                "email": "alextheman231231@gmail.com",
+                "artist_name": "Alex The Man",
+                "description": null,
+                "profile_picture": "ProfilePicture_ManimCE_v0.19.0.png",
+                "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                "date_of_birth": "2003-07-16T00:00:00.000Z",
+                "member_since": "2024-02-15T00:00:00.000Z"
+            },
+            {
+                "username": "Kevin_SynthV",
+                "email": "captain-kevin@thefarisland.com",
+                "artist_name": "Kevin",
+                "description": "I'm Captain Kevin, the best there is, I've been collecting treasure for the best of years!",
+                "profile_picture": "captain-kevin.jpg",
+                "user_id": "dQw4w9WgXcQ",
+                "date_of_birth": "2003-02-22T00:00:00.000Z",
+                "member_since": "2025-02-26T16:46:04.841Z"
+            }
+        ]
+    },
+    "POST /api/users": {
+        "description": "Posts a user to the database and returns the created user",
+        "exampleRequest": {
+            "endpoint": "/api/users",
+            "body": {
+                "user_id": "dQw4w9WgXcQ",
+                "username": "Kevin_SynthV",
+                "artist_name": "Kevin",
+                "email": "captain-kevin@thefarisland.com",
+                "profile_picture": "captain-kevin.jpg",
+                "description": "I'm Captain Kevin, the best there is, I've been collecting treasure for the best of years!",
+                "date_of_birth": "2003-02-22T00:00:00.000Z"
+            }
+        },
+        "exampleResponse": {
+            "user": {
+                "username": "Kevin_SynthV",
+                "email": "captain-kevin@thefarisland.com",
+                "artist_name": "Kevin",
+                "description": "I'm Captain Kevin, the best there is, I've been collecting treasure for the best of years!",
+                "profile_picture": "captain-kevin.jpg",
+                "user_id": "dQw4w9WgXcQ",
+                "date_of_birth": "2003-02-22T00:00:00.000Z",
+                "member_since": "2025-02-26T16:46:04.841Z"
+            }
+        }
+    },
+    "GET /api/users/:user_id": {
+        "description": "Responds with the user with the given user_id",
+        "exampleRequest": "/api/users/dQw4w9WgXcQ",
+        "exampleResponse": {
+            "user": {
+                "username": "Kevin_SynthV",
+                "email": "captain-kevin@thefarisland.com",
+                "artist_name": "Kevin",
+                "description": "I'm Captain Kevin, the best there is, I've been collecting treasure for the best of years!",
+                "profile_picture": "captain-kevin.jpg",
+                "user_id": "dQw4w9WgXcQ",
+                "date_of_birth": "2003-02-22T00:00:00.000Z",
+                "member_since": "2025-02-26T16:46:04.841Z"
+            }
+        }
+    },
+    "GET /api/albums": {
+        "description": "Responds with an array of albums satisfying the given queries",
+        "exampleRequest": "/api/albums",
+        "queries": {
+            "user_id": "Responds with an array of all albums from a given user",
+            "is_featured": "This is a boolean. If true, it returns only featured albums, and if false, it returns non-featured albums."
+        },
+        "exampleResponse": {
+            "albums": [
+                {
+                    "album_id": 1,
+                    "title": "Neural Anthems++",
+                    "back_cover_reference": "DisplayJSON_ManimCE_v0.19.0.png",
+                    "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                    "is_featured": true,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:08:55.109Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    }
+                },
+                {
+                    "album_id": 13,
+                    "title": "Captain Kevin",
+                    "back_cover_reference": null,
+                    "front_cover_reference": "Default",
+                    "is_featured": false,
+                    "user_id": "dQw4w9WgXcQ",
+                    "created_at": "2025-02-25T17:54:20.504Z",
+                    "artist": {
+                        "username": "Kevin_SynthV",
+                        "artist_name": "Kevin"
+                    }
+                },
+                {
+                    "album_id": 14,
+                    "title": "Show Them What You've Got",
+                    "back_cover_reference": null,
+                    "front_cover_reference": "Default",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-25T23:53:22.853Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    }
+                }
+            ]
+        }
+    },
+    "POST /api/albums": {
+        "description": "Posts an album to the database and returns the created album",
+        "exampleRequest": {
+            "endpoint": "/api/albums",
+            "body": {
+                "user_id": "dQw4w9WgXcQ",
+                "title": "Never Gonna Give You Up",
+                "front_cover_reference": "rickroll.png"
+            }
+        },
+        "exampleResponse": {
+            "album": {
+                "album_id": 16,
+                "title": "Never Gonna Give You Up",
+                "back_cover_reference": null,
+                "front_cover_reference": "rickroll.png",
+                "is_featured": false,
+                "user_id": "dQw4w9WgXcQ",
+                "description": null,
+                "created_at": "2025-02-26T23:13:14.991Z",
+                "artist": {
+                    "username": "Kevin_SynthV",
+                    "artist_name": "Kevin"
+                }
+            }
+        }
+    },
+    "GET /api/albums/:album_id": {
+        "description": "Responds with the album with the corresponding album ID, along with its songs",
+        "exampleRequest": "/api/albums/1",
+        "exampleResponse": {
+            "album": {
+                "album_id": 1,
+                "title": "Neural Anthems++",
+                "back_cover_reference": "DisplayJSON_ManimCE_v0.19.0.png",
+                "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                "is_featured": true,
+                "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                "description": "A remake of an album I created back in 2023. Each song is created by me in Logic Pro X, with vocal synths from Synth V to help with the vocals.",
+                "created_at": "2025-02-24T15:08:55.109Z",
+                "songs": [
+                    {
+                        "song_id": 1,
+                        "title": "A New Era",
+                        "reference": "a-new-era.mp3",
+                        "artist": {
+                            "username": "AlexTheMan",
+                            "artist_name": "Alex The Man"
+                        },
+                        "created_at": "2025-02-24T15:45:40.488Z"
+                    },
+                    {
+                        "song_id": 2,
+                        "title": "Mechanical Constructions",
+                        "reference": "mechanical-constructions.mp3",
+                        "artist": {
+                            "username": "AlexTheMan",
+                            "artist_name": "Alex The Man"
+                        },
+                        "created_at": "2025-02-24T15:45:40.488Z"
+                    },
+                    {
+                        "song_id": 3,
+                        "title": "The Pirate Who Wanted Treasure",
+                        "reference": "the-pirate-who-wanted-treasure.mp3",
+                        "artist": {
+                            "username": "AlexTheMan",
+                            "artist_name": "Alex The Man"
+                        },
+                        "created_at": "2025-02-24T15:45:40.488Z"
+                    },
+                    {
+                        "song_id": 4,
+                        "title": "Highest Power",
+                        "reference": "highest-power.mp3",
+                        "artist": {
+                            "username": "AlexTheMan",
+                            "artist_name": "Alex The Man"
+                        },
+                        "created_at": "2025-02-24T15:45:40.488Z"
+                    },
+                    {
+                        "song_id": 5,
+                        "title": "Dreams",
+                        "reference": "dreams.mp3",
+                        "artist": {
+                            "username": "AlexTheMan",
+                            "artist_name": "Alex The Man"
+                        },
+                        "created_at": "2025-02-24T15:45:40.488Z"
+                    },
+                    {
+                        "song_id": 6,
+                        "title": "Aquatic Cavern",
+                        "reference": "aquatic-cavern.mp3",
+                        "artist": {
+                            "username": "AlexTheMan",
+                            "artist_name": "Alex The Man"
+                        },
+                        "created_at": "2025-02-24T15:45:40.488Z"
+                    },
+                    {
+                        "song_id": 7,
+                        "title": "This Big World",
+                        "reference": "this-big-world.mp3",
+                        "artist": {
+                            "username": "AlexTheMan",
+                            "artist_name": "Alex The Man"
+                        },
+                        "created_at": "2025-02-24T15:45:40.488Z"
+                    }
+                ],
+                "artist": {
+                    "username": "AlexTheMan",
+                    "artist_name": "Alex The Man"
+                },
+                "average_rating": 8
+            }
+        }
+    },
+    "POST /api/albums/:album_id/songs": {
+        "description": "Creates a song for the given album and returns that song",
+        "exampleRequest": {
+            "endpoint": "/api/albums/1/songs",
+            "body": {
+                "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                "title": "Neural Anthems",
+                "description": "Title track of Neural Anthems",
+                "reference": "neural-anthems.mp3"
+            }
+        },
+        "exampleResponse": {
+            "song": {
+                "song_id": 18,
+                "title": "Neural Anthems",
+                "album_id": 1,
+                "reference": "neural-anthems.mp3",
+                "is_featured": false,
+                "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                "description": "Title track of Neural Anthems",
+                "created_at": "2025-02-26T23:22:25.825Z",
+                "artist": {
+                    "username": "AlexTheMan",
+                    "artist_name": "Alex The Man"
+                }
+            }
+        }
+    },
+    "GET /api/songs": {
+        "description": "Responds with an array of songs matching the given queries",
+        "queries": {
+            "user_id":"Responds with an array of all songs from a given user",
+            "is_featured": "This is a boolean. If true, it returns only featured songs, and if false, it returns non-featured songs.",
+            "sort_by": "Choose a property to sort the order of responses by. Defaults to sorting by created_at if nothing given",
+            "order": "Choose whether to sort in ascending or descending order. If not provided, it defaults to descending order."
+        },
+        "exampleRequest": "/api/songs",
+        "exampleResponse": {
+            "songs": [
+                {
+                    "song_id": 17,
+                    "title": "Fun Times",
+                    "album_id": 14,
+                    "reference": "Fun Times.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-26T11:20:55.619Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "Default",
+                        "title": "Show Them What You've Got"
+                    }
+                },
+                {
+                    "song_id": 16,
+                    "title": "",
+                    "album_id": 14,
+                    "reference": "Fun Times.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-26T11:18:37.114Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "Default",
+                        "title": "Show Them What You've Got"
+                    }
+                },
+                {
+                    "song_id": 15,
+                    "title": "Captain Kevin (Simulation Mix)",
+                    "album_id": 13,
+                    "reference": "Captain Kevin (Simulation Mix).mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-25T18:15:59.265Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "Default",
+                        "title": "Captain Kevin"
+                    }
+                },
+                {
+                    "song_id": 14,
+                    "title": "Captain Kevin",
+                    "album_id": 13,
+                    "reference": "captain-kevin.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-25T18:08:41.289Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "Default",
+                        "title": "Captain Kevin"
+                    }
+                },
+                {
+                    "song_id": 5,
+                    "title": "Dreams",
+                    "album_id": 1,
+                    "reference": "dreams.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:45:40.488Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                        "title": "Neural Anthems++"
+                    }
+                },
+                {
+                    "song_id": 1,
+                    "title": "A New Era",
+                    "album_id": 1,
+                    "reference": "a-new-era.mp3",
+                    "is_featured": true,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:45:40.488Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                        "title": "Neural Anthems++"
+                    }
+                },
+                {
+                    "song_id": 7,
+                    "title": "This Big World",
+                    "album_id": 1,
+                    "reference": "this-big-world.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:45:40.488Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                        "title": "Neural Anthems++"
+                    }
+                },
+                {
+                    "song_id": 6,
+                    "title": "Aquatic Cavern",
+                    "album_id": 1,
+                    "reference": "aquatic-cavern.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:45:40.488Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                        "title": "Neural Anthems++"
+                    }
+                },
+                {
+                    "song_id": 2,
+                    "title": "Mechanical Constructions",
+                    "album_id": 1,
+                    "reference": "mechanical-constructions.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:45:40.488Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                        "title": "Neural Anthems++"
+                    }
+                },
+                {
+                    "song_id": 3,
+                    "title": "The Pirate Who Wanted Treasure",
+                    "album_id": 1,
+                    "reference": "the-pirate-who-wanted-treasure.mp3",
+                    "is_featured": false,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:45:40.488Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                        "title": "Neural Anthems++"
+                    }
+                },
+                {
+                    "song_id": 4,
+                    "title": "Highest Power",
+                    "album_id": 1,
+                    "reference": "highest-power.mp3",
+                    "is_featured": true,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "created_at": "2025-02-24T15:45:40.488Z",
+                    "artist": {
+                        "username": "AlexTheMan",
+                        "artist_name": "Alex The Man"
+                    },
+                    "album": {
+                        "front_cover_reference": "DisplayAlbumPlayer_ManimCE_v0.19.0.png",
+                        "title": "Neural Anthems++"
+                    }
+                }
+            ]
+        }
+    },
+    "GET /api/songs/:song_id": {
+        "description": "Responds with the song with the given ID",
+        "exampleRequest": "/api/songs/14",
+        "exampleResponse": {
+            "song": {
+                "song_id": 14,
+                "title": "Captain Kevin",
+                "album_id": 13,
+                "reference": "captain-kevin.mp3",
+                "is_featured": false,
+                "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                "description": null,
+                "created_at": "2025-02-25T18:08:41.289Z",
+                "artist": {
+                    "username": "AlexTheMan",
+                    "artist_name": "Alex The Man"
+                },
+                "album": {
+                    "title": "Captain Kevin",
+                    "front_cover_reference": "Default",
+                    "back_cover_reference": null
+                },
+                "average_rating": null
+            }
+        }
+    },
+    "GET /api/songs/:song_id/comments": {
+        "description": "Responds with an array of all comments associated with a given song",
+        "exampleRequest": "/api/songs/1/comments",
+        "exampleResponse": {
+            "comments": [
+                {
+                    "comment_id": 7,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "song_id": 1,
+                    "body": "Test comment",
+                    "rating": 7,
+                    "created_at": "2025-02-25T01:33:41.189Z",
+                    "author": {
+                        "artist_name": "Alex The Man",
+                        "username": "AlexTheMan",
+                        "profile_picture": "ProfilePicture_ManimCE_v0.19.0.png"
+                    }
+                },
+                {
+                    "comment_id": 9,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "song_id": 1,
+                    "body": "Will this screen reader dude just shut up?!",
+                    "rating": 8,
+                    "created_at": "2025-02-25T23:39:14.642Z",
+                    "author": {
+                        "artist_name": "Alex The Man",
+                        "username": "AlexTheMan",
+                        "profile_picture": "ProfilePicture_ManimCE_v0.19.0.png"
+                    }
+                }
+            ]
+        }
+    },
+    "POST /api/songs/:song_id/comments": {
+        "description": "Posts a new comment and responds with the posted comment",
+        "exampleRequest": {
+            "endpoint": "/api/songs/1/comments",
+            "body": {
+                "user_id": "dQw4w9WgXcQ",
+                "body": "This is a cool song!",
+                "rating": 10
+            }
+        },
+        "exampleResponse": {
+            "comment": {
+                "comment_id": 12,
+                "user_id": "dQw4w9WgXcQ",
+                "song_id": 1,
+                "body": "This is a cool song!",
+                "rating": 10,
+                "created_at": "2025-02-26T23:49:33.173Z",
+                "author": {
+                    "artist_name": "Kevin",
+                    "username": "Kevin_SynthV",
+                    "profile_picture": "captain-kevin.jpg"
+                }
+            }
+        }
+    },
+    "GET: /api/albums/:album_id/comments": {
+        "description": "Responds with an array of all comments associated with a given album",
+        "exampleRequest": "/api/albums/1/comments",
+        "exampleResponse": {
+            "comments": [
+                {
+                    "comment_id": 8,
+                    "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                    "album_id": 1,
+                    "body": "This is a classic album!",
+                    "rating": 8,
+                    "created_at": "2025-02-25T01:45:25.372Z",
+                    "author": {
+                        "artist_name": "Alex The Man",
+                        "username": "AlexTheMan",
+                        "profile_picture": "ProfilePicture_ManimCE_v0.19.0.png"
+                    }
+                },
+                {
+                    "comment_id": 13,
+                    "user_id": "vHEhZjHUuyPFblqHtPc40CqQN0l1",
+                    "album_id": 1,
+                    "body": "Awesome stuff!",
+                    "rating": null,
+                    "created_at": "2025-02-26T23:54:42.227Z",
+                    "author": {
+                        "artist_name": "Alt the alt",
+                        "username": "Alt_account",
+                        "profile_picture": "Default"
+                    }
+                }
+            ]
+        }
+    },
+    "POST /api/albums/:album_id/comments": {
+        "description": "Posts a new comment and responds with the posted comment",
+        "exampleRequest": {
+            "endpoint": "/api/albums/1/comments",
+            "body": {
+                "user_id": "dQw4w9WgXcQ",
+                "body": "This is a cool album!",
+                "rating": 10
+            }
+        },
+        "exampleResponse": {
+            "comment": {
+                "comment_id": 12,
+                "user_id": "dQw4w9WgXcQ",
+                "album_id": 1,
+                "body": "This is a cool album!",
+                "rating": 10,
+                "created_at": "2025-02-26T23:49:33.173Z",
+                "author": {
+                    "artist_name": "Kevin",
+                    "username": "Kevin_SynthV",
+                    "profile_picture": "captain-kevin.jpg"
+                }
+            }
+        }
+    },
+    "PATCH /api/comments/:comment_id": {
+        "description": "Updates a given comment and returns the updated comment",
+        "exampleRequest": {
+            "endpoint": "/api/comments/1",
+            "body": {
+                "body": "This is a VERY cool song!",
+                "rating": 10
+            }
+        },
+        "exampleResponse": {
+            "comment": {
+                "comment_id": 7,
+                "user_id": "5pLK2GyqhFhmRczNz6i16JrtjKH2",
+                "song_id": 1,
+                "body": "This is a VERY cool song!",
+                "rating": 10,
+                "created_at": "2025-02-25T01:33:41.189Z",
+                "author": {
+                    "artist_name": "Alex The Man",
+                    "username": "AlexTheMan",
+                    "profile_picture": "ProfilePicture_ManimCE_v0.19.0.png"
+                }
+            }
+        }
+    },
+    "DELETE /api/comments/:comment_id": {
+        "description": "Deletes the comment from the database",
+        "exampleRequest": "/api/comments/1",
+        "exampleResponse": {}
+    }
+}
