@@ -1,4 +1,4 @@
-const { uploadAlbum, fetchAlbumById, fetchAlbums } = require("../models/albums-model");
+const { uploadAlbum, fetchAlbumById, fetchAlbums, editAlbum } = require("../models/albums-model");
 const { fetchUserById } = require("../models/users-model");
 
 async function getAlbums(request, response, next){
@@ -36,5 +36,13 @@ function postAlbum(request, response, next){
     })
 }
 
+function patchAlbum(request, response, next){
+    editAlbum(request.params.album_id, request.body).then((album) => {
+        response.status(200).send({album});
+    }).catch((err) => {
+        next(err);
+    })
+}
 
-module.exports = { getAlbumById, postAlbum, getAlbums };
+
+module.exports = { getAlbumById, postAlbum, getAlbums, patchAlbum };

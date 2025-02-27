@@ -113,4 +113,22 @@ function uploadAlbum(album){
     })
 }
 
-module.exports = { fetchAlbums, fetchAlbumById, uploadAlbum };
+function editAlbum(stringifiedAlbumID, body){
+    const album_id = parseInt(stringifiedAlbumID);
+    const data = {...body};
+
+    for(const key in data){
+        if(!["title", "front_cover_reference", "back_cover_reference", "description"].includes(key)){
+            delete data[key];
+        }
+    }
+
+    return database.album.update({
+        where: {
+            album_id
+        },
+        data
+    })
+}
+
+module.exports = { fetchAlbums, fetchAlbumById, uploadAlbum, editAlbum };

@@ -27,7 +27,7 @@ describe("/api/users", () => {
             return request(app)
             .get("/api/users")
             .expect(200)
-            .then((response) => {
+            .then(({response}) => {
                 expect(response.body.users.length).not.toBe(0)
                 response.body.users.forEach((user) => {
                     expect(typeof user.user_id).toBe("string");
@@ -707,6 +707,47 @@ describe("/api/albums/:album_id", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Album not found");
+            })
+        })
+    })
+    describe.only("PATCH", () => {
+        test("200: Updates the album with the given ID and responds with the updated album", () => {
+            return request(app)
+            .patch("/api/albums/3")
+            .send({
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!"
+            })
+            .expect(200)
+            .then((response) => {
+                const {album} = response.body;
+                expect(typeof album.album_id).toBe("number");
+                expect(album.title).toBe("Never Gonna Give You Up");
+                expect(album.front_cover_reference).toBe("rickroll.png");
+                expect(album.back_cover_reference).toBe("kevinroll.png");
+                expect(album.description).toBe("Never gonna give you up, never gonna let you down!")
+            })
+        })
+        test("200: Ignores any extra keys on request body", () => {
+            return request(app)
+            .patch("/api/albums/3")
+            .send({
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!",
+                extraKey: "Extra property"
+            })
+            .expect(200)
+            .then((response) => {
+                const {album} = response.body;
+                expect(typeof album.album_id).toBe("number");
+                expect(album.title).toBe("Never Gonna Give You Up");
+                expect(album.front_cover_reference).toBe("rickroll.png");
+                expect(album.back_cover_reference).toBe("kevinroll.png");
+                expect(album.description).toBe("Never gonna give you up, never gonna let you down!")
             })
         })
     })
