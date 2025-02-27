@@ -135,4 +135,19 @@ function editAlbum(stringifiedAlbumID, body){
     })
 }
 
-module.exports = { fetchAlbums, fetchAlbumById, uploadAlbum, editAlbum };
+function removeAlbum(stringifiedAlbumID){
+    const album_id = parseInt(stringifiedAlbumID);
+    return database.song.deleteMany({
+        where: {
+            album_id
+        }
+    }).then(() => {
+        return database.album.delete({
+            where: {
+                album_id
+            }
+        });
+    })
+}
+
+module.exports = { fetchAlbums, fetchAlbumById, uploadAlbum, editAlbum, removeAlbum };
