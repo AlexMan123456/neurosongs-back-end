@@ -59,4 +59,5 @@ If you've set up your environment variables and Docker environment correctly, al
 ## Links
 
 Link to front-end repository: https://github.com/AlexMan123456/neurosongs-front-end
+
 Link to hosted version of the site: https://neurosongs.netlify.app
