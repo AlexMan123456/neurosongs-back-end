@@ -1,4 +1,4 @@
-### Neurosongs Back-end API
+# Neurosongs Back-end API
 
 This is the back-end server for the Neurosongs website, also created by me. It aims to be a mix between YouTube, Spotify, and a hint of Metacritic, taking the streaming capabilities of Spotify, the community aspect of YouTube, and the rating system from Metacritic.
 
@@ -25,6 +25,10 @@ Create two environment variables, `.env.test` and `.env.development`. Each of th
     DATABASE_URL=your_database_url
 
 The database in both cases are managed with Prisma, so I would recommend setting both up using a Prisma database: https://www.prisma.io/postgres
+
+`.env.development` also requires one more environment variable - the `PORT`. This is the port the server will be listening for requests on if provided. If not provided, it defaults to 8080. If you want to use a different port, add something like this to `.env.development`:
+
+    PORT=your_chosen_port
 
 ## Seeding Databases
 
