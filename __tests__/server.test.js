@@ -27,7 +27,7 @@ describe("/api/users", () => {
             return request(app)
             .get("/api/users")
             .expect(200)
-            .then(({response}) => {
+            .then((response) => {
                 expect(response.body.users.length).not.toBe(0)
                 response.body.users.forEach((user) => {
                     expect(typeof user.user_id).toBe("string");
@@ -710,7 +710,7 @@ describe("/api/albums/:album_id", () => {
             })
         })
     })
-    describe.only("PATCH", () => {
+    describe("PATCH", () => {
         test("200: Updates the album with the given ID and responds with the updated album", () => {
             return request(app)
             .patch("/api/albums/3")
