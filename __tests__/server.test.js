@@ -750,6 +750,64 @@ describe("/api/albums/:album_id", () => {
                 expect(album.description).toBe("Never gonna give you up, never gonna let you down!")
             })
         })
+        test("400: Does not allow user_id to be edited", () => {
+            return request(app)
+            .patch("/api/albums/3")
+            .send({
+                user_id: "1",
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if album_id is in request body", () => {
+            return request(app)
+            .patch("/api/albums/3")
+            .send({
+                album_id: 1,
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if album_id parameter is invalid", () => {
+            return request(app)
+            .patch("/api/albums/invalid_id")
+            .send({
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if album does not exist", () => {
+            return request(app)
+            .patch("/api/albums/231")
+            .send({
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Album not found")
+            })
+        })
     })
 })
 

@@ -117,6 +117,10 @@ function editAlbum(stringifiedAlbumID, body){
     const album_id = parseInt(stringifiedAlbumID);
     const data = {...body};
 
+    if(data.album_id || data.user_id){
+        return Promise.reject({status: 400, message: "Bad request"});
+    }
+
     for(const key in data){
         if(!["title", "front_cover_reference", "back_cover_reference", "description"].includes(key)){
             delete data[key];
