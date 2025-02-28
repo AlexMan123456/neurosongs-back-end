@@ -142,6 +142,13 @@ function removeAlbum(stringifiedAlbumID){
             album_id
         }
     }).then(() => {
+        return database.comment.deleteMany({
+            where: {
+                album_id
+            }
+        })
+    })
+    .then(() => {
         return database.album.delete({
             where: {
                 album_id

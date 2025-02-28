@@ -129,4 +129,20 @@ function editSong(stringifiedSongID, body){
     })
 }
 
-module.exports = { fetchSongs, fetchSongById, uploadSong, editSong }
+function removeSong(stringifiedSongID){
+    const song_id = parseInt(stringifiedSongID);
+
+    return database.comment.deleteMany({
+        where: {
+            song_id
+        }
+    }).then(() => {
+        return database.song.delete({
+            where: {
+                song_id
+            }
+        })
+    })
+}
+
+module.exports = { fetchSongs, fetchSongById, uploadSong, editSong, removeSong }

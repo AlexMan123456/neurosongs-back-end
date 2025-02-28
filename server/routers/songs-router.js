@@ -1,5 +1,5 @@
 const express = require("express")
-const { getSongs, getSongById, patchSong } = require("../controllers/songs-controller")
+const { getSongs, getSongById, patchSong, deleteSong } = require("../controllers/songs-controller")
 const { getCommentsFromContent: getCommentsFromSong, postComment } = require("../controllers/comments-controller")
 const songs = express.Router()
 
@@ -9,6 +9,7 @@ songs.route("/")
 songs.route("/:song_id")
 .get(getSongById)
 .patch(patchSong)
+.delete(deleteSong)
 
 songs.route("/:song_id/comments")
 .get(getCommentsFromSong)
