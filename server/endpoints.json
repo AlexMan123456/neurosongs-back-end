@@ -543,6 +543,11 @@
             }
         }
     },
+    "DELETE /api/songs/:song_id": {
+        "description": "Deletes the song with the given song_id from the database",
+        "exampleRequest": "/api/songs/1",
+        "exampleResponse": {}
+    },
     "GET /api/songs/:song_id/comments": {
         "description": "Responds with an array of all comments associated with a given song",
         "exampleRequest": "/api/songs/1/comments",
