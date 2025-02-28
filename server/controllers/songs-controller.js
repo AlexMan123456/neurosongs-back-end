@@ -1,4 +1,4 @@
-const { fetchSongs, fetchSongById, fetchSongsFromUser, uploadSong } = require("../models/songs-model");
+const { fetchSongs, fetchSongById, fetchSongsFromUser, uploadSong, editSong } = require("../models/songs-model");
 const { fetchUserById } = require("../models/users-model");
 
 async function getSongs(request, response, next){
@@ -31,4 +31,12 @@ function postSong(request, response, next){
     })
 }
 
-module.exports = { getSongs, getSongById, postSong }
+function patchSong(request, response, next){
+    editSong(request.params.song_id, request.body).then((song) => {
+        response.status(200).send({song})
+    }).catch((err) => {
+        next(err);
+    })
+}
+
+module.exports = { getSongs, getSongById, postSong, patchSong }
