@@ -1218,6 +1218,124 @@ describe("/api/songs/:song_id", () => {
             })
         })
     })
+    describe.only("PATCH", () => {
+        test("200: Updates the given song and responds with the updated song", () => {
+            return request(app)
+            .patch("/api/songs/2")
+            .send({
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!"
+            })
+            .expect(200)
+            .then((response) => {
+                const {song} = response.body;
+                expect(song.song_id).toBe(2);
+                expect(song.user_id).toBe("1");
+                expect(song.title).toBe("Never Gonna Give You Up");
+                expect(song.reference).toBe("never-gonna-give-you-up.mp3");
+                expect(song.is_featured).toBe(false);
+                expect(song.description).toBe("You've been rickrolled!");
+                expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
+            })
+        })
+        test("200: Ignores any extra properties on request body", () => {
+            return request(app)
+            .patch("/api/songs/2")
+            .send({
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!",
+                extraKey: "Extra property"
+            })
+            .expect(200)
+            .then((response) => {
+                const {song} = response.body;
+                expect(song.song_id).toBe(2);
+                expect(song.user_id).toBe("1");
+                expect(song.title).toBe("Never Gonna Give You Up");
+                expect(song.reference).toBe("never-gonna-give-you-up.mp3");
+                expect(song.is_featured).toBe(false);
+                expect(song.description).toBe("You've been rickrolled!");
+                expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
+            })
+        })
+        test("400: Responds with a bad request message if request body contains user_id", () => {
+            return request(app)
+            .patch("/api/songs/2")
+            .send({
+                user_id: "dQw4w9WgXcQ",
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if request body contains album_id", () => {
+            return request(app)
+            .patch("/api/songs/2")
+            .send({
+                album_id: 2,
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if request body contains song_id", () => {
+            return request(app)
+            .patch("/api/songs/2")
+            .send({
+                song_id: 2,
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if song_id in parameters is invalid", () => {
+            return request(app)
+            .patch("/api/songs/invalid_id")
+            .send({
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if song does not exist", () => {
+            return request(app)
+            .patch("/api/songs/231")
+            .send({
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Song not found");
+            })
+        })
+    })
 })
 
 describe("/api/songs/:song_id/comments", () => {

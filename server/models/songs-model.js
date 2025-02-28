@@ -107,4 +107,26 @@ function uploadSong(album_id, song){
     })
 }
 
-module.exports = { fetchSongs, fetchSongById, uploadSong }
+function editSong(stringifiedSongID, body){
+    const song_id = parseInt(stringifiedSongID);
+    const data = {...body};
+
+    if(data.user_id || data.album_id || data.song_id){
+        return Promise.reject({status: 400, message: "Bad request"});
+    }
+
+    for(const key in data){
+        if(!["title", "reference", "is_featured", "description"].includes(key)){
+            delete data[key];
+        }
+    }
+
+    return database.song.update({
+        where: {
+            song_id
+        },
+        data
+    })
+}
+
+module.exports = { fetchSongs, fetchSongById, uploadSong, editSong }
