@@ -519,6 +519,30 @@
             }
         }
     },
+    "PATCH /api/songs/:song_id": {
+        "description": "Updates the given song and responds with the updated song",
+        "exampleRequest": {
+            "endpoint": "/api/songs/2",
+            "body": {
+                "title": "Never Gonna Give You Up",
+                "reference": "never-gonna-give-you-up.mp3",
+                "is_featured": false,
+                "description": "You've been rickrolled!"
+            }
+        },
+        "exampleResponse": {
+            "song": {
+                "song_id": 2,
+                "title": "Never Gonna Give You Up",
+                "album_id": 1,
+                "reference": "never-gonna-give-you-up.mp3",
+                "is_featured": false,
+                "user_id": "dQw4w9WgXcQ",
+                "description": "You've been rickrolled!",
+                "created_at": "2024-02-16T00:00:00.000Z"
+            }
+        }
+    },
     "GET /api/songs/:song_id/comments": {
         "description": "Responds with an array of all comments associated with a given song",
         "exampleRequest": "/api/songs/1/comments",
