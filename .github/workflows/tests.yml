@@ -32,11 +32,9 @@ jobs:
       run: npm ci
     - name: Initialise environment variables
       run: |
-        touch .env.test
-        echo 'DATABASE_URL="${{ secrets.DATABASE_URL }}"' >> .env.test
-    - name: Install dotenv-cli
-      run: npm install -g dotenv-cli
+        touch .env
+        echo 'DATABASE_URL="${{ secrets.DATABASE_URL }}"' >> .env
     - name: Deploy Prisma migration
-      run: dotenv -e ./.env.test -- npx prisma migrate deploy && npx prisma generate
+      run: npx prisma migrate deploy && npx prisma generate
     - name: Run tests
       run: npm test

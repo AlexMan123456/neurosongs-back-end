@@ -13,6 +13,7 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "test": "yarn docker:up && dotenv -e ./.env.test jest -i",
+    "test-action": "yarn docker:up && jest -i",
     "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force",
     "dev": "dotenv -e ./.env.development -- npx prisma migrate deploy && nodemon server/listen.js",
     "prepare": "husky",
