@@ -1,13 +1,14 @@
 const request = require("supertest");
 const app = require("../server/app");
-const { execSync } = require("node:child_process");
 require("jest-sorted")
-const endpoints = require("../server/endpoints.json")
+const data = require("../prisma/test-data");
+const seed = require("../prisma/seed");
+const endpoints = require("../server/endpoints.json");
 
 jest.setTimeout(30000)
 
 beforeEach(() => {
-    execSync("dotenv -e ./.env.test -- yarn prisma db seed");
+    return seed(data);
 })
 
 describe("/api", () => {
