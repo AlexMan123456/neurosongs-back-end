@@ -1218,7 +1218,7 @@ describe("/api/songs/:song_id", () => {
             })
         })
     })
-    describe.only("PATCH", () => {
+    describe("PATCH", () => {
         test("200: Updates the given song and responds with the updated song", () => {
             return request(app)
             .patch("/api/songs/2")
