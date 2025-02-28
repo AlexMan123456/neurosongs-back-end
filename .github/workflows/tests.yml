@@ -34,7 +34,9 @@ jobs:
       run: |
         touch .env.test
         echo 'DATABASE_URL="${{ secrets.DATABASE_URL }}"' >> .env.test
+    - name: Install dotenv-cli
+      run: npm install -g dotenv-cli
     - name: Deploy Prisma migration
-      run: npx prisma migrate deploy && npx prisma generate
+      run: dotenv -e ./.env.test -- npx prisma migrate deploy && npx prisma generate
     - name: Run tests
       run: npm test
