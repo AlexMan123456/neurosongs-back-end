@@ -23,10 +23,16 @@ jobs:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
+    - name: Use Docker Compose
+      uses: ./.github/actions/docker-compose
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - name: Install dependencies
       run: npm ci
+    - name: Initialise environment variables
+      run: |
+        touch .env.test
+        echo 'DATABASE_URL="${{ secrets.DATABASE_URL }}"' >> .env.test
     - name: Run tests
       run: npm test
