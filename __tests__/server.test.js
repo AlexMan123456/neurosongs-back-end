@@ -1336,6 +1336,29 @@ describe("/api/songs/:song_id", () => {
             })
         })
     })
+    describe("DELETE", () => {
+        test("204: Deletes the song with the given song_id from the database", () => {
+            return request(app)
+            .delete("/api/songs/1")
+            .expect(204)
+        })
+        test("400: Responds with a bad request message if song_id is invalid", () => {
+            return request(app)
+            .delete("/api/songs/never_gonna_give_you_up")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if song to delete does not exist", () => {
+            return request(app)
+            .delete("/api/songs/231")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Song not found")
+            })
+        })
+    })
 })
 
 describe("/api/songs/:song_id/comments", () => {
