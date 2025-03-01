@@ -6,6 +6,11 @@ module.exports = [
     },
     {
         user_id: "3",
+        song_id: 1,
+        score: 10
+    },
+    {
+        user_id: "3",
         song_id: 3,
         score: 10,
         is_visible: true

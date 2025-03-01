@@ -63,13 +63,17 @@ function fetchSongById(stringifiedSongID){
             where: {song_id},
             _avg: {
                 score: true
+            },
+            _count: {
+                song_id: true
             }
         })
-    ]).then(([song, {_avg}]) => {
+    ]).then(([song, {_avg, _count}]) => {
         if(!song){
             return Promise.reject({status: 404, message: "Song not found"});
         }
         song.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
+        song.rating_count = _count.song_id;
         return song;
     })
 }
