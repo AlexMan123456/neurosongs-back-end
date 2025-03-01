@@ -6,7 +6,7 @@ const { fetchUserById } = require("../models/users-model");
 function postRating(request, response, next){
     const contentType = request.params.song_id ? "song" : "album"
 
-    const fetchContent = contentType === "song" ? fetchSongById(request.params.song_id) : fetchAlbumById(request.params.getAlbumById);
+    const fetchContent = contentType === "song" ? fetchSongById(request.params.song_id) : fetchAlbumById(request.params.album_id);
     fetchContent.then(() => {
         return uploadRating(request.params[`${contentType}_id`], request.body, contentType)
     }).then((rating) => {

@@ -1,7 +1,7 @@
 const database = require("../../client");
 
 function uploadRating(contentID, data, contentType){
-    if(data.song_id){
+    if(data.song_id || data.album_id){
         return Promise.reject({status: 400, message: "Bad request"});
     }
 
