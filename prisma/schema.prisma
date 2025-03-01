@@ -19,6 +19,8 @@ model User {
   albums          Album[]
   comments        Comment[]
   songs           Song[]
+  song_ratings SongRating[]
+  album_ratings AlbumRating[]
 
   @@map("users")
 }
@@ -35,6 +37,7 @@ model Song {
   comments    Comment[]
   album       Album     @relation(fields: [album_id], references: [album_id])
   artist      User      @relation(fields: [user_id], references: [user_id])
+  ratings SongRating[]
 
   @@map("songs")
 }
@@ -51,6 +54,7 @@ model Album {
   artist                User      @relation(fields: [user_id], references: [user_id])
   comments              Comment[]
   songs                 Song[]
+  ratings AlbumRating[]
 
   @@map("albums")
 }
@@ -61,11 +65,34 @@ model Comment {
   song_id    Int?
   album_id   Int?
   body       String
-  rating     Decimal? @db.Decimal(3, 1)
   created_at DateTime @default(now())
   album      Album?   @relation(fields: [album_id], references: [album_id])
   song       Song?    @relation(fields: [song_id], references: [song_id])
   author     User     @relation(fields: [user_id], references: [user_id])
 
   @@map("comments")
+}
+
+model SongRating {
+  user_id    String
+  song_id    Int
+  score      Decimal @db.Decimal(3, 1)
+  is_visible Boolean @default(false)
+  user User @relation(fields: [user_id], references: [user_id])
+  song Song @relation(fields: [song_id], references: [song_id])
+
+  @@id([user_id, song_id])
+  @@map("song_ratings")
+}
+
+model AlbumRating {
+  user_id String
+  album_id Int
+  score Decimal @db.Decimal(3,1)
+  is_visible Boolean @default(false)
+  user User @relation(fields: [user_id], references: [user_id])
+  album Album @relation(fields: [album_id], references: [album_id])
+
+  @@id([user_id, album_id])
+  @@map("album_ratings")
 }

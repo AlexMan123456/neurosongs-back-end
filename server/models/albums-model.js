@@ -62,19 +62,19 @@ function fetchAlbumById(stringifiedAlbumID){
                 }
             }
         }),
-        database.comment.aggregate({
+        database.albumRating.aggregate({
             where: {
                 album_id
             },
             _avg: {
-                rating: true
+                score: true
             }
         })
     ]).then(([album, {_avg}]) => {
         if(!album){
             return Promise.reject({status: 404, message: "Album not found"});
         }
-        album.average_rating = Math.round(parseFloat(_avg.rating)*10)/10;
+        album.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
         return album;
     })
 }
@@ -137,10 +137,31 @@ function editAlbum(stringifiedAlbumID, body){
 
 function removeAlbum(stringifiedAlbumID){
     const album_id = parseInt(stringifiedAlbumID);
-    return database.song.deleteMany({
+    return database.song.findMany({
         where: {
             album_id
         }
+    }).then((songs) => {
+        const promises = songs.map((song) => {
+            return database.songRating.deleteMany({
+                where: {
+                    song_id: song.song_id
+                }
+            })
+        })
+        return Promise.all(promises)
+    }).then(() => {
+        return database.song.deleteMany({
+            where: {
+                album_id
+            }
+        })
+    }).then(() => {
+        return database.albumRating.deleteMany({
+            where: {
+                album_id
+            }
+        })
     }).then(() => {
         return database.comment.deleteMany({
             where: {

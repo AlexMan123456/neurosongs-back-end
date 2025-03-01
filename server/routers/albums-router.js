@@ -2,6 +2,7 @@ const express = require("express")
 const { getAlbumById, getAlbums, postAlbum, patchAlbum, deleteAlbum } = require("../controllers/albums-controller")
 const { postSong } = require("../controllers/songs-controller")
 const { getCommentsFromContent, postComment } = require("../controllers/comments-controller")
+const { postRating } = require("../controllers/ratings-controller")
 const albums = express.Router()
 
 albums.route("/")
@@ -19,5 +20,8 @@ albums.route("/:album_id/songs")
 albums.route("/:album_id/comments")
 .get(getCommentsFromContent)
 .post(postComment)
+
+albums.route("/:album_id/ratings")
+.post(postRating)
 
 module.exports = albums

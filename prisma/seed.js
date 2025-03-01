@@ -1,7 +1,7 @@
 const database = require("../client")
 const ENV = process.env.NODE_ENV ?? "development"
 
-async function seed({userData, songData, albumData, commentData}){
+async function seed({userData, songData, albumData, commentData, songRatingData, albumRatingData}){
     try {
         if(ENV === "test"){
             await database.$executeRaw`TRUNCATE songs RESTART IDENTITY CASCADE`
@@ -20,6 +20,16 @@ async function seed({userData, songData, albumData, commentData}){
         if(commentData){
             await database.comment.createMany({
                 data: commentData
+            })
+        }
+        if(songRatingData){
+            await database.songRating.createMany({
+                data: songRatingData
+            })
+        }
+        if(albumRatingData){
+            await database.albumRating.createMany({
+                data: albumRatingData
             })
         }
     } catch(err) {
