@@ -1779,6 +1779,171 @@ describe("/api/songs/:song_id/ratings", () => {
     })
 })
 
+describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
+    describe("PATCH", () => {
+        test("200: Updates a given song rating and responds with that rating", () => {
+            return request(app)
+            .patch("/api/ratings/songs/3/users/2")
+            .send({
+                score: 9,
+                is_visible: false
+            })
+            .expect(200)
+            .then((response) => {
+                const {rating} = response.body;
+                expect(rating.user_id).toBe("2");
+                expect(rating.song_id).toBe(3);
+                expect(rating.score).toBe(9);
+                expect(rating.is_visible).toBe(false);
+            })
+        })
+        test("200: Updates a given album rating and responds with that rating", () => {
+            return request(app)
+            .patch("/api/ratings/albums/4/users/1")
+            .send({
+                score: 7,
+                is_visible: true
+            })
+            .expect(200)
+            .then((response) => {
+                const {rating} = response.body;
+                expect(rating.user_id).toBe("1");
+                expect(rating.album_id).toBe(4);
+                expect(rating.score).toBe(7);
+                expect(rating.is_visible).toBe(true);
+            })
+        })
+        test("200: Ignores any extra properties on request body", () => {
+            return request(app)
+            .patch("/api/ratings/albums/4/users/1")
+            .send({
+                score: 7,
+                is_visible: true,
+                extraKey: "Extra property"
+            })
+            .expect(200)
+            .then((response) => {
+                const {rating} = response.body;
+                expect(rating.user_id).toBe("1");
+                expect(rating.album_id).toBe(4);
+                expect(rating.score).toBe(7);
+                expect(rating.is_visible).toBe(true);
+            })
+        })
+        test("400: Responds with a bad request message if content_type is not songs or albums", () => {
+            return request(app)
+            .patch("/api/ratings/books/4/users/1")
+            .send({
+                score: 7,
+                is_visible: true
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if user_id is included in request body", () => {
+            return request(app)
+            .patch("/api/ratings/songs/3/users/2")
+            .send({
+                score: 9,
+                is_visible: false,
+                user_id: "2"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if song_id is included in request body", () => {
+            return request(app)
+            .patch("/api/ratings/songs/3/users/2")
+            .send({
+                score: 9,
+                is_visible: false,
+                song_id: 2
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if album_id is included in request body", () => {
+            return request(app)
+            .patch("/api/ratings/songs/3/users/2")
+            .send({
+                score: 9,
+                is_visible: false,
+                album_id: 2
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if content_id is invalid", () => {
+            return Promise.all([
+                request(app)
+                .patch("/api/ratings/songs/invalid_song/users/2")
+                .send({
+                    score: 9,
+                    is_visible: false,
+                })
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request")
+                }),
+                request(app)
+                .patch("/api/ratings/albums/invalid_album/users/1")
+                .send({
+                    score: 7,
+                    is_visible: true
+                })
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request")
+                })
+            ])
+        })
+        test("404: Responds with a not found message if content does not exist", () => {
+            return Promise.all([
+                request(app)
+                .patch("/api/ratings/songs/231/users/2")
+                .send({
+                    score: 9,
+                    is_visible: false,
+                })
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("Song not found")
+                }),
+                request(app)
+                .patch("/api/ratings/albums/231/users/1")
+                .send({
+                    score: 7,
+                    is_visible: true
+                })
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("Album not found")
+                })
+            ])
+        })
+        test("404: Responds with a not found message if user_id does not exist", () => {
+            return request(app)
+            .patch("/api/ratings/songs/3/users/unknown_from_me")
+            .send({
+                score: 9,
+                is_visible: false
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
+    })
+})
+
 
 describe("/api/comments/:comment_id", () => {
     describe("PATCH", () => {
@@ -1921,8 +2086,6 @@ describe("/api/comments/:comment_id", () => {
         })
     })
 })
-
-
 
 
 describe("/*", () => {

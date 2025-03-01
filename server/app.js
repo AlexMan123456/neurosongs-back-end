@@ -7,6 +7,7 @@ const app = express();
 const cors = require("cors");
 const comments = require("./routers/comments-router");
 const getEndpoints = require("./controllers/endpoints-controller");
+const ratings = require("./routers/ratings-router");
 
 // Allow Cross Origin Resource Sharing
 app.use(cors());
@@ -22,6 +23,7 @@ app.use("/api/users", users);
 app.use("/api/songs", songs);
 app.use("/api/albums", albums);
 app.use("/api/comments", comments);
+app.use("/api/ratings", ratings)
 
 // Errors
 app.use(endpointNotFound)
