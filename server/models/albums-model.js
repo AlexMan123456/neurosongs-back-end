@@ -68,13 +68,17 @@ function fetchAlbumById(stringifiedAlbumID){
             },
             _avg: {
                 score: true
+            },
+            _count: {
+                album_id: true
             }
         })
-    ]).then(([album, {_avg}]) => {
+    ]).then(([album, {_avg, _count}]) => {
         if(!album){
             return Promise.reject({status: 404, message: "Album not found"});
         }
         album.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
+        album.rating_count = _count.album_id;
         return album;
     })
 }

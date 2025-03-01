@@ -668,6 +668,8 @@ describe("/api/albums/:album_id", () => {
                 expect(album.is_featured).toBe(false);
                 expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
                 expect(album.songs.length).not.toBe(0);
+                expect(typeof album.average_rating).toBe("number")
+                expect(album.rating_count).toBe(1);
                 expect(album).toHaveProperty("created_at");
                 expect(album.songs).toBeSortedBy("created_at", {ascending: true});
                 album.songs.forEach((song) => {
@@ -1304,7 +1306,6 @@ describe("/api/songs", () => {
     })
 })
 
-
 describe("/api/songs/:song_id", () => {
     describe("GET", () => {
         test("200: Responds with the song with the given ID", () => {
@@ -1326,6 +1327,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.album.title).toBe("Identities");
                 expect(song.description).toBe("He's Captain Kevin, the best there is, he's been collecting treasure for the best of years!");
                 expect(typeof song.average_rating).toBe("number");
+                expect(song.rating_count).toBe(2)
                 expect(song).toHaveProperty("created_at");
             })
         })
