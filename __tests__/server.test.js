@@ -1914,6 +1914,96 @@ describe("/api/albums/:album_id/ratings", () => {
 })
 
 describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
+    describe("GET", () => {
+        test("200: Responds with a given user's rating for a given piece of content", () => {
+            return Promise.all([
+                request(app)
+                .get("/api/ratings/songs/3/users/2")
+                .expect(200)
+                .then((response) => {
+                    const {rating} = response.body;
+                    expect(rating.user_id).toBe("2");
+                    expect(rating.song_id).toBe(3);
+                    expect(rating.score).toBe(8);
+                    expect(rating.is_visible).toBe(true);
+                }),
+                request(app)
+                .get("/api/ratings/albums/4/users/1")
+                .expect(200)
+                .then((response) => {
+                    const {rating} = response.body;
+                    expect(rating.user_id).toBe("1")
+                    expect(rating.album_id).toBe(4);
+                    expect(rating.score).toBe(6);
+                    expect(rating.is_visible).toBe(false);
+                })
+            ])
+        })
+        test("200: Responds with an empty object if user and content exists, but the rating does not", () => {
+            return Promise.all([
+                request(app)
+                .get("/api/ratings/songs/2/users/1")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.rating).toEqual({});
+                }),
+                request(app)
+                .get("/api/ratings/albums/2/users/1")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.rating).toEqual({});
+                })
+            ])
+        })
+        test("400: Responds with a bad request message if content_type is not songs or albums", () => {
+            return request(app)
+            .get("/api/ratings/books/3/users/1")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if content_id is invalid", () => {
+            return Promise.all([
+                request(app)
+                .get("/api/ratings/songs/invalid_id/users/1")
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request");
+                }),
+                request(app)
+                .get("/api/ratings/albums/invalid_id/users/1")
+                .expect(400)
+                .then((response) => {
+                    expect(response.body.message).toBe("Bad request");
+                })
+            ])
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .get("/api/ratings/songs/3/users/invalid_user")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found");
+            })
+        })
+        test("404: Responds with a not found message if content does not exist", () => {
+            return Promise.all([
+                request(app)
+                .get("/api/ratings/songs/231/users/1")
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("Song not found");
+                }),
+                request(app)
+                .get("/api/ratings/albums/231/users/1")
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("Album not found");
+                })
+            ])
+        })
+    })
     describe("PATCH", () => {
         test("200: Updates a given song rating and responds with that rating", () => {
             return request(app)
