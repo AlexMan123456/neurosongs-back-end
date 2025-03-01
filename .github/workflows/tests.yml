@@ -10,33 +10,35 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub PostgreSQL image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Use Docker Compose
-      uses: ./.github/actions/docker-compose
-    - name: Install dependencies
-      run: npm ci
-    - name: Initialise environment variables
-      run: |
-        touch .env
-        echo 'DATABASE_URL="${{ secrets.DATABASE_URL }}"' >> .env
-    - name: Start up docker
-      run: docker compose up -d
-    - name: Deploy Prisma migration
-      run: npx prisma migrate deploy && npx prisma generate
-    - name: Run tests
-      run: npm run test-action
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - run: npm ci
+      - run: npm run build
+      # Create the database
+      - run: npx prisma migrate deploy
+      - run: npm run test-action
