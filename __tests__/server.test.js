@@ -2076,6 +2076,58 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
             })
         })
     })
+    describe("DELETE", () => {
+        test("204: Deletes the rating from the database", () => {
+            return Promise.all([
+                request(app)
+                .delete("/api/ratings/songs/1/users/1")
+                .expect(204),
+                request(app)
+                .delete("/api/ratings/albums/4/users/4")
+                .expect(204)
+            ])
+        })
+        test("400: Responds with a bad request message if content_type is not songs or albums", () => {
+            return request(app)
+            .delete("/api/ratings/books/1/users/1")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if content_id is invalid", () => {
+            return request(app)
+            .delete("/api/ratings/songs/invalid_song/users/1")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if content does not exist", () => {
+            return Promise.all([
+                request(app)
+                .delete("/api/ratings/songs/231/users/1")
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("Song not found");
+                }),
+                request(app)
+                .delete("/api/ratings/albums/231/users/1")
+                .expect(404)
+                .then((response) => {
+                    expect(response.body.message).toBe("Album not found");
+                })
+            ])
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .delete("/api/ratings/songs/1/users/unknown_from_me")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found");
+            })
+        })
+    })
 })
 
 

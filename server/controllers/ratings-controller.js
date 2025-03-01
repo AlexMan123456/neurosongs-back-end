@@ -1,5 +1,5 @@
 const { fetchAlbumById } = require("../models/albums-model");
-const { uploadRating, updateRating } = require("../models/ratings-model");
+const { uploadRating, updateRating, removeRating } = require("../models/ratings-model");
 const { fetchSongById } = require("../models/songs-model");
 const { fetchUserById } = require("../models/users-model");
 
@@ -30,4 +30,18 @@ function patchRating(request, response, next){
     })
 }
 
-module.exports = { postRating, patchRating }
+function deleteRating(request, response, next){
+    const {content_type, content_id, user_id} = request.params;
+
+    fetchUserById(user_id).then(() => {
+        return content_type === "songs" ? fetchSongById(content_id) : fetchAlbumById(content_id);
+    }).then(() => {
+        return removeRating(request.params.user_id, request.params.content_id, request.params.content_type)
+    }).then(() => {
+        response.status(204).send({})
+    }).catch((err) => {
+        next(err);
+    })
+}
+
+module.exports = { postRating, patchRating, deleteRating }

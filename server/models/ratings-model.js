@@ -24,7 +24,6 @@ function uploadRating(contentID, data, contentType){
 }
 
 function updateRating(contentType, content_id, user_id, body){
-    
     const contentTypeSingular = {
         albums: "album",
         songs: "song"
@@ -60,4 +59,24 @@ function updateRating(contentType, content_id, user_id, body){
     })
 }
 
-module.exports = { uploadRating, updateRating }
+function removeRating(user_id, content_id, contentType){
+    const contentTypeSingular = {
+        albums: "album",
+        songs: "song"
+    }[contentType];
+
+    if(!contentTypeSingular){
+        return Promise.reject({status: 400, message: "Bad request"})
+    }
+
+    return database[`${contentTypeSingular}Rating`].delete({
+        where: {
+            [`user_id_${contentTypeSingular}_id`]: {
+                user_id,
+                [`${contentTypeSingular}_id`]: parseInt(content_id)
+            }
+        }
+    })
+}
+
+module.exports = { uploadRating, updateRating, removeRating }
