@@ -22,6 +22,7 @@ describe("/api", () => {
     })
 })
 
+
 describe("/api/users", () => {
     describe("GET", () => {
         test("200: Responds with an array of all users", () => {
@@ -405,6 +406,7 @@ describe("/api/users/:user_id", () => {
     })
 })
 
+
 describe("/api/albums", () => {
     describe("GET", () => {
         test("200: Responds with an array of all albums", () => {
@@ -665,7 +667,6 @@ describe("/api/albums/:album_id", () => {
                 expect(album.back_cover_reference).toBe("clown-kevin.png");
                 expect(album.is_featured).toBe(false);
                 expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
-                expect(typeof album.average_rating).toBe("number");
                 expect(album.songs.length).not.toBe(0);
                 expect(album).toHaveProperty("created_at");
                 expect(album.songs).toBeSortedBy("created_at", {ascending: true});
@@ -1004,6 +1005,148 @@ describe("/api/albums/:album_id/songs", () => {
     })
 })
 
+describe("/api/albums/:album_id/comments", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all comments associated with a given album", () => {
+            return request(app)
+            .get("/api/albums/3/comments")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.comments.length).not.toBe(0)
+                response.body.comments.forEach((comment) => {
+                    expect(typeof comment.user_id).toBe("string");
+                    expect(comment.album_id).toBe(3);
+                    expect(typeof comment.author.artist_name).toBe("string");
+                    expect(typeof comment.author.username).toBe("string");
+                    expect(typeof comment.author.profile_picture).toBe("string");
+                    expect(typeof comment.body).toBe("string");
+                    expect(comment).toHaveProperty("created_at");
+                    expect(comment).not.toHaveProperty("song_id");
+                })
+            })
+        })
+        test("200: Responds with an empty array if album has no comments", () => {
+            return request(app)
+            .get("/api/albums/1/comments")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.comments.length).toBe(0);
+            })
+        })
+        test("400: Responds with a bad request message if album ID is invalid", () => {
+            return request(app)
+            .get("/api/albums/captain_kevin/comments")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if album does not exist", () => {
+            return request(app)
+            .get("/api/albums/231/comments")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Album not found");
+            })
+        })
+    })
+    describe("POST", () => {
+        test("201: Posts a new comment and responds with the posted comment", () => {
+            return request(app)
+            .post("/api/albums/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!"
+            })
+            .expect(201)
+            .then((response) => {
+                const {comment} = response.body;
+                expect(comment.user_id).toBe("3");
+                expect(comment.author.username).toBe("Kevin_SynthV");
+                expect(comment.author.artist_name).toBe("Kevin");
+                expect(comment.author.profile_picture).toBe("captain-kevin.png");
+                expect(comment.album_id).toBe(1);
+                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
+                expect(comment).toHaveProperty("created_at")
+                expect(comment).not.toHaveProperty("song_id")
+            })
+        })
+        test("201: Ignores any extra properties on request body", () => {
+            return request(app)
+            .post("/api/albums/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+                extraKey: "CAAAAAPTAAAIN KEEEEVIIIIN! SEARCHING FOR TREASURE FAR AND WIDE!"
+            })
+            .expect(201)
+            .then((response) => {
+                const {comment} = response.body;
+                expect(comment.user_id).toBe("3");
+                expect(comment.author.username).toBe("Kevin_SynthV");
+                expect(comment.author.artist_name).toBe("Kevin");
+                expect(comment.author.profile_picture).toBe("captain-kevin.png");
+                expect(comment.album_id).toBe(1);
+                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
+                expect(comment).toHaveProperty("created_at")
+                expect(comment).not.toHaveProperty("song_id")
+                expect(comment).not.toHaveProperty("extraKey")
+            })
+        })
+        test("400: Responds with a bad request message if song_id is included in request body", () => {
+            return request(app)
+            .post("/api/albums/1/comments")
+            .send({
+                user_id: "3",
+                song_id: 2,
+                body: "Captain Kevin! Searching for treasure far and wide!",
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if album_id is included in request body", () => {
+            return request(app)
+            .post("/api/albums/1/comments")
+            .send({
+                user_id: "3",
+                album_id: 2,
+                body: "Captain Kevin! Searching for treasure far and wide!",
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("400: Responds with a bad request message if song_id is invalid", () => {
+            return request(app)
+            .post("/api/albums/invalid_id/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request")
+            })
+        })
+        test("404: Responds with a bad request message if song_id does not exist", () => {
+            return request(app)
+            .post("/api/albums/231/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!",
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Album not found")
+            })
+        })
+    })
+})
+
+
 describe("/api/songs", () => {
     describe("GET", () => {
         test("200: Responds with an array of all songs", () => {
@@ -1188,7 +1331,7 @@ describe("/api/songs/:song_id", () => {
         })
         test("200: Average rating is rounded to one decimal place", () => {
             return request(app)
-            .get("/api/songs/13")
+            .get("/api/songs/3")
             .expect(200)
             .then((response) => {
                 expect((response.body.song.average_rating*10)%1).toBe(0)
@@ -1377,7 +1520,6 @@ describe("/api/songs/:song_id/comments", () => {
                     expect(typeof comment.author.username).toBe("string");
                     expect(typeof comment.author.profile_picture).toBe("string");
                     expect(typeof comment.body).toBe("string");
-                    expect(typeof comment.rating).toBe("number");
                     expect(comment).toHaveProperty("created_at");
                     expect(comment).not.toHaveProperty("album_id");
                 })
@@ -1415,7 +1557,6 @@ describe("/api/songs/:song_id/comments", () => {
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
             })
             .expect(201)
             .then((response) => {
@@ -1426,28 +1567,6 @@ describe("/api/songs/:song_id/comments", () => {
                 expect(comment.author.profile_picture).toBe("captain-kevin.png");
                 expect(comment.song_id).toBe(1);
                 expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment.rating).toBe(8);
-                expect(comment).toHaveProperty("created_at")
-                expect(comment).not.toHaveProperty("album_id")
-            })
-        })
-        test("201: Rating can be optional", () => {
-            return request(app)
-            .post("/api/songs/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-            })
-            .expect(201)
-            .then((response) => {
-                const {comment} = response.body;
-                expect(comment.user_id).toBe("3");
-                expect(comment.author.username).toBe("Kevin_SynthV");
-                expect(comment.author.artist_name).toBe("Kevin");
-                expect(comment.author.profile_picture).toBe("captain-kevin.png");
-                expect(comment.song_id).toBe(1);
-                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment.rating).toBe(null);
                 expect(comment).toHaveProperty("created_at")
                 expect(comment).not.toHaveProperty("album_id")
             })
@@ -1458,7 +1577,6 @@ describe("/api/songs/:song_id/comments", () => {
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8,
                 extraKey: "CAAAAAPTAAAIN KEEEEVIIIIN! SEARCHING FOR TREASURE FAR AND WIDE!"
             })
             .expect(201)
@@ -1467,7 +1585,6 @@ describe("/api/songs/:song_id/comments", () => {
                 expect(comment.user_id).toBe("3");
                 expect(comment.song_id).toBe(1);
                 expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment.rating).toBe(8);
                 expect(comment).toHaveProperty("created_at")
                 expect(comment).not.toHaveProperty("album_id")
                 expect(comment).not.toHaveProperty("extraKey")
@@ -1480,7 +1597,6 @@ describe("/api/songs/:song_id/comments", () => {
                 user_id: "3",
                 song_id: 2,
                 body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
             })
             .expect(400)
             .then((response) => {
@@ -1494,37 +1610,10 @@ describe("/api/songs/:song_id/comments", () => {
                 user_id: "3",
                 album_id: 2,
                 body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
             })
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request")
-            })
-        })
-        test("400: Responds with a bad request message if rating is bigger than 10", () => {
-            return request(app)
-            .post("/api/songs/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 11
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid rating")
-            })
-        })
-        test("400: Responds with a bad request message if rating is less than 1", () => {
-            return request(app)
-            .post("/api/songs/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: -1
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid rating")
             })
         })
         test("400: Responds with a bad request message if song_id is invalid", () => {
@@ -1556,202 +1645,7 @@ describe("/api/songs/:song_id/comments", () => {
     })
 })
 
-describe("/api/albums/:album_id/comments", () => {
-    describe("GET", () => {
-        test("200: Responds with an array of all comments associated with a given album", () => {
-            return request(app)
-            .get("/api/albums/3/comments")
-            .expect(200)
-            .then((response) => {
-                expect(response.body.comments.length).not.toBe(0)
-                response.body.comments.forEach((comment) => {
-                    expect(typeof comment.user_id).toBe("string");
-                    expect(comment.album_id).toBe(3);
-                    expect(typeof comment.author.artist_name).toBe("string");
-                    expect(typeof comment.author.username).toBe("string");
-                    expect(typeof comment.author.profile_picture).toBe("string");
-                    expect(typeof comment.body).toBe("string");
-                    expect(typeof comment.rating).toBe("number");
-                    expect(comment).toHaveProperty("created_at");
-                    expect(comment).not.toHaveProperty("song_id");
-                })
-            })
-        })
-        test("200: Responds with an empty array if album has no comments", () => {
-            return request(app)
-            .get("/api/albums/1/comments")
-            .expect(200)
-            .then((response) => {
-                expect(response.body.comments.length).toBe(0);
-            })
-        })
-        test("400: Responds with a bad request message if album ID is invalid", () => {
-            return request(app)
-            .get("/api/albums/captain_kevin/comments")
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request");
-            })
-        })
-        test("404: Responds with a not found message if album does not exist", () => {
-            return request(app)
-            .get("/api/albums/231/comments")
-            .expect(404)
-            .then((response) => {
-                expect(response.body.message).toBe("Album not found");
-            })
-        })
-    })
-    describe("POST", () => {
-        test("201: Posts a new comment and responds with the posted comment", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
-            })
-            .expect(201)
-            .then((response) => {
-                const {comment} = response.body;
-                expect(comment.user_id).toBe("3");
-                expect(comment.author.username).toBe("Kevin_SynthV");
-                expect(comment.author.artist_name).toBe("Kevin");
-                expect(comment.author.profile_picture).toBe("captain-kevin.png");
-                expect(comment.album_id).toBe(1);
-                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment.rating).toBe(8);
-                expect(comment).toHaveProperty("created_at")
-                expect(comment).not.toHaveProperty("song_id")
-            })
-        })
-        test("201: Rating can be optional", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-            })
-            .expect(201)
-            .then((response) => {
-                const {comment} = response.body;
-                expect(comment.user_id).toBe("3");
-                expect(comment.author.username).toBe("Kevin_SynthV");
-                expect(comment.author.artist_name).toBe("Kevin");
-                expect(comment.author.profile_picture).toBe("captain-kevin.png");
-                expect(comment.album_id).toBe(1);
-                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment.rating).toBe(null);
-                expect(comment).toHaveProperty("created_at")
-                expect(comment).not.toHaveProperty("song_id")
-            })
-        })
-        test("201: Ignores any extra properties on request body", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8,
-                extraKey: "CAAAAAPTAAAIN KEEEEVIIIIN! SEARCHING FOR TREASURE FAR AND WIDE!"
-            })
-            .expect(201)
-            .then((response) => {
-                const {comment} = response.body;
-                expect(comment.user_id).toBe("3");
-                expect(comment.author.username).toBe("Kevin_SynthV");
-                expect(comment.author.artist_name).toBe("Kevin");
-                expect(comment.author.profile_picture).toBe("captain-kevin.png");
-                expect(comment.album_id).toBe(1);
-                expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment.rating).toBe(8);
-                expect(comment).toHaveProperty("created_at")
-                expect(comment).not.toHaveProperty("song_id")
-                expect(comment).not.toHaveProperty("extraKey")
-            })
-        })
-        test("400: Responds with a bad request message if song_id is included in request body", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                song_id: 2,
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request")
-            })
-        })
-        test("400: Responds with a bad request message if album_id is included in request body", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                album_id: 2,
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request")
-            })
-        })
-        test("400: Responds with a bad request message if rating is bigger than 10", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 11
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid rating")
-            })
-        })
-        test("400: Responds with a bad request message if rating is less than 1", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: -1
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid rating")
-            })
-        })
-        test("400: Responds with a bad request message if song_id is invalid", () => {
-            return request(app)
-            .post("/api/albums/invalid_id/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request")
-            })
-        })
-        test("404: Responds with a bad request message if song_id does not exist", () => {
-            return request(app)
-            .post("/api/albums/231/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
-                rating: 8
-            })
-            .expect(404)
-            .then((response) => {
-                expect(response.body.message).toBe("Album not found")
-            })
-        })
-    })
-})
+
 
 describe("/api/comments/:comment_id", () => {
     describe("PATCH", () => {
@@ -1761,7 +1655,6 @@ describe("/api/comments/:comment_id", () => {
                 .patch("/api/comments/3")
                 .send({
                     body: "Not cringe",
-                    rating: 7
                 })
                 .expect(200)
                 .then((response) => {
@@ -1772,14 +1665,12 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.author.profile_picture).toBe("Default");
                     expect(comment.song_id).toBe(13);
                     expect(comment.body).toBe("Not cringe");
-                    expect(comment.rating).toBe(7);
                     expect(comment).not.toHaveProperty("album_id")
                 }),
                 request(app)
                 .patch("/api/comments/7")
                 .send({
                     body: "Ultimate perfection!",
-                    rating: 10
                 })
                 .expect(200)
                 .then((response) => {
@@ -1790,7 +1681,6 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.author.profile_picture).toBe("KoolAlex.png");
                     expect(comment.album_id).toBe(2);
                     expect(comment.body).toBe("Ultimate perfection!");
-                    expect(comment.rating).toBe(10);
                     expect(comment).not.toHaveProperty("song_id")
                 })
             ])
@@ -1800,7 +1690,6 @@ describe("/api/comments/:comment_id", () => {
             .patch("/api/comments/3")
             .send({
                 body: "Not cringe",
-                rating: 7,
                 extraKey: "Just kidding, it's cringe."
             })
             .expect(200)
@@ -1812,7 +1701,6 @@ describe("/api/comments/:comment_id", () => {
                 expect(comment.author.profile_picture).toBe("Default");
                 expect(comment.song_id).toBe(13);
                 expect(comment.body).toBe("Not cringe");
-                expect(comment.rating).toBe(7);
                 expect(comment).not.toHaveProperty("album_id");
                 expect(comment).not.toHaveProperty("extraKey");
             })
@@ -1822,7 +1710,6 @@ describe("/api/comments/:comment_id", () => {
             .patch("/api/comments/3")
             .send({
                 body: "Not cringe",
-                rating: 7,
                 user_id: "1"
             })
             .expect(400)
@@ -1835,7 +1722,6 @@ describe("/api/comments/:comment_id", () => {
             .patch("/api/comments/3")
             .send({
                 body: "Not cringe",
-                rating: 7,
                 song_id: 2
             })
             .expect(400)
@@ -1848,7 +1734,6 @@ describe("/api/comments/:comment_id", () => {
             .patch("/api/comments/3")
             .send({
                 body: "Not cringe",
-                rating: 7,
                 album_id: 2
             })
             .expect(400)
@@ -1860,8 +1745,7 @@ describe("/api/comments/:comment_id", () => {
             return request(app)
             .patch("/api/comments/invalid_comment")
             .send({
-                body: "Not cringe",
-                rating: 7
+                body: "Not cringe"
             })
             .expect(400)
             .then((response) => {
@@ -1872,8 +1756,7 @@ describe("/api/comments/:comment_id", () => {
             return request(app)
             .patch("/api/comments/231")
             .send({
-                body: "Not cringe",
-                rating: 7
+                body: "Not cringe"
             })
             .expect(404)
             .then((response) => {

@@ -1,4 +1,5 @@
 const database = require("../client")
+const { ratingData } = require("./test-data")
 const ENV = process.env.NODE_ENV ?? "development"
 
 async function seed({userData, songData, albumData, commentData}){
@@ -20,6 +21,11 @@ async function seed({userData, songData, albumData, commentData}){
         if(commentData){
             await database.comment.createMany({
                 data: commentData
+            })
+        }
+        if(ratingData){
+            await database.rating.createMany({
+                data: ratingData
             })
         }
     } catch(err) {

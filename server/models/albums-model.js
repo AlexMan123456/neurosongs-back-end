@@ -62,19 +62,19 @@ function fetchAlbumById(stringifiedAlbumID){
                 }
             }
         }),
-        database.comment.aggregate({
+        database.rating.aggregate({
             where: {
                 album_id
             },
             _avg: {
-                rating: true
+                score: true
             }
         })
     ]).then(([album, {_avg}]) => {
         if(!album){
             return Promise.reject({status: 404, message: "Album not found"});
         }
-        album.average_rating = Math.round(parseFloat(_avg.rating)*10)/10;
+        album.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
         return album;
     })
 }

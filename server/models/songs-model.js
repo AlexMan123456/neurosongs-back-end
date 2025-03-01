@@ -59,17 +59,17 @@ function fetchSongById(stringifiedSongID){
                 }
             }
         }),
-        database.comment.aggregate({
+        database.rating.aggregate({
             where: {song_id},
             _avg: {
-                rating: true
+                score: true
             }
         })
     ]).then(([song, {_avg}]) => {
         if(!song){
             return Promise.reject({status: 404, message: "Song not found"});
         }
-        song.average_rating = Math.round(parseFloat(_avg.rating)*10)/10;
+        song.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
         return song;
     })
 }
