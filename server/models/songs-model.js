@@ -59,7 +59,7 @@ function fetchSongById(stringifiedSongID){
                 }
             }
         }),
-        database.rating.aggregate({
+        database.songRating.aggregate({
             where: {song_id},
             _avg: {
                 score: true
@@ -131,11 +131,17 @@ function editSong(stringifiedSongID, body){
 
 function removeSong(stringifiedSongID){
     const song_id = parseInt(stringifiedSongID);
-
-    return database.comment.deleteMany({
+    
+    return database.songRating.deleteMany({
         where: {
             song_id
         }
+    }).then(() => {
+        return database.comment.deleteMany({
+            where: {
+                song_id
+            }
+        })
     }).then(() => {
         return database.song.delete({
             where: {

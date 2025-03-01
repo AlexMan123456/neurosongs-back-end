@@ -62,7 +62,7 @@ function fetchAlbumById(stringifiedAlbumID){
                 }
             }
         }),
-        database.rating.aggregate({
+        database.albumRating.aggregate({
             where: {
                 album_id
             },
@@ -137,10 +137,31 @@ function editAlbum(stringifiedAlbumID, body){
 
 function removeAlbum(stringifiedAlbumID){
     const album_id = parseInt(stringifiedAlbumID);
-    return database.song.deleteMany({
+    return database.song.findMany({
         where: {
             album_id
         }
+    }).then((songs) => {
+        const promises = songs.map((song) => {
+            return database.songRating.deleteMany({
+                where: {
+                    song_id: song.song_id
+                }
+            })
+        })
+        return Promise.all(promises)
+    }).then(() => {
+        return database.song.deleteMany({
+            where: {
+                album_id
+            }
+        })
+    }).then(() => {
+        return database.albumRating.deleteMany({
+            where: {
+                album_id
+            }
+        })
     }).then(() => {
         return database.comment.deleteMany({
             where: {
