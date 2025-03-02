@@ -8,53 +8,53 @@ datasource db {
 }
 
 model User {
-  username        String    @unique @db.VarChar(100)
-  email           String    @unique
-  artist_name     String    @db.VarChar(100)
+  username        String        @unique @db.VarChar(100)
+  email           String        @unique
+  artist_name     String        @db.VarChar(100)
   description     String?
-  profile_picture String    @default("Default")
-  user_id         String    @id
+  profile_picture String        @default("Default")
+  user_id         String        @id
   date_of_birth   DateTime?
-  member_since    DateTime  @default(now())
+  member_since    DateTime      @default(now())
+  album_ratings   AlbumRating[]
   albums          Album[]
   comments        Comment[]
+  song_ratings    SongRating[]
   songs           Song[]
-  song_ratings SongRating[]
-  album_ratings AlbumRating[]
 
   @@map("users")
 }
 
 model Song {
-  song_id     Int       @id @default(autoincrement())
-  title       String    @db.VarChar(100)
+  song_id     Int          @id @default(autoincrement())
+  title       String       @db.VarChar(100)
   album_id    Int
   reference   String
-  is_featured Boolean   @default(false)
+  is_featured Boolean      @default(false)
   user_id     String
   description String?
-  created_at  DateTime  @default(now())
+  created_at  DateTime     @default(now())
   comments    Comment[]
-  album       Album     @relation(fields: [album_id], references: [album_id])
-  artist      User      @relation(fields: [user_id], references: [user_id])
-  ratings SongRating[]
+  ratings     SongRating[]
+  album       Album        @relation(fields: [album_id], references: [album_id])
+  artist      User         @relation(fields: [user_id], references: [user_id])
 
   @@map("songs")
 }
 
 model Album {
-  album_id              Int       @id @default(autoincrement())
-  title                 String    @db.VarChar(100)
+  album_id              Int           @id @default(autoincrement())
+  title                 String        @db.VarChar(100)
   back_cover_reference  String?
-  front_cover_reference String    @default("Default")
-  is_featured           Boolean   @default(false)
+  front_cover_reference String        @default("Default")
+  is_featured           Boolean       @default(false)
   user_id               String
   description           String?
-  created_at            DateTime  @default(now())
-  artist                User      @relation(fields: [user_id], references: [user_id])
+  created_at            DateTime      @default(now())
+  ratings               AlbumRating[]
+  artist                User          @relation(fields: [user_id], references: [user_id])
   comments              Comment[]
   songs                 Song[]
-  ratings AlbumRating[]
 
   @@map("albums")
 }
@@ -78,20 +78,20 @@ model SongRating {
   song_id    Int
   score      Decimal @db.Decimal(3, 1)
   is_visible Boolean @default(false)
-  user User @relation(fields: [user_id], references: [user_id])
-  song Song @relation(fields: [song_id], references: [song_id])
+  song       Song    @relation(fields: [song_id], references: [song_id])
+  user       User    @relation(fields: [user_id], references: [user_id])
 
   @@id([user_id, song_id])
   @@map("song_ratings")
 }
 
 model AlbumRating {
-  user_id String
-  album_id Int
-  score Decimal @db.Decimal(3,1)
+  user_id    String
+  album_id   Int
+  score      Decimal @db.Decimal(3, 1)
   is_visible Boolean @default(false)
-  user User @relation(fields: [user_id], references: [user_id])
-  album Album @relation(fields: [album_id], references: [album_id])
+  album      Album   @relation(fields: [album_id], references: [album_id])
+  user       User    @relation(fields: [user_id], references: [user_id])
 
   @@id([user_id, album_id])
   @@map("album_ratings")
