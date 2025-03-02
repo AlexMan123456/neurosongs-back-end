@@ -2073,6 +2073,30 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
                 expect(response.body.message).toBe("Bad request");
             })
         })
+        test("400: Responds with a bad request message if score is bigger than 10", () => {
+            return request(app)
+            .patch("/api/ratings/songs/1/users/1")
+            .send({
+                score: 11,
+                is_visible: true
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid score")
+            })
+        })
+        test("400: Responds with a bad request message if score is less than 1", () => {
+            return request(app)
+            .patch("/api/ratings/songs/1/users/1")
+            .send({
+                score: -1,
+                is_visible: true
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid score")
+            })
+        })
         test("400: Responds with a bad request message if user_id is included in request body", () => {
             return request(app)
             .patch("/api/ratings/songs/3/users/2")
