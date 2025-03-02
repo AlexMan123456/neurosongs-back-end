@@ -22,6 +22,7 @@ describe("/api", () => {
     })
 })
 
+// USERS ENDPOINTS
 
 describe("/api/users", () => {
     describe("GET", () => {
@@ -406,6 +407,7 @@ describe("/api/users/:user_id", () => {
     })
 })
 
+// ALBUMS ENDPOINTS
 
 describe("/api/albums", () => {
     describe("GET", () => {
@@ -1148,6 +1150,141 @@ describe("/api/albums/:album_id/comments", () => {
     })
 })
 
+describe("/api/albums/:album_id/ratings", () => {
+    describe("POST", () => {
+        test("201: Creates a new rating for an album", () => {
+            return request(app)
+            .post("/api/albums/3/ratings")
+            .send({
+                user_id: "1",
+                score: 8,
+                is_visible: true
+            })
+            .expect(201)
+            .then((response) => {
+                const {rating} = response.body;
+                expect(rating.user_id).toBe("1");
+                expect(rating.score).toBe(8);
+                expect(rating.album_id).toBe(3);
+                expect(rating.is_visible).toBe(true);
+            })
+        })
+        test("201: is_visible defaults to false if not provided", () => {
+            return request(app)
+            .post("/api/albums/3/ratings")
+            .send({
+                user_id: "1",
+                score: 8,
+            })
+            .expect(201)
+            .then((response) => {
+                const {rating} = response.body;
+                expect(rating.user_id).toBe("1");
+                expect(rating.score).toBe(8);
+                expect(rating.album_id).toBe(3);
+                expect(rating.is_visible).toBe(false);
+            })
+        })
+        test("201: Ignores any extra keys on request object", () => {
+            return request(app)
+            .post("/api/albums/3/ratings")
+            .send({
+                user_id: "1",
+                score: 8,
+                is_visible: true,
+                extraKey: "Extra value"
+            })
+            .expect(201)
+            .then((response) => {
+                const {rating} = response.body;
+                expect(rating.user_id).toBe("1");
+                expect(rating.score).toBe(8);
+                expect(rating.album_id).toBe(3);
+                expect(rating.is_visible).toBe(true);
+                expect(rating).not.toHaveProperty("extraKey");
+            })
+        })
+        test("400: Responds with a bad request message if album_id is on request body", () => {
+            return request(app)
+            .post("/api/albums/3/ratings")
+            .send({
+                user_id: "1",
+                score: 8,
+                is_visible: true,
+                album_id: 1
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if score is bigger than 10", () => {
+            return request(app)
+            .post("/api/albums/3/ratings")
+            .send({
+                user_id: "1",
+                score: 11,
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid score");
+            })
+        })
+        test("400: Responds with a bad request message if score is less than 1", () => {
+            return request(app)
+            .post("/api/albums/3/ratings")
+            .send({
+                user_id: "1",
+                score: -1,
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid score");
+            })
+        })
+        test("400: Responds with a bad request message if song_id is not valid", () => {
+            return request(app)
+            .post("/api/albums/invalid_id/ratings")
+            .send({
+                user_id: "1",
+                score: 8,
+                is_visible: true
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if album does not exist", () => {
+            return request(app)
+            .post("/api/albums/231/ratings")
+            .send({
+                user_id: "1",
+                score: 8,
+                is_visible: true
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Album not found");
+            })
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .post("/api/albums/3/ratings")
+            .send({
+                user_id: "dQw4w9WgXcQ",
+                score: 8,
+                is_visible: true
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found")
+            })
+        })
+    })
+})
+
+// SONGS ENDPOINTS
 
 describe("/api/songs", () => {
     describe("GET", () => {
@@ -1781,139 +1918,7 @@ describe("/api/songs/:song_id/ratings", () => {
     })
 })
 
-describe("/api/albums/:album_id/ratings", () => {
-    describe("POST", () => {
-        test("201: Creates a new rating for an album", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-                is_visible: true
-            })
-            .expect(201)
-            .then((response) => {
-                const {rating} = response.body;
-                expect(rating.user_id).toBe("1");
-                expect(rating.score).toBe(8);
-                expect(rating.album_id).toBe(3);
-                expect(rating.is_visible).toBe(true);
-            })
-        })
-        test("201: is_visible defaults to false if not provided", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-            })
-            .expect(201)
-            .then((response) => {
-                const {rating} = response.body;
-                expect(rating.user_id).toBe("1");
-                expect(rating.score).toBe(8);
-                expect(rating.album_id).toBe(3);
-                expect(rating.is_visible).toBe(false);
-            })
-        })
-        test("201: Ignores any extra keys on request object", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-                is_visible: true,
-                extraKey: "Extra value"
-            })
-            .expect(201)
-            .then((response) => {
-                const {rating} = response.body;
-                expect(rating.user_id).toBe("1");
-                expect(rating.score).toBe(8);
-                expect(rating.album_id).toBe(3);
-                expect(rating.is_visible).toBe(true);
-                expect(rating).not.toHaveProperty("extraKey");
-            })
-        })
-        test("400: Responds with a bad request message if album_id is on request body", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-                is_visible: true,
-                album_id: 1
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request");
-            })
-        })
-        test("400: Responds with a bad request message if score is bigger than 10", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "1",
-                score: 11,
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid score");
-            })
-        })
-        test("400: Responds with a bad request message if score is less than 1", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "1",
-                score: -1,
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Invalid score");
-            })
-        })
-        test("400: Responds with a bad request message if song_id is not valid", () => {
-            return request(app)
-            .post("/api/albums/invalid_id/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-                is_visible: true
-            })
-            .expect(400)
-            .then((response) => {
-                expect(response.body.message).toBe("Bad request");
-            })
-        })
-        test("404: Responds with a not found message if album does not exist", () => {
-            return request(app)
-            .post("/api/albums/231/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-                is_visible: true
-            })
-            .expect(404)
-            .then((response) => {
-                expect(response.body.message).toBe("Album not found");
-            })
-        })
-        test("404: Responds with a not found message if user does not exist", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "dQw4w9WgXcQ",
-                score: 8,
-                is_visible: true
-            })
-            .expect(404)
-            .then((response) => {
-                expect(response.body.message).toBe("Related property not found")
-            })
-        })
-    })
-})
+// RATINGS ENDPOINTS
 
 describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
     describe("GET", () => {
@@ -2066,6 +2071,30 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if score is bigger than 10", () => {
+            return request(app)
+            .patch("/api/ratings/songs/1/users/1")
+            .send({
+                score: 11,
+                is_visible: true
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid score")
+            })
+        })
+        test("400: Responds with a bad request message if score is less than 1", () => {
+            return request(app)
+            .patch("/api/ratings/songs/1/users/1")
+            .send({
+                score: -1,
+                is_visible: true
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Invalid score")
             })
         })
         test("400: Responds with a bad request message if user_id is included in request body", () => {
@@ -2222,6 +2251,7 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
     })
 })
 
+// COMMENTS ENDPOINTS
 
 describe("/api/comments/:comment_id", () => {
     describe("PATCH", () => {

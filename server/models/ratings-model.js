@@ -38,7 +38,7 @@ function uploadRating(contentID, data, contentType){
     }
 
     if(data.score > 10 || data.score < 1){
-        return Promise.reject({status: 400, message: "Invalid score"})
+        return Promise.reject({status: 400, message: "Invalid score"});
     }
     
     data[`${contentType}_id`] = parseInt(contentID);
@@ -63,6 +63,10 @@ function updateRating(contentType, content_id, user_id, body){
 
     if(data.user_id || data.song_id || data.album_id){
         return Promise.reject({status: 400, message: "Bad request"})
+    }
+
+    if(data.score > 10 || data.score < 1){
+        return Promise.reject({status: 400, message: "Invalid score"});
     }
 
     for(const key in data){
