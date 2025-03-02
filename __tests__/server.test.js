@@ -2495,6 +2495,54 @@ describe("/api/comments/:comment_id", () => {
 })
 
 
+// FOLLOW ME, SET ME FREE! TRUST ME AND WE WILL ESCAPE FROM THE CITY!
+
+describe("/api/follows/follower/:follower_id/following/:following_id", () => {
+    describe("POST", () => {
+        test("201: Creates a new follow relation and responds with that relation", () => {
+            return request(app)
+            .post("/api/follows/follower/4/following/1")
+            .expect(201)
+            .then((response) => {
+                const {follow} = response.body;
+                expect(follow.follower.user_id).toBe("4");
+                expect(follow.follower.username).toBe("Bad_dev");
+                expect(follow.follower.artist_name).toBe("Bad Developer");
+                expect(follow.follower).toHaveProperty("profile_picture");
+
+                expect(follow.following.user_id).toBe("1");
+                expect(follow.following.username).toBe("AlexTheMan");
+                expect(follow.following.artist_name).toBe("Alex The Man");
+                expect(follow.following.profile_picture).toBe("KoolAlex.png");
+            })
+        })
+        test("400: Responds with a bad request message if follower_id and following_id are the same", () => {
+            return request(app)
+            .post("/api/follows/follower/1/following/1")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Look at you, trying to follow yourself! Do you not have any friends?");
+            })
+        })
+        test("404: Responds with a not found message if follower does not exist", () => {
+            return request(app)
+            .post("/api/follows/follower/nonexistent_user/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found");
+            })
+        })
+        test("404: Responds with a not found message if following user does not exist", () => {
+            return request(app)
+            .post("/api/follows/follower/1/following/nonexistent_user")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Related property not found");
+            })
+        })
+    })
+})
+
 describe("/*", () => {
     test("404: Responds with a not found message if endpoint does not exist", () => {
         return request(app)
