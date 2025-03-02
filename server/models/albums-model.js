@@ -26,6 +26,15 @@ function fetchAlbums(queries){
         request.where = {is_featured};
     }
 
+    if(queries.search_query){
+        request.where = {
+            title: {
+                contains: queries.search_query,
+                mode: "insensitive"
+            }
+        }
+    }
+
     return database.album.findMany(request)
 }
 

@@ -31,7 +31,7 @@ describe("/api/users", () => {
             .get("/api/users")
             .expect(200)
             .then((response) => {
-                expect(response.body.users.length).not.toBe(0)
+                expect(response.body.users.length).not.toBe(0);
                 response.body.users.forEach((user) => {
                     expect(typeof user.user_id).toBe("string");
                     expect(typeof user.username).toBe("string");
@@ -492,6 +492,34 @@ describe("/api/albums", () => {
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request");
+                })
+            })
+        })
+        describe("Queries: search_query", () => {
+            test("200: Responds with an array of all albums that match the given search query (case insensitive)", () => {
+                return request(app)
+                .get("/api/albums?search_query=Identities")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).not.toBe(0);
+                    response.body.albums.forEach((album) => {
+                        expect(typeof album.album_id).toBe("number");
+                        expect(typeof album.user_id).toBe("string");
+                        expect(typeof album.artist.username).toBe("string");
+                        expect(typeof album.artist.artist_name).toBe("string");
+                        expect(typeof album.is_featured).toBe("boolean");
+                        expect(album.title.toLowerCase().includes("identities")).toBe(true);
+                        expect(typeof album.front_cover_reference).toBe("string");
+                        expect(album).toHaveProperty("back_cover_reference");
+                    })
+                })
+            })
+            test("200: Responds with an empty array if album being searched for does not exist", () => {
+                return request(app)
+                .get("/api/albums?search_query=unknown+album")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).toBe(0);
                 })
             })
         })
