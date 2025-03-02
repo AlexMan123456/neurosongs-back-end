@@ -32,6 +32,14 @@ function fetchSongs(queries){
         request.where = {is_featured};
     }
 
+    if(queries.search_query){
+        request.where = {
+            title: {
+                contains: queries.search_query,
+                mode: "insensitive"
+            }
+        }
+    }
 
     request.orderBy = {[queries.sort_by ?? "created_at"]: queries.order ?? "desc"};
     

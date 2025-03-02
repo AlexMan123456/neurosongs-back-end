@@ -1468,6 +1468,32 @@ describe("/api/songs", () => {
                 })
             })
         })
+        describe("Queries: search_query", () => {
+            test("200: Responds with an array of all songs matching the given search query (case insensitive)", () => {
+                return request(app)
+                .get("/api/songs?search_query=captain+kevin")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs.length).not.toBe(0);
+                    response.body.songs.forEach((song) => {
+                        expect(typeof song.song_id).toBe("number");
+                        expect(typeof song.user_id).toBe("string");
+                        expect(song.title.toLowerCase().includes("captain kevin")).toBe(true);
+                        expect(typeof song.reference).toBe("string");
+                        expect(typeof song.album_id).toBe("number");
+                        expect(typeof song.is_featured).toBe("boolean");
+                    })
+                })
+            })
+            test("200: Responds with an empty array if no songs matching the search query exists", () => {
+                return request(app)
+                .get("/api/songs?search_query=unknown+song")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.songs.length).toBe(0);
+                })
+            })
+        })
     })
 })
 
