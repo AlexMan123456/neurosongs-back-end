@@ -300,6 +300,20 @@ describe("/api/users/:user_id", () => {
                 expect(user.description).toBe("I am cool!");
                 expect(user.date_of_birth).toBe("2003-07-16T00:00:00.000Z");
                 expect(user.member_since).toBe("2024-02-15T00:00:00.000Z");
+                expect(user.followers.length).not.toBe(0);
+                user.followers.forEach(({follower}) => {
+                    expect(typeof follower.user_id).toBe("string");
+                    expect(typeof follower.username).toBe("string");
+                    expect(typeof follower.artist_name).toBe("string");
+                    expect(typeof follower.profile_picture).toBe("string");
+                })
+                expect(user.following.length).not.toBe(0);
+                user.following.forEach(({following}) => {
+                    expect(typeof following.user_id).toBe("string");
+                    expect(typeof following.username).toBe("string");
+                    expect(typeof following.artist_name).toBe("string");
+                    expect(typeof following.profile_picture).toBe("string");
+                })
             })
         })
         test("404: Responds with a not found message if user not found in database", () => {
@@ -2480,6 +2494,85 @@ describe("/api/comments/:comment_id", () => {
     })
 })
 
+
+// FOLLOW ME, SET ME FREE! TRUST ME AND WE WILL ESCAPE FROM THE CITY!
+
+describe("/api/follows/follower/:follower_id/following/:following_id", () => {
+    describe("POST", () => {
+        test("201: Creates a new follow relation and responds with that relation", () => {
+            return request(app)
+            .post("/api/follows/follower/4/following/1")
+            .expect(201)
+            .then((response) => {
+                const {follow} = response.body;
+                expect(follow.follower.user_id).toBe("4");
+                expect(follow.follower.username).toBe("Bad_dev");
+                expect(follow.follower.artist_name).toBe("Bad Developer");
+                expect(follow.follower).toHaveProperty("profile_picture");
+
+                expect(follow.following.user_id).toBe("1");
+                expect(follow.following.username).toBe("AlexTheMan");
+                expect(follow.following.artist_name).toBe("Alex The Man");
+                expect(follow.following.profile_picture).toBe("KoolAlex.png");
+            })
+        })
+        test("400: Responds with a bad request message if follower_id and following_id are the same", () => {
+            return request(app)
+            .post("/api/follows/follower/1/following/1")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Look at you, trying to follow yourself! Do you not have any friends?");
+            })
+        })
+        test("404: Responds with a not found message if follower does not exist", () => {
+            return request(app)
+            .post("/api/follows/follower/nonexistent_user/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found");
+            })
+        })
+        test("404: Responds with a not found message if following user does not exist", () => {
+            return request(app)
+            .post("/api/follows/follower/1/following/nonexistent_user")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found");
+            })
+        })
+    })
+    describe("DELETE", () => {
+        test("204: Deletes the follow from the database", () => {
+            return request(app)
+            .delete("/api/follows/follower/2/following/1")
+            .expect(204)
+        })
+        test("404: Responds with a not found property if both users exist, but the follow relation does not exist", () => {
+            return request(app)
+            .delete("/api/follows/follower/4/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Follow not found")
+            })
+        })
+        test("404: Responds with a not found message if follower does not exist", () => {
+            return request(app)
+            .delete("/api/follows/follower/nonexistent_user/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
+        test("404: Responds with a not found message if following user does not exist", () => {
+            return request(app)
+            .delete("/api/follows/follower/nonexistent_user/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
+    })
+})
 
 describe("/*", () => {
     test("404: Responds with a not found message if endpoint does not exist", () => {
