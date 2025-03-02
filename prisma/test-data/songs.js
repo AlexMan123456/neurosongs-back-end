@@ -71,8 +71,8 @@ module.exports = [
     },
     {
         user_id: "3",
-        title: "Captain Kevin",
-        reference: "captain-kevin.mp3",
+        title: "Captain Kevin (Simulation Mix)",
+        reference: "captain-kevin-simulation.mp3",
         album_id: 3,
         created_at: new Date("2024-01-16T00:00:00Z")
     },

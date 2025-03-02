@@ -32,5 +32,23 @@ module.exports = [
         username: "Bad_dev",
         email: "bad-developer@bad.com",
         date_of_birth: new Date("2005-06-30T00:00:00+00:00")
+    },
+    {
+        user_id: "5",
+        username: "Creeper_Aw_man",
+        artist_name: "Steve",
+        email: "steve@minecraft.net",
+        profile_picture: "minecraft.png",
+        description: "So we back in the mine, got our pickaxe swinging from side to side!",
+        date_of_birth: new Date("2003-07-16T00:00:00Z"),
+    },
+    {
+        user_id: "6",
+        username: "Dr_Robotnik",
+        artist_name: "Eggman",
+        email: "eggman@eggmanempire.com",
+        profile_picture: "eggman.png",
+        description: "I am the Eggman! That's what I am!",
+        date_of_birth: new Date("2003-07-16T00:00:00Z"),
     }
 ]

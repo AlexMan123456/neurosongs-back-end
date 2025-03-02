@@ -22,5 +22,11 @@ module.exports = [
         user_id: "2",
         title: "Lockdown",
         front_cover_reference: "lockdown.png"
-    }
+    },
+    {
+        user_id: "1",
+        title: "identities Deluxe",
+        front_cover_reference: "identities-deluxe-front-cover.png",
+        back_cover_reference: "identities-deluxe-back-cover.png"
+    },
 ]
