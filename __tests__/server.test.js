@@ -2529,7 +2529,7 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
             .post("/api/follows/follower/nonexistent_user/following/1")
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Related property not found");
+                expect(response.body.message).toBe("User not found");
             })
         })
         test("404: Responds with a not found message if following user does not exist", () => {
@@ -2537,7 +2537,38 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
             .post("/api/follows/follower/1/following/nonexistent_user")
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Related property not found");
+                expect(response.body.message).toBe("User not found");
+            })
+        })
+    })
+    describe("DELETE", () => {
+        test("204: Deletes the follow from the database", () => {
+            return request(app)
+            .delete("/api/follows/follower/2/following/1")
+            .expect(204)
+        })
+        test("404: Responds with a not found property if both users exist, but the follow relation does not exist", () => {
+            return request(app)
+            .delete("/api/follows/follower/4/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Follow not found")
+            })
+        })
+        test("404: Responds with a not found message if follower does not exist", () => {
+            return request(app)
+            .delete("/api/follows/follower/nonexistent_user/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
+        test("404: Responds with a not found message if following user does not exist", () => {
+            return request(app)
+            .delete("/api/follows/follower/nonexistent_user/following/1")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
             })
         })
     })

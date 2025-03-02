@@ -31,4 +31,14 @@ function uploadFollow(follower_id, following_id){
     })
 }
 
-module.exports = { uploadFollow };
+function removeFollow(follower_id, following_id){
+    return database.follow.delete({
+        where: {
+            following_id_follower_id: {
+                following_id, follower_id
+            }
+        }
+    })
+}
+
+module.exports = { uploadFollow, removeFollow };
