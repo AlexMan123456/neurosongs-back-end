@@ -300,6 +300,20 @@ describe("/api/users/:user_id", () => {
                 expect(user.description).toBe("I am cool!");
                 expect(user.date_of_birth).toBe("2003-07-16T00:00:00.000Z");
                 expect(user.member_since).toBe("2024-02-15T00:00:00.000Z");
+                expect(user.followers.length).not.toBe(0);
+                user.followers.forEach(({follower}) => {
+                    expect(typeof follower.user_id).toBe("string");
+                    expect(typeof follower.username).toBe("string");
+                    expect(typeof follower.artist_name).toBe("string");
+                    expect(typeof follower.profile_picture).toBe("string");
+                })
+                expect(user.following.length).not.toBe(0);
+                user.following.forEach(({following}) => {
+                    expect(typeof following.user_id).toBe("string");
+                    expect(typeof following.username).toBe("string");
+                    expect(typeof following.artist_name).toBe("string");
+                    expect(typeof following.profile_picture).toBe("string");
+                })
             })
         })
         test("404: Responds with a not found message if user not found in database", () => {

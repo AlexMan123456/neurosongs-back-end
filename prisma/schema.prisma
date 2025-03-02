@@ -19,6 +19,8 @@ model User {
   album_ratings   AlbumRating[]
   albums          Album[]
   comments        Comment[]
+  followers       Follow[]      @relation("follower")
+  following       Follow[]      @relation("following")
   song_ratings    SongRating[]
   songs           Song[]
 
@@ -95,4 +97,14 @@ model AlbumRating {
 
   @@id([user_id, album_id])
   @@map("album_ratings")
+}
+
+model Follow {
+  following_id String
+  follower_id  String
+  follower     User   @relation("follower", fields: [follower_id], references: [user_id])
+  following    User   @relation("following", fields: [following_id], references: [user_id])
+
+  @@id([following_id, follower_id])
+  @@map("follows")
 }

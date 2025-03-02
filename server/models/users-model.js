@@ -28,7 +28,35 @@ function fetchUsers(queries){
 
 function fetchUserById(user_id){
     return database.user.findUnique({
-        where: {user_id}
+        where: {
+            user_id
+        },
+        include: {
+            followers: {
+                select: {
+                    follower: {
+                        select: {
+                            user_id: true,
+                            username: true,
+                            artist_name: true,
+                            profile_picture: true
+                        }   
+                    }
+                }
+            },
+            following: {
+                select: {
+                    following: {
+                        select: {
+                            user_id: true,
+                            username: true,
+                            artist_name: true,
+                            profile_picture: true
+                        }   
+                    }
+                }
+            }
+        }
     }).then((user) => {
         if(!user){
             return Promise.reject({status: 404, message: "User not found"});
