@@ -39,6 +39,37 @@ describe("/api/users", () => {
                     expect(typeof user.email).toBe("string");
                     expect(typeof user.profile_picture).toBe("string");
                     expect(user).toHaveProperty("description");
+                    expect(user).toHaveProperty("date_of_birth");
+                    expect(typeof user.member_since).toBe("string");
+                })
+            })
+        })
+        describe("Queries: search_query", () => {
+            test("200: Responds with an array of all users whose artist name OR username matches the given search query (case insensitive)", () => {
+                return request(app)
+                .get("/api/users?search_query=man")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.users.length).not.toBe(0);
+                    response.body.users.forEach((user) => {
+                        expect(typeof user.user_id).toBe("string");
+                        expect(typeof user.username).toBe("string");
+                        expect(typeof user.artist_name).toBe("string");
+                        expect(user.username.toLowerCase().includes("man") || user.artist_name.toLowerCase().includes("man")).toBe(true);
+                        expect(typeof user.email).toBe("string");
+                        expect(typeof user.profile_picture).toBe("string");
+                        expect(user).toHaveProperty("description");
+                        expect(user).toHaveProperty("date_of_birth");
+                        expect(typeof user.member_since).toBe("string");
+                    })
+                })
+            })
+            test("200: Responds with an empty array if there are no users matching the search condition", () => {
+                return request(app)
+                .get("/api/users?search_query=unknown_from_me")
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.users.length).toBe(0);
                 })
             })
         })
@@ -48,7 +79,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "test@test.com",
@@ -59,7 +90,7 @@ describe("/api/users", () => {
             .expect(201)
             .then((response) => {
                 const {user} = response.body;
-                expect(user.user_id).toBe("5");
+                expect(user.user_id).toBe("dQw4w9WgXcQ");
                 expect(user.username).toBe("TestUser123");
                 expect(user.artist_name).toBe("Test User");
                 expect(user.email).toBe("test@test.com");
@@ -72,7 +103,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "test@test.com",
@@ -81,7 +112,7 @@ describe("/api/users", () => {
             .expect(201)
             .then((response) => {
                 const {user} = response.body;
-                expect(user.user_id).toBe("5");
+                expect(user.user_id).toBe("dQw4w9WgXcQ");
                 expect(user.username).toBe("TestUser123");
                 expect(user.artist_name).toBe("Test User");
                 expect(user.email).toBe("test@test.com");
@@ -93,7 +124,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "testuser2@test.com",
@@ -103,7 +134,7 @@ describe("/api/users", () => {
             .expect(201)
             .then((response) => {
                 const {user} = response.body;
-                expect(user.user_id).toBe("5");
+                expect(user.user_id).toBe("dQw4w9WgXcQ");
                 expect(user.username).toBe("TestUser123");
                 expect(user.artist_name).toBe("Test User");
                 expect(user.email).toBe("testuser2@test.com");
@@ -133,7 +164,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "test@test.com",
@@ -150,7 +181,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "test@test.com",
@@ -179,7 +210,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "Test User 123",
                 artist_name: "Test User",
                 email: "test@test.com",
@@ -194,7 +225,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "TestUser@123",
                 artist_name: "Test User",
                 email: "test@test.com",
@@ -209,7 +240,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
                 artist_name: "Test User",
                 email: "veryAwesomeTestUserEmail",
@@ -224,7 +255,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "AlexTheMan",
                 artist_name: "Test User",
                 email: "test@test.com",
@@ -239,7 +270,7 @@ describe("/api/users", () => {
             return request(app)
             .post("/api/users")
             .send({
-                user_id: "5",
+                user_id: "dQw4w9WgXcQ",
                 username: "FakeUser123",
                 artist_name: "Faker",
                 email: "captain-kevin@thefarisland.com",

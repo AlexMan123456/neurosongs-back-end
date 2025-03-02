@@ -1,7 +1,29 @@
 const database = require("../../client")
 
-function fetchAllUsers(){
-    return database.user.findMany({})
+function fetchUsers(queries){
+    const request = {}
+
+    if(queries.search_query){
+        request.where = {
+            OR: 
+            [
+                {
+                    artist_name: {
+                        contains: queries.search_query,
+                        mode: "insensitive"
+                    },
+                },
+                {
+                    username: {
+                        contains: queries.search_query,
+                        mode: "insensitive"
+                    }
+                }
+            ]
+        }
+    }
+
+    return database.user.findMany(request);
 }
 
 function fetchUserById(user_id){
@@ -78,4 +100,4 @@ function updateUser(user_id, data){
     })
 }
 
-module.exports = { fetchAllUsers, fetchUserById, uploadUser, updateUser }
+module.exports = { fetchUsers, fetchUserById, uploadUser, updateUser }
