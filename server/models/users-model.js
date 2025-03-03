@@ -35,7 +35,7 @@ function fetchUserById(user_id){
             include: {
                 followers: {
                     select: {
-                        follower: {
+                        following: {
                             select: {
                                 user_id: true,
                                 username: true,
@@ -47,7 +47,7 @@ function fetchUserById(user_id){
                 },
                 following: {
                     select: {
-                        following: {
+                        follower: {
                             select: {
                                 user_id: true,
                                 username: true,
@@ -81,6 +81,8 @@ function fetchUserById(user_id){
         }
         user.follower_count = followerAggregation._count.follower_id;
         user.following_count = followingAggregation._count.following_id;
+        console.log(user.followers);
+        console.log(user.following);
         return user
     })
 }
