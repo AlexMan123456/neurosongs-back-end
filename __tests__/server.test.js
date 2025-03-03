@@ -2587,6 +2587,10 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
     })
 })
 
+describe("/api/notifications", () => {
+    
+})
+
 describe("/*", () => {
     test("404: Responds with a not found message if endpoint does not exist", () => {
         return request(app)

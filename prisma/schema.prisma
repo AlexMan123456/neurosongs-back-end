@@ -8,21 +8,21 @@ datasource db {
 }
 
 model User {
-  username               String         @unique @db.VarChar(100)
-  email                  String         @unique
-  artist_name            String         @db.VarChar(100)
+  username               String                @unique @db.VarChar(100)
+  email                  String                @unique
+  artist_name            String                @db.VarChar(100)
   description            String?
-  profile_picture        String         @default("Default")
-  user_id                String         @id
+  profile_picture        String                @default("Default")
+  user_id                String                @id
   date_of_birth          DateTime?
-  member_since           DateTime       @default(now())
+  member_since           DateTime              @default(now())
   album_ratings          AlbumRating[]
   albums                 Album[]
+  received_notifications CommentNotification[] @relation("receiver")
+  sent_notifications     CommentNotification[] @relation("sender")
   comments               Comment[]
-  followers              Follow[]       @relation("follower")
-  following              Follow[]       @relation("following")
-  received_notifications Notification[] @relation("receiver")
-  sent_notifications     Notification[] @relation("sender")
+  followers              Follow[]              @relation("follower")
+  following              Follow[]              @relation("following")
   song_ratings           SongRating[]
   songs                  Song[]
 
@@ -64,16 +64,16 @@ model Album {
 }
 
 model Comment {
-  comment_id    Int            @id @default(autoincrement())
+  comment_id    Int                   @id @default(autoincrement())
   user_id       String
   song_id       Int?
   album_id      Int?
   body          String
-  created_at    DateTime       @default(now())
-  album         Album?         @relation(fields: [album_id], references: [album_id])
-  song          Song?          @relation(fields: [song_id], references: [song_id])
-  author        User           @relation(fields: [user_id], references: [user_id])
-  notifications Notification[]
+  created_at    DateTime              @default(now())
+  notifications CommentNotification[]
+  album         Album?                @relation(fields: [album_id], references: [album_id])
+  song          Song?                 @relation(fields: [song_id], references: [song_id])
+  author        User                  @relation(fields: [user_id], references: [user_id])
 
   @@map("comments")
 }
@@ -112,17 +112,17 @@ model Follow {
   @@map("follows")
 }
 
-model Notification {
-  notification_id Int      @id @default(autoincrement())
-  sender_id       String
-  receiver_id     String
-  comment_id      Int?
-  message         String
-  is_viewed       Boolean  @default(false)
-  created_at      DateTime @default(now())
-  comment         Comment? @relation(fields: [comment_id], references: [comment_id])
-  receiver        User     @relation("receiver", fields: [receiver_id], references: [user_id])
-  sender          User     @relation("sender", fields: [sender_id], references: [user_id])
+model CommentNotification {
+  comment_notification_id Int      @id @default(autoincrement())
+  sender_id               String
+  receiver_id             String
+  comment_id              Int
+  message                 String
+  is_viewed               Boolean  @default(false)
+  created_at              DateTime @default(now())
+  comment                 Comment  @relation(fields: [comment_id], references: [comment_id])
+  receiver                User     @relation("receiver", fields: [receiver_id], references: [user_id])
+  sender                  User     @relation("sender", fields: [sender_id], references: [user_id])
 
-  @@map("notifications")
+  @@map("comment_notifications")
 }

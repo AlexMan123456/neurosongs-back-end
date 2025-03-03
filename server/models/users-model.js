@@ -95,7 +95,7 @@ function fetchUserById(user_id){
                 following_id: true
             }
         }),
-        database.notification.aggregate({
+        database.commentNotification.aggregate({
             where: {
                 receiver_id: user_id
             },
