@@ -2516,6 +2516,7 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
                 expect(follow.following.username).toBe("AlexTheMan");
                 expect(follow.following.artist_name).toBe("Alex The Man");
                 expect(follow.following.profile_picture).toBe("KoolAlex.png");
+                expect(follow.following.follower_count).toBe(3);
             })
         })
         test("400: Responds with a bad request message if follower_id and following_id are the same", () => {
