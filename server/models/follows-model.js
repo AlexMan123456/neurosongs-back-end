@@ -39,7 +39,7 @@ async function uploadFollow(follower_id, following_id){
         }
     })
 
-    follow.follower.follower_count = _count.follower_id;
+    follow.following.follower_count = _count.follower_id;
     return follow;
 }
 
