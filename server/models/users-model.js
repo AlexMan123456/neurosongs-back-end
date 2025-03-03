@@ -61,6 +61,7 @@ function fetchUserById(user_id){
                     select: {
                         is_viewed: true,
                         message: true,
+                        created_at: true,
                         sender: {
                             select: {
                                 user_id: true,

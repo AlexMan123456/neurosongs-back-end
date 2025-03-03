@@ -317,6 +317,15 @@ describe("/api/users/:user_id", () => {
                     expect(typeof follower.profile_picture).toBe("string");
                 })
                 expect(user.received_notifications.length).not.toBe(0);
+                user.received_notifications.forEach((notification) => {
+                    expect(typeof notification.is_viewed).toBe("boolean");
+                    expect(typeof notification.message).toBe("string");
+                    expect(notification).toHaveProperty("created_at");
+                    expect(typeof notification.sender.user_id).toBe("string");
+                    expect(typeof notification.sender.artist_name).toBe("string");
+                    expect(typeof notification.sender.profile_picture).toBe("string");
+                    expect(typeof notification.comment.body).toBe("string");
+                })
             })
         })
         test("404: Responds with a not found message if user not found in database", () => {
