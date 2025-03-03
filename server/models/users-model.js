@@ -81,8 +81,6 @@ function fetchUserById(user_id){
         }
         user.follower_count = followerAggregation._count.follower_id;
         user.following_count = followingAggregation._count.following_id;
-        console.log(user.followers);
-        console.log(user.following);
         return user
     })
 }
