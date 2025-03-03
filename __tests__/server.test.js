@@ -2511,12 +2511,12 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
                 expect(follow.follower.username).toBe("Bad_dev");
                 expect(follow.follower.artist_name).toBe("Bad Developer");
                 expect(follow.follower).toHaveProperty("profile_picture");
+                expect(follow.follower.follower_count).toBe(3);
 
                 expect(follow.following.user_id).toBe("1");
                 expect(follow.following.username).toBe("AlexTheMan");
                 expect(follow.following.artist_name).toBe("Alex The Man");
                 expect(follow.following.profile_picture).toBe("KoolAlex.png");
-                expect(follow.following.follower_count).toBe(3);
             })
         })
         test("400: Responds with a bad request message if follower_id and following_id are the same", () => {
