@@ -303,18 +303,18 @@ describe("/api/users/:user_id", () => {
                 expect(user.follower_count).toBe(1);
                 expect(user.following_count).toBe(2);
                 expect(user.followers.length).not.toBe(0);
-                user.followers.forEach(({follower}) => {
-                    expect(typeof follower.user_id).toBe("string");
-                    expect(typeof follower.username).toBe("string");
-                    expect(typeof follower.artist_name).toBe("string");
-                    expect(typeof follower.profile_picture).toBe("string");
-                })
-                expect(user.following.length).not.toBe(0);
-                user.following.forEach(({following}) => {
+                user.followers.forEach(({following}) => {
                     expect(typeof following.user_id).toBe("string");
                     expect(typeof following.username).toBe("string");
                     expect(typeof following.artist_name).toBe("string");
                     expect(typeof following.profile_picture).toBe("string");
+                })
+                expect(user.following.length).not.toBe(0);
+                user.following.forEach(({follower}) => {
+                    expect(typeof follower.user_id).toBe("string");
+                    expect(typeof follower.username).toBe("string");
+                    expect(typeof follower.artist_name).toBe("string");
+                    expect(typeof follower.profile_picture).toBe("string");
                 })
             })
         })

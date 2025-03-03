@@ -35,7 +35,7 @@ function fetchUserById(user_id){
             include: {
                 followers: {
                     select: {
-                        follower: {
+                        following: {
                             select: {
                                 user_id: true,
                                 username: true,
@@ -47,7 +47,7 @@ function fetchUserById(user_id){
                 },
                 following: {
                     select: {
-                        following: {
+                        follower: {
                             select: {
                                 user_id: true,
                                 username: true,
