@@ -27,40 +27,60 @@ function fetchUsers(queries){
 }
 
 function fetchUserById(user_id){
-    return database.user.findUnique({
-        where: {
-            user_id
-        },
-        include: {
-            followers: {
-                select: {
-                    follower: {
-                        select: {
-                            user_id: true,
-                            username: true,
-                            artist_name: true,
-                            profile_picture: true
-                        }   
-                    }
-                }
+    return Promise.all([
+        database.user.findUnique({
+            where: {
+                user_id
             },
-            following: {
-                select: {
-                    following: {
-                        select: {
-                            user_id: true,
-                            username: true,
-                            artist_name: true,
-                            profile_picture: true
-                        }   
+            include: {
+                followers: {
+                    select: {
+                        follower: {
+                            select: {
+                                user_id: true,
+                                username: true,
+                                artist_name: true,
+                                profile_picture: true
+                            }   
+                        }
+                    }
+                },
+                following: {
+                    select: {
+                        following: {
+                            select: {
+                                user_id: true,
+                                username: true,
+                                artist_name: true,
+                                profile_picture: true
+                            }   
+                        }
                     }
                 }
             }
-        }
-    }).then((user) => {
+        }),
+        database.follow.aggregate({
+            where: {
+                follower_id: user_id
+            },
+            _count: {
+                follower_id: true
+            }
+        }),
+        database.follow.aggregate({
+            where: {
+                following_id: user_id
+            },
+            _count: {
+                following_id: true
+            }
+        })
+    ]).then(([user, followerAggregation, followingAggregation]) => {
         if(!user){
             return Promise.reject({status: 404, message: "User not found"});
         }
+        user.follower_count = followerAggregation._count.follower_id;
+        user.following_count = followingAggregation._count.following_id;
         return user
     })
 }
