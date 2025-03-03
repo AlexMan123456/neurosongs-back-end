@@ -56,6 +56,25 @@ function fetchUserById(user_id){
                             }   
                         }
                     }
+                },
+                received_notifications: {
+                    select: {
+                        is_viewed: true,
+                        message: true,
+                        sender: {
+                            select: {
+                                user_id: true,
+                                artist_name: true,
+                                username: true,
+                                profile_picture: true
+                            }
+                        },
+                        comment: {
+                            select: {
+                                body: true
+                            }
+                        }
+                    }
                 }
             }
         }),
@@ -74,14 +93,23 @@ function fetchUserById(user_id){
             _count: {
                 following_id: true
             }
+        }),
+        database.notification.aggregate({
+            where: {
+                receiver_id: user_id
+            },
+            _count: {
+                receiver_id: true
+            }
         })
-    ]).then(([user, followerAggregation, followingAggregation]) => {
+    ]).then(([user, followerAggregation, followingAggregation, notificationAggregation]) => {
         if(!user){
             return Promise.reject({status: 404, message: "User not found"});
         }
         user.follower_count = followerAggregation._count.follower_id;
         user.following_count = followingAggregation._count.following_id;
-        return user
+        user.notification_count = notificationAggregation._count.receiver_id;
+        return user;
     })
 }
 

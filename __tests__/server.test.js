@@ -316,6 +316,7 @@ describe("/api/users/:user_id", () => {
                     expect(typeof follower.artist_name).toBe("string");
                     expect(typeof follower.profile_picture).toBe("string");
                 })
+                expect(user.received_notifications.length).not.toBe(0);
             })
         })
         test("404: Responds with a not found message if user not found in database", () => {
