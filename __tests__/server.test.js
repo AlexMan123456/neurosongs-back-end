@@ -300,6 +300,8 @@ describe("/api/users/:user_id", () => {
                 expect(user.description).toBe("I am cool!");
                 expect(user.date_of_birth).toBe("2003-07-16T00:00:00.000Z");
                 expect(user.member_since).toBe("2024-02-15T00:00:00.000Z");
+                expect(user.follower_count).toBe(1);
+                expect(user.following_count).toBe(2);
                 expect(user.followers.length).not.toBe(0);
                 user.followers.forEach(({follower}) => {
                     expect(typeof follower.user_id).toBe("string");
