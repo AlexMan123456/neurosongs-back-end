@@ -97,7 +97,12 @@ function fetchUserById(user_id){
         }),
         database.commentNotification.aggregate({
             where: {
-                receiver_id: user_id
+                AND: [
+                    {
+                        receiver_id: user_id,
+                        is_viewed: false
+                    }
+                ]
             },
             _count: {
                 receiver_id: true

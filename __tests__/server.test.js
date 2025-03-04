@@ -302,6 +302,7 @@ describe("/api/users/:user_id", () => {
                 expect(user.member_since).toBe("2024-02-15T00:00:00.000Z");
                 expect(user.follower_count).toBe(1);
                 expect(user.following_count).toBe(2);
+                expect(user.notification_count).toBe(1);
                 expect(user.followers.length).not.toBe(0);
                 user.followers.forEach(({following}) => {
                     expect(typeof following.user_id).toBe("string");
