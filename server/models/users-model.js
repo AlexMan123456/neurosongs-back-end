@@ -72,7 +72,17 @@ function fetchUserById(user_id){
                         },
                         comment: {
                             select: {
-                                body: true
+                                body: true,
+                                song: {
+                                    select: {
+                                        song_id: true
+                                    }
+                                },
+                                album: {
+                                    select: {
+                                        album_id: true
+                                    }
+                                }
                             }
                         }
                     }

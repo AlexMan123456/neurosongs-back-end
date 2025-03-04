@@ -326,6 +326,7 @@ describe("/api/users/:user_id", () => {
                     expect(typeof notification.sender.artist_name).toBe("string");
                     expect(typeof notification.sender.profile_picture).toBe("string");
                     expect(typeof notification.comment.body).toBe("string");
+                    expect(typeof notification.comment.song.song_id || typeof notification.comment.album.album_id).toBe("number");
                 })
             })
         })
