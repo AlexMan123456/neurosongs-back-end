@@ -149,6 +149,25 @@ function removeSong(stringifiedSongID){
             song_id
         }
     }).then(() => {
+        return database.comment.findMany({
+            where: {
+                song_id
+            },
+            select: {
+                comment_id: true
+            }
+        })
+    }).then((comments) => {
+        return Promise.all(
+            comments.map((comment) => {
+                return database.commentNotification.deleteMany({
+                    where: {
+                        comment_id: comment.comment_id
+                    }
+                })
+            })
+        )
+    }).then(() => {
         return database.comment.deleteMany({
             where: {
                 song_id

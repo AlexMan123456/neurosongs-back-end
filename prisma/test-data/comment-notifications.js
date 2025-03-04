@@ -18,6 +18,13 @@ module.exports = [
         message: "New comment on your song"
     },
     {
+        sender_id: "3",
+        receiver_id: "1",
+        comment_id: 6,
+        message: "New comment on your song",
+        is_viewed: true
+    },
+    {
         sender_id: "1",
         receiver_id: "3",
         comment_id: 9,
