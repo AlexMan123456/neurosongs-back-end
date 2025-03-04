@@ -59,6 +59,7 @@ function fetchUserById(user_id){
                 },
                 received_notifications: {
                     select: {
+                        comment_notification_id: true,
                         is_viewed: true,
                         message: true,
                         created_at: true,
