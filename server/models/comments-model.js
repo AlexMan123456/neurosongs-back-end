@@ -91,7 +91,14 @@ function editComment(stringifiedCommentID, data){
 
 function removeComment(stringifiedCommentID){
     const comment_id = parseInt(stringifiedCommentID);
-    return database.comment.delete({ where: { comment_id } });
+    
+    return database.commentNotification.deleteMany({
+        where: {
+            comment_id
+        }
+    }).then(() => {
+        return database.comment.delete({ where: { comment_id } });
+    })
 }
 
 module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment };
