@@ -319,6 +319,7 @@ describe("/api/users/:user_id", () => {
                 })
                 expect(user.received_notifications.length).not.toBe(0);
                 user.received_notifications.forEach((notification) => {
+                    expect(typeof notification.comment_notification_id).toBe("number");
                     expect(typeof notification.is_viewed).toBe("boolean");
                     expect(typeof notification.message).toBe("string");
                     expect(notification).toHaveProperty("created_at");
