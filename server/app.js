@@ -9,6 +9,7 @@ const comments = require("./routers/comments-router");
 const getEndpoints = require("./controllers/endpoints-controller");
 const ratings = require("./routers/ratings-router");
 const follows = require("./routers/follows-router");
+const notifications = require("./routers/notifications-router");
 
 // Allow Cross Origin Resource Sharing
 app.use(cors());
@@ -26,6 +27,7 @@ app.use("/api/albums", albums);
 app.use("/api/comments", comments);
 app.use("/api/ratings", ratings);
 app.use("/api/follows", follows);
+app.use("/api/notifications", notifications);
 
 // Errors
 app.use(endpointNotFound)

@@ -1,6 +1,6 @@
 {
-  "name": "music-site-back-end",
-  "version": "1.0.0",
+  "name": "neurosongs-back-end",
+  "version": "1.1.0",
   "main": "index.js",
   "devDependencies": {
     "husky": "^9.1.7",

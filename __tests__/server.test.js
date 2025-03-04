@@ -316,6 +316,16 @@ describe("/api/users/:user_id", () => {
                     expect(typeof follower.artist_name).toBe("string");
                     expect(typeof follower.profile_picture).toBe("string");
                 })
+                expect(user.received_notifications.length).not.toBe(0);
+                user.received_notifications.forEach((notification) => {
+                    expect(typeof notification.is_viewed).toBe("boolean");
+                    expect(typeof notification.message).toBe("string");
+                    expect(notification).toHaveProperty("created_at");
+                    expect(typeof notification.sender.user_id).toBe("string");
+                    expect(typeof notification.sender.artist_name).toBe("string");
+                    expect(typeof notification.sender.profile_picture).toBe("string");
+                    expect(typeof notification.comment.body).toBe("string");
+                })
             })
         })
         test("404: Responds with a not found message if user not found in database", () => {
@@ -2572,6 +2582,209 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found")
+            })
+        })
+    })
+})
+
+// NOTIFICATIONS ENDPOINTS
+
+describe("/api/notifications", () => {
+    describe("POST", () => {
+        test("201: Creates a notification for a given comment", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "4",
+                receiver_id: "2",
+                comment_id: 10,
+                message: "Bad_dev has just commented"
+            })
+            .expect(201)
+            .then((response) => {
+                const {notification} = response.body;
+                expect(notification.sender_id).toBe("4");
+                expect(notification.receiver_id).toBe("2");
+                expect(notification.comment_id).toBe(10);
+                expect(notification.message).toBe("Bad_dev has just commented");
+                expect(notification.is_viewed).toBe(false);
+                expect(notification).toHaveProperty("created_at");
+            })
+        })
+        test("201: Ignores any extra properties on request body", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "4",
+                receiver_id: "2",
+                comment_id: 10,
+                message: "Bad_dev has just commented",
+                extraKey: "Extra property"
+            })
+            .expect(201)
+            .then((response) => {
+                const {notification} = response.body;
+                expect(notification.sender_id).toBe("4");
+                expect(notification.receiver_id).toBe("2");
+                expect(notification.comment_id).toBe(10);
+                expect(notification.message).toBe("Bad_dev has just commented");
+                expect(notification.is_viewed).toBe(false);
+                expect(notification).toHaveProperty("created_at");
+            })
+        })
+        test("400: Responds with a bad request message if is_viewed is on request body (should always be false upon creation)", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "4",
+                receiver_id: "2",
+                comment_id: 10,
+                message: "Bad_dev has just commented",
+                is_viewed: true
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if any required properties are missing", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                receiver_id: "2",
+                comment_id: 10,
+                message: "Bad_dev has just commented",
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if created_at is on request body (should always default to the current date and time)", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "4",
+                receiver_id: "2",
+                comment_id: 10,
+                message: "Bad_dev has just commented",
+                created_at: new Date("2003-07-16T00:00:00.000Z")
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if sender_id and receiver_id do not correspond with what they should be according to the comment", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "3",
+                receiver_id: "1",
+                comment_id: 10,
+                message: "Bad_dev has just commented",
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request mesage if comment_id is invalid", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "4",
+                receiver_id: "2",
+                comment_id: "invalid_id",
+                message: "Bad_dev has just commented"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if sender does not exist", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "nonexistent_sender",
+                receiver_id: "2",
+                comment_id: 10,
+                message: "User just commented"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found");
+            })
+        })
+        test("404: Responds with a not found message if receiver does not exist", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "4",
+                receiver_id: "nonexistent_receiver",
+                comment_id: 10,
+                message: "User just commented"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found");
+            })
+        })
+        test("404: Responds with a not found message if comment does not exist", () => {
+            return request(app)
+            .post("/api/notifications")
+            .send({
+                sender_id: "4",
+                receiver_id: "2",
+                comment_id: 231,
+                message: "User just commented"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Comment not found");
+            })
+        })
+    })
+})
+
+describe("/api/notifications/:notification_id", () => {
+    describe("PATCH", () => {
+        test("200: Sets is_viewed to true", () => {
+            return request(app)
+            .patch("/api/notifications/1")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.notification.is_viewed).toBe(true);
+            })
+        })
+        test("200: Sets is_viewed to false if already true", () => {
+            return request(app)
+            .patch("/api/notifications/1")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.notification.is_viewed).toBe(true);
+                return request(app)
+                .patch("/api/notifications/1")
+                .expect(200)
+            }).then((response) => {
+                expect(response.body.notification.is_viewed).toBe(false);
+            })
+        })
+        test("400: Responds with a bad request message if notification_id is invalid", () => {
+            return request(app)
+            .patch("/api/notifications/invalid_id")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if notification does not exist", () => {
+            return request(app)
+            .patch("/api/notifications/231")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Notification not found")
             })
         })
     })
