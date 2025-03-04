@@ -2748,6 +2748,48 @@ describe("/api/notifications", () => {
     })
 })
 
+describe("/api/notifications/:notification_id", () => {
+    describe("PATCH", () => {
+        test("200: Sets is_viewed to true", () => {
+            return request(app)
+            .patch("/api/notifications/1")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.notification.is_viewed).toBe(true);
+            })
+        })
+        test("200: Sets is_viewed to false if already true", () => {
+            return request(app)
+            .patch("/api/notifications/1")
+            .expect(200)
+            .then((response) => {
+                expect(response.body.notification.is_viewed).toBe(true);
+                return request(app)
+                .patch("/api/notifications/1")
+                .expect(200)
+            }).then((response) => {
+                expect(response.body.notification.is_viewed).toBe(false);
+            })
+        })
+        test("400: Responds with a bad request message if notification_id is invalid", () => {
+            return request(app)
+            .patch("/api/notifications/invalid_id")
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if notification does not exist", () => {
+            return request(app)
+            .patch("/api/notifications/231")
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Notification not found")
+            })
+        })
+    })
+})
+
 describe("/*", () => {
     test("404: Responds with a not found message if endpoint does not exist", () => {
         return request(app)

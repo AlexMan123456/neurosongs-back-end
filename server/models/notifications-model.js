@@ -36,4 +36,29 @@ function uploadNotification(body){
     })
 }
 
-module.exports = { uploadNotification };
+function updateNotification(stringifiedNotificationID){
+    const comment_notification_id = parseInt(stringifiedNotificationID);
+    return database.commentNotification.findUnique({
+        where: {
+            comment_notification_id
+        },
+        select: {
+            is_viewed: true
+        }
+    }).then((notification) => {
+        if(!notification){
+            return Promise.reject({status: 404, message: "Notification not found"})
+        }
+        return database.commentNotification.update({
+            where: {
+                comment_notification_id
+            },
+            data: {
+                is_viewed: !notification.is_viewed
+            }
+        })
+    })
+    
+}
+
+module.exports = { uploadNotification, updateNotification };
