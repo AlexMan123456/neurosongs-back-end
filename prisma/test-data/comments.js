@@ -48,5 +48,15 @@ module.exports = [
         user_id: "4",
         album_id: 4,
         body: "This is very cringe",
+    },
+    {
+        user_id: "3",
+        replying_to_id: 5,
+        body: "Yes! Captain Kevin is the best!"
+    },
+    {
+        user_id: "1",
+        replying_to_id: 5,
+        body: "Everyone loves Captain Kevin!"
     }
 ]
