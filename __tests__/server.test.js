@@ -2529,6 +2529,30 @@ describe("/api/comments/:comment_id/replies", () => {
             })
         })
     })
+    test("200: Responds with an empty array if the parent comment has no replies", () => {
+        return request(app)
+        .get("/api/comments/1/replies")
+        .expect(200)
+        .then((response) => {
+            expect(response.body.replies.length).toBe(0);
+        })
+    })
+    test("400: Responds with a bad request message if comment ID is invalid", () => {
+        return request(app)
+        .get("/api/comments/invalid_id/replies")
+        .expect(400)
+        .then((response) => {
+            expect(response.body.message).toBe("Bad request");
+        })
+    })
+    test("404: Responds with a not found message if parent comment does not exist", () => {
+        return request(app)
+        .get("/api/comments/231/replies")
+        .expect(404)
+        .then((response) => {
+            expect(response.body.message).toBe("Comment not found");
+        })
+    })
 })
 
 // FOLLOW ME, SET ME FREE! TRUST ME AND WE WILL ESCAPE FROM THE CITY!

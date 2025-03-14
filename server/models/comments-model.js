@@ -23,21 +23,31 @@ function fetchCommentsFromContent(params){
 function fetchCommentReplies(stringifiedID){
     const replying_to_id = parseInt(stringifiedID);
 
-    return database.comment.findMany({
+    return database.comment.findUnique({
         where: {
-            replying_to_id
-        },
-        include: {
-            author: {
-                select: {
-                    artist_name: true,
-                    username: true,
-                    profile_picture: true
-                }
-            },
-            album_id: false,
-            song_id: false
+            comment_id: replying_to_id
         }
+    }).then((comment) => {
+        if(!comment){
+            return Promise.reject({status: 404, message: "Comment not found"});
+        }
+
+        return database.comment.findMany({
+            where: {
+                replying_to_id
+            },
+            include: {
+                author: {
+                    select: {
+                        artist_name: true,
+                        username: true,
+                        profile_picture: true
+                    }
+                },
+                album_id: false,
+                song_id: false
+            }
+        })
     })
 }
 
