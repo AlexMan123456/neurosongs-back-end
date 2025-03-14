@@ -40,8 +40,8 @@ model Song {
   created_at  DateTime     @default(now())
   comments    Comment[]
   ratings     SongRating[]
-  album       Album        @relation(fields: [album_id], references: [album_id])
-  artist      User         @relation(fields: [user_id], references: [user_id])
+  album       Album        @relation(fields: [album_id], references: [album_id], onDelete: Cascade)
+  artist      User         @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@map("songs")
 }
@@ -56,7 +56,7 @@ model Album {
   description           String?
   created_at            DateTime      @default(now())
   ratings               AlbumRating[]
-  artist                User          @relation(fields: [user_id], references: [user_id])
+  artist                User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   comments              Comment[]
   songs                 Song[]
 
@@ -72,11 +72,11 @@ model Comment {
   created_at     DateTime              @default(now())
   replying_to_id Int?
   notifications  CommentNotification[]
-  album          Album?                @relation(fields: [album_id], references: [album_id])
-  replying_to    Comment?              @relation("CommentReplies", fields: [replying_to_id], references: [comment_id])
+  album          Album?                @relation(fields: [album_id], references: [album_id], onDelete: Cascade)
+  replying_to    Comment?              @relation("CommentReplies", fields: [replying_to_id], references: [comment_id], onDelete: Cascade)
   replies        Comment[]             @relation("CommentReplies")
-  song           Song?                 @relation(fields: [song_id], references: [song_id])
-  author         User                  @relation(fields: [user_id], references: [user_id])
+  song           Song?                 @relation(fields: [song_id], references: [song_id], onDelete: Cascade)
+  author         User                  @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@map("comments")
 }
@@ -86,8 +86,8 @@ model SongRating {
   song_id    Int
   score      Decimal @db.Decimal(3, 1)
   is_visible Boolean @default(false)
-  song       Song    @relation(fields: [song_id], references: [song_id])
-  user       User    @relation(fields: [user_id], references: [user_id])
+  song       Song    @relation(fields: [song_id], references: [song_id], onDelete: Cascade)
+  user       User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@id([user_id, song_id])
   @@map("song_ratings")
@@ -98,8 +98,8 @@ model AlbumRating {
   album_id   Int
   score      Decimal @db.Decimal(3, 1)
   is_visible Boolean @default(false)
-  album      Album   @relation(fields: [album_id], references: [album_id])
-  user       User    @relation(fields: [user_id], references: [user_id])
+  album      Album   @relation(fields: [album_id], references: [album_id], onDelete: Cascade)
+  user       User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@id([user_id, album_id])
   @@map("album_ratings")
@@ -108,8 +108,8 @@ model AlbumRating {
 model Follow {
   following_id String
   follower_id  String
-  follower     User   @relation("follower", fields: [follower_id], references: [user_id])
-  following    User   @relation("following", fields: [following_id], references: [user_id])
+  follower     User   @relation("follower", fields: [follower_id], references: [user_id], onDelete: Cascade)
+  following    User   @relation("following", fields: [following_id], references: [user_id], onDelete: Cascade)
 
   @@id([following_id, follower_id])
   @@map("follows")
@@ -123,9 +123,9 @@ model CommentNotification {
   message                 String
   is_viewed               Boolean  @default(false)
   created_at              DateTime @default(now())
-  comment                 Comment  @relation(fields: [comment_id], references: [comment_id])
-  receiver                User     @relation("receiver", fields: [receiver_id], references: [user_id])
-  sender                  User     @relation("sender", fields: [sender_id], references: [user_id])
+  comment                 Comment  @relation(fields: [comment_id], references: [comment_id], onDelete: Cascade)
+  receiver                User     @relation("receiver", fields: [receiver_id], references: [user_id], onDelete: Cascade)
+  sender                  User     @relation("sender", fields: [sender_id], references: [user_id], onDelete: Cascade)
 
   @@map("comment_notifications")
 }
