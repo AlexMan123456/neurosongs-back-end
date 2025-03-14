@@ -1,6 +1,6 @@
 const database = require("../../client")
 
-function fetchCommentsFromContent(params){
+async function fetchCommentsFromContent(params){
     const request = {
         where: {},
         include: {
@@ -17,7 +17,19 @@ function fetchCommentsFromContent(params){
     request.where[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
     request.include[params.song_id ? "album_id" : "song_id"] = false;
 
-    return database.comment.findMany(request)
+    const comments = await database.comment.findMany(request);
+    for(const comment of comments){
+        const {_count} = await database.comment.aggregate({
+            where: {
+                replying_to_id: comment.comment_id
+            },
+            _count: {
+                replying_to_id: true
+            }
+        })
+        comment.reply_count = _count.replying_to_id
+    }
+    return comments
 }
 
 function fetchCommentReplies(stringifiedID){
