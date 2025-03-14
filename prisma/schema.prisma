@@ -64,16 +64,19 @@ model Album {
 }
 
 model Comment {
-  comment_id    Int                   @id @default(autoincrement())
-  user_id       String
-  song_id       Int?
-  album_id      Int?
-  body          String
-  created_at    DateTime              @default(now())
-  notifications CommentNotification[]
-  album         Album?                @relation(fields: [album_id], references: [album_id])
-  song          Song?                 @relation(fields: [song_id], references: [song_id])
-  author        User                  @relation(fields: [user_id], references: [user_id])
+  comment_id     Int                   @id @default(autoincrement())
+  user_id        String
+  song_id        Int?
+  album_id       Int?
+  body           String
+  created_at     DateTime              @default(now())
+  replying_to_id Int?
+  notifications  CommentNotification[]
+  album          Album?                @relation(fields: [album_id], references: [album_id])
+  replying_to    Comment?              @relation("CommentReplies", fields: [replying_to_id], references: [comment_id])
+  replies        Comment[]             @relation("CommentReplies")
+  song           Song?                 @relation(fields: [song_id], references: [song_id])
+  author         User                  @relation(fields: [user_id], references: [user_id])
 
   @@map("comments")
 }
