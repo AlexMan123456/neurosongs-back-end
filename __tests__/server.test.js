@@ -1112,6 +1112,7 @@ describe("/api/albums/:album_id/comments", () => {
                     expect(typeof comment.author.username).toBe("string");
                     expect(typeof comment.author.profile_picture).toBe("string");
                     expect(typeof comment.body).toBe("string");
+                    expect(typeof comment.reply_count).toBe("number");
                     expect(comment).toHaveProperty("created_at");
                     expect(comment).not.toHaveProperty("song_id");
                 })
@@ -1159,8 +1160,9 @@ describe("/api/albums/:album_id/comments", () => {
                 expect(comment.author.profile_picture).toBe("captain-kevin.png");
                 expect(comment.album_id).toBe(1);
                 expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment).toHaveProperty("created_at")
-                expect(comment).not.toHaveProperty("song_id")
+                expect(comment).toHaveProperty("created_at");
+                expect(comment.reply_count).toBe(0);
+                expect(comment).not.toHaveProperty("song_id");
             })
         })
         test("201: Ignores any extra properties on request body", () => {
@@ -1821,8 +1823,9 @@ describe("/api/songs/:song_id/comments", () => {
                 expect(comment.author.profile_picture).toBe("captain-kevin.png");
                 expect(comment.song_id).toBe(1);
                 expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment).toHaveProperty("created_at")
-                expect(comment).not.toHaveProperty("album_id")
+                expect(comment.reply_count).toBe(0);
+                expect(comment).toHaveProperty("created_at");
+                expect(comment).not.toHaveProperty("album_id");
             })
         })
         test("201: Ignores any extra properties on request body", () => {

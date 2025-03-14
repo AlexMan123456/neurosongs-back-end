@@ -88,6 +88,9 @@ function uploadComment(params, body){
             },
             [params.song_id ? "album_id" : "song_id"]: false
         }
+    }).then((comment) => {
+        comment.reply_count = 0;
+        return comment;
     })
 }
 
