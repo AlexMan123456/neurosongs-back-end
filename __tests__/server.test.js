@@ -2509,6 +2509,27 @@ describe("/api/comments/:comment_id", () => {
     })
 })
 
+describe("/api/comments/:comment_id/replies", () => {
+    test("200: Responds with an array of all replies to the comment with that ID", () => {
+        return request(app)
+        .get("/api/comments/5/replies")
+        .expect(200)
+        .then((response) => {
+            expect(response.body.replies.length).not.toBe(0);
+            response.body.replies.forEach((reply) => {
+                expect(typeof reply.user_id).toBe("string");
+                expect(typeof reply.author.username).toBe("string");
+                expect(typeof reply.author.artist_name).toBe("string");
+                expect(typeof reply.author.profile_picture).toBe("string");
+                expect(typeof reply.body).toBe("string");
+                expect(reply).toHaveProperty("created_at");
+                expect(reply).not.toHaveProperty("album_id");
+                expect(reply).not.toHaveProperty("song_id");
+                expect(reply.replying_to_id).toBe(5);
+            })
+        })
+    })
+})
 
 // FOLLOW ME, SET ME FREE! TRUST ME AND WE WILL ESCAPE FROM THE CITY!
 

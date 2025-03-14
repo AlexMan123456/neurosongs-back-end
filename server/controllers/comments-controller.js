@@ -1,5 +1,5 @@
 const { fetchAlbumById } = require("../models/albums-model");
-const { fetchCommentsFromContent, uploadComment, editComment, removeComment } = require("../models/comments-model");
+const { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies } = require("../models/comments-model");
 const { fetchSongById } = require("../models/songs-model");
 
 function getCommentsFromContent(request, response, next){
@@ -11,6 +11,14 @@ function getCommentsFromContent(request, response, next){
         response.status(200).send({comments});
     }).catch((err) => {
         next(err);
+    })
+}
+
+function getCommentReplies(request, response, next){
+    fetchCommentReplies(request.params.comment_id).then((replies) => {
+        response.status(200).send({replies})
+    }).catch((err) => {
+        next(err)
     })
 }
 
@@ -42,4 +50,4 @@ function deleteComment(request, response, next){
     })
 }
 
-module.exports = { getCommentsFromContent, postComment, patchComment, deleteComment };
+module.exports = { getCommentsFromContent, postComment, patchComment, deleteComment, getCommentReplies };

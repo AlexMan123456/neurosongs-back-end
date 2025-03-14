@@ -17,11 +17,27 @@ function fetchCommentsFromContent(params){
     request.where[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
     request.include[params.song_id ? "album_id" : "song_id"] = false;
 
-    return database.comment.findMany(request).then((comments) => {
-        return comments.map((comment) => {
-            comment.rating = parseFloat(comment.rating);
-            return comment;
-        })
+    return database.comment.findMany(request)
+}
+
+function fetchCommentReplies(stringifiedID){
+    const replying_to_id = parseInt(stringifiedID);
+
+    return database.comment.findMany({
+        where: {
+            replying_to_id
+        },
+        include: {
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
+                }
+            },
+            album_id: false,
+            song_id: false
+        }
     })
 }
 
@@ -79,7 +95,6 @@ function editComment(stringifiedCommentID, data){
             }
         }
     }).then((comment) => {
-        comment.rating = parseFloat(comment.rating);
         if(comment.song_id){
             delete comment.album_id;
         } else if(comment.album_id){
@@ -101,4 +116,4 @@ function removeComment(stringifiedCommentID){
     })
 }
 
-module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment };
+module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies };
