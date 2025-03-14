@@ -2389,6 +2389,7 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.author.profile_picture).toBe("Default");
                     expect(comment.song_id).toBe(13);
                     expect(comment.body).toBe("Not cringe");
+                    expect(comment.reply_count).toBe(1);
                     expect(comment).not.toHaveProperty("replying_to_id");
                     expect(comment).not.toHaveProperty("album_id");
                 }),
@@ -2405,6 +2406,7 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.author.artist_name).toBe("Alex The Man");
                     expect(comment.author.profile_picture).toBe("KoolAlex.png");
                     expect(comment.album_id).toBe(2);
+                    expect(comment.reply_count).toBe(0);
                     expect(comment.body).toBe("Ultimate perfection!");
                     expect(comment).not.toHaveProperty("replying_to_id");
                     expect(comment).not.toHaveProperty("song_id");
@@ -2422,6 +2424,7 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.author.artist_name).toBe("Alex The Man");
                     expect(comment.author.profile_picture).toBe("KoolAlex.png");
                     expect(comment.replying_to_id).toBe(5);
+                    expect(comment).not.toHaveProperty("reply_count")
                     expect(comment.body).toBe("Ultimate perfection!");
                     expect(comment).not.toHaveProperty("album_id");
                     expect(comment).not.toHaveProperty("song_id");
