@@ -2385,7 +2385,8 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.author.profile_picture).toBe("Default");
                     expect(comment.song_id).toBe(13);
                     expect(comment.body).toBe("Not cringe");
-                    expect(comment).not.toHaveProperty("album_id")
+                    expect(comment).not.toHaveProperty("replying_to_id");
+                    expect(comment).not.toHaveProperty("album_id");
                 }),
                 request(app)
                 .patch("/api/comments/7")
@@ -2401,7 +2402,25 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.author.profile_picture).toBe("KoolAlex.png");
                     expect(comment.album_id).toBe(2);
                     expect(comment.body).toBe("Ultimate perfection!");
-                    expect(comment).not.toHaveProperty("song_id")
+                    expect(comment).not.toHaveProperty("replying_to_id");
+                    expect(comment).not.toHaveProperty("song_id");
+                }),
+                request(app)
+                .patch("/api/comments/12")
+                .send({
+                    body: "Ultimate perfection!",
+                })
+                .expect(200)
+                .then((response) => {
+                    const {comment} = response.body;
+                    expect(comment.user_id).toBe("1");
+                    expect(comment.author.username).toBe("AlexTheMan");
+                    expect(comment.author.artist_name).toBe("Alex The Man");
+                    expect(comment.author.profile_picture).toBe("KoolAlex.png");
+                    expect(comment.replying_to_id).toBe(5);
+                    expect(comment.body).toBe("Ultimate perfection!");
+                    expect(comment).not.toHaveProperty("album_id");
+                    expect(comment).not.toHaveProperty("song_id");
                 })
             ])
         })
@@ -2455,6 +2474,18 @@ describe("/api/comments/:comment_id", () => {
             .send({
                 body: "Not cringe",
                 album_id: 2
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if trying to edit replying_to_id", () => {
+            return request(app)
+            .patch("/api/comments/3")
+            .send({
+                body: "Not cringe",
+                replying_to_id: 2
             })
             .expect(400)
             .then((response) => {

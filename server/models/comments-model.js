@@ -128,7 +128,7 @@ function editComment(stringifiedCommentID, body){
         if(!["body", "rating"].includes(key)){
             delete data[key];
         }
-        if(["user_id", "song_id", "album_id"].includes(key)){
+        if(["user_id", "song_id", "album_id", "replying_to_id"].includes(key)){
             return Promise.reject({status: 400, message: "Bad request"})
         }
     }
@@ -150,7 +150,12 @@ function editComment(stringifiedCommentID, body){
     }).then((comment) => {
         if(comment.song_id){
             delete comment.album_id;
+            delete comment.replying_to_id;
         } else if(comment.album_id){
+            delete comment.song_id;
+            delete comment.replying_to_id;
+        } else if(comment.replying_to_id){
+            delete comment.album_id;
             delete comment.song_id;
         }
         return comment;
