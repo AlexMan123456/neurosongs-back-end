@@ -58,5 +58,10 @@ module.exports = [
         user_id: "1",
         replying_to_id: 5,
         body: "Everyone loves Captain Kevin!"
+    },
+    {
+        user_id: "1",
+        replying_to_id: 3,
+        body: "no u"
     }
 ]

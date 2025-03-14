@@ -1,6 +1,6 @@
 const database = require("../../client")
 
-function fetchCommentsFromContent(params){
+async function fetchCommentsFromContent(params){
     const request = {
         where: {},
         include: {
@@ -17,7 +17,19 @@ function fetchCommentsFromContent(params){
     request.where[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
     request.include[params.song_id ? "album_id" : "song_id"] = false;
 
-    return database.comment.findMany(request)
+    const comments = await database.comment.findMany(request);
+    for(const comment of comments){
+        const {_count} = await database.comment.aggregate({
+            where: {
+                replying_to_id: comment.comment_id
+            },
+            _count: {
+                replying_to_id: true
+            }
+        })
+        comment.reply_count = _count.replying_to_id
+    }
+    return comments
 }
 
 function fetchCommentReplies(stringifiedID){
@@ -76,6 +88,9 @@ function uploadComment(params, body){
             },
             [params.song_id ? "album_id" : "song_id"]: false
         }
+    }).then((comment) => {
+        comment.reply_count = 0;
+        return comment;
     })
 }
 
@@ -120,7 +135,7 @@ function uploadCommentReply(stringifiedID, body){
 
 }
 
-function editComment(stringifiedCommentID, body){
+async function editComment(stringifiedCommentID, body){
     const comment_id = parseInt(stringifiedCommentID);
     const data = {...body};
 
@@ -133,7 +148,7 @@ function editComment(stringifiedCommentID, body){
         }
     }
 
-    return database.comment.update({
+    const comment = await database.comment.update({
         where: {
             comment_id
         },
@@ -147,19 +162,33 @@ function editComment(stringifiedCommentID, body){
                 }
             }
         }
-    }).then((comment) => {
-        if(comment.song_id){
-            delete comment.album_id;
-            delete comment.replying_to_id;
-        } else if(comment.album_id){
-            delete comment.song_id;
-            delete comment.replying_to_id;
-        } else if(comment.replying_to_id){
-            delete comment.album_id;
-            delete comment.song_id;
-        }
-        return comment;
     })
+
+    if(comment.song_id){
+        delete comment.album_id;
+        delete comment.replying_to_id;
+    } else if(comment.album_id){
+        delete comment.song_id;
+        delete comment.replying_to_id;
+    } else if(comment.replying_to_id){
+        delete comment.album_id;
+        delete comment.song_id;
+    }
+
+    if(comment.song_id || comment.album_id){
+        const {_count} = await database.comment.aggregate({
+            where: {
+                replying_to_id: comment.comment_id
+            },
+            _count: {
+                replying_to_id: true
+            }
+        })
+        comment.reply_count = _count.replying_to_id
+    }
+
+    return comment;
+
 }
 
 function removeComment(stringifiedCommentID){
