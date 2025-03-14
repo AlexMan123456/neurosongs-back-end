@@ -51,7 +51,8 @@ function fetchCommentReplies(stringifiedID){
     })
 }
 
-function uploadComment(params, data){
+function uploadComment(params, body){
+    const data = {...body}
     for(const key in data){
         if(!["user_id", "body"].includes(key)){
             delete data[key];
@@ -78,8 +79,50 @@ function uploadComment(params, data){
     })
 }
 
-function editComment(stringifiedCommentID, data){
-    const comment_id = parseInt(stringifiedCommentID)
+function uploadCommentReply(stringifiedID, body){
+    const data = {...body};
+    
+    for(const key in data){
+        if(!["user_id", "body"].includes(key)){
+            delete data[key];
+        }
+        if(key === "replying_to_id"){
+            return Promise.reject({status: 400, message: "Bad request"});
+        }
+    }
+
+    data.replying_to_id = parseInt(stringifiedID);
+
+    return database.comment.findUnique({
+        where: {
+            comment_id: data.replying_to_id
+        }
+    }).then((comment) => {
+        if(!comment){
+            return Promise.reject({status: 404, message: "Comment not found"})
+        }
+        return database.comment.create({
+            data,
+            include: {
+                author: {
+                    select: {
+                        artist_name: true,
+                        username: true,
+                        profile_picture: true
+                    }
+                },
+                song_id: false,
+                album_id: false
+            }
+        });
+    })
+    
+
+}
+
+function editComment(stringifiedCommentID, body){
+    const comment_id = parseInt(stringifiedCommentID);
+    const data = {...body};
 
     for(const key in data){
         if(!["body", "rating"].includes(key)){
@@ -126,4 +169,4 @@ function removeComment(stringifiedCommentID){
     })
 }
 
-module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies };
+module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies, uploadCommentReply };

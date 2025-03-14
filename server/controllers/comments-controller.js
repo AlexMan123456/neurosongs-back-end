@@ -1,6 +1,7 @@
 const { fetchAlbumById } = require("../models/albums-model");
-const { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies } = require("../models/comments-model");
+const { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies, uploadCommentReply } = require("../models/comments-model");
 const { fetchSongById } = require("../models/songs-model");
+const { fetchUserById } = require("../models/users-model");
 
 function getCommentsFromContent(request, response, next){
     const {params} = request
@@ -34,6 +35,16 @@ function postComment(request, response, next){
     })
 }
 
+function postCommentReply(request, response, next){
+    return fetchUserById(request.body.user_id).then(() => {
+        return uploadCommentReply(request.params.comment_id, request.body);
+    }).then((reply) => {
+        response.status(201).send({reply})
+    }).catch((err) => {
+        next(err);
+    })
+}
+
 function patchComment(request, response, next){
     editComment(request.params.comment_id, request.body).then((comment) => {
         response.status(200).send({comment});
@@ -50,4 +61,4 @@ function deleteComment(request, response, next){
     })
 }
 
-module.exports = { getCommentsFromContent, postComment, patchComment, deleteComment, getCommentReplies };
+module.exports = { getCommentsFromContent, postComment, patchComment, deleteComment, getCommentReplies, postCommentReply };

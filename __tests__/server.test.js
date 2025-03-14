@@ -2555,6 +2555,98 @@ describe("/api/comments/:comment_id/replies", () => {
             })
         })
     })
+    describe("POST", () => {
+        test("201: Posts a reply to the given comment and responds with the reply", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!"
+            })
+            .expect(201)
+            .then((response) => {
+                const {reply} = response.body;
+                expect(reply.user_id).toBe("1");
+                expect(reply.author.username).toBe("AlexTheMan")
+                expect(reply.author.artist_name).toBe("Alex The Man")
+                expect(reply.body).toBe("Cool song!");
+                expect(reply.replying_to_id).toBe(1);
+                expect(reply).toHaveProperty("created_at");
+                expect(reply).not.toHaveProperty("album_id");
+                expect(reply).not.toHaveProperty("song_id");
+            })
+        })
+        test("201: Ignores any extra properties on request body", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!",
+                extraKey: "Extra property"
+            })
+            .expect(201)
+            .then((response) => {
+                const {reply} = response.body;
+                expect(reply.user_id).toBe("1");
+                expect(reply.author.username).toBe("AlexTheMan")
+                expect(reply.author.artist_name).toBe("Alex The Man")
+                expect(reply.body).toBe("Cool song!");
+                expect(reply.replying_to_id).toBe(1);
+                expect(reply).toHaveProperty("created_at");
+                expect(reply).not.toHaveProperty("album_id");
+                expect(reply).not.toHaveProperty("song_id");
+            })
+        })
+        test("400: Responds with a bad request message if replying_to_id is found on request body", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!",
+                replying_to_id: 1
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if comment_id parameter is invalid", () => {
+            return request(app)
+            .post("/api/comments/invalid_id/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!"
+            })
+            .expect(400)
+            .then((response) => {
+                expect(response.body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if parent comment does not exist", () => {
+            return request(app)
+            .post("/api/comments/231/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("Comment not found");
+            })
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "nonexistent_user",
+                body: "Cool song!"
+            })
+            .expect(404)
+            .then((response) => {
+                expect(response.body.message).toBe("User not found")
+            })
+        })
+    })
 })
 
 // FOLLOW ME, SET ME FREE! TRUST ME AND WE WILL ESCAPE FROM THE CITY!
