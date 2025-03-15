@@ -63,5 +63,15 @@ module.exports = [
         user_id: "1",
         replying_to_id: 3,
         body: "no u"
+    },
+    {
+        user_id: "3",
+        replying_to_id: 9,
+        body: "no me"
+    },
+    {
+        user_id: "1",
+        replying_to_id: 6,
+        body: "Oh hi, Kevin"
     }
 ]

@@ -302,7 +302,7 @@ describe("/api/users/:user_id", () => {
                 expect(user.member_since).toBe("2024-02-15T00:00:00.000Z");
                 expect(user.follower_count).toBe(1);
                 expect(user.following_count).toBe(2);
-                expect(user.notification_count).toBe(1);
+                expect(user.notification_count).toBe(2);
                 expect(user.followers.length).not.toBe(0);
                 user.followers.forEach(({following}) => {
                     expect(typeof following.user_id).toBe("string");
@@ -327,7 +327,7 @@ describe("/api/users/:user_id", () => {
                     expect(typeof notification.sender.artist_name).toBe("string");
                     expect(typeof notification.sender.profile_picture).toBe("string");
                     expect(typeof notification.comment.body).toBe("string");
-                    expect(typeof notification.comment.song.song_id || typeof notification.comment.album.album_id).toBe("number");
+                    expect(typeof notification.comment.song?.song_id === "number" || typeof notification.comment.album?.album_id === "number" || typeof notification.comment.replying_to?.song?.song_id === "number" || typeof notification.comment.replying_to?.album?.album_id === "number").toBe(true);
                 })
             })
         })
@@ -2790,6 +2790,46 @@ describe("/api/notifications", () => {
                 expect(notification.is_viewed).toBe(false);
                 expect(notification).toHaveProperty("created_at");
             })
+        })
+        test("201: Creates a notification if the given comment is a reply", () => {
+            return Promise.all([
+                request(app)
+                .post("/api/notifications")
+                .send({
+                    sender_id: "3",
+                    receiver_id: "1",
+                    comment_id: 11,
+                    message: "New reply to your comment"
+                })
+                .expect(201)
+                .then((response) => {
+                    const {notification} = response.body;
+                    expect(notification.sender_id).toBe("3");
+                    expect(notification.receiver_id).toBe("1");
+                    expect(notification.comment_id).toBe(11);
+                    expect(notification.message).toBe("New reply to your comment");
+                    expect(notification.is_viewed).toBe(false);
+                    expect(notification).toHaveProperty("created_at");
+                }),
+                request(app)
+                .post("/api/notifications")
+                .send({
+                    sender_id: "3",
+                    receiver_id: "1",
+                    comment_id: 14,
+                    message: "New reply to your comment"
+                })
+                .expect(201)
+                .then((response) => {
+                    const {notification} = response.body;
+                    expect(notification.sender_id).toBe("3");
+                    expect(notification.receiver_id).toBe("1");
+                    expect(notification.comment_id).toBe(14);
+                    expect(notification.message).toBe("New reply to your comment");
+                    expect(notification.is_viewed).toBe(false);
+                    expect(notification).toHaveProperty("created_at");
+                })
+            ])
         })
         test("201: Ignores any extra properties on request body", () => {
             return request(app)

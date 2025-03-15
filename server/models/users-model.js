@@ -83,6 +83,23 @@ function fetchUserById(user_id){
                                     select: {
                                         album_id: true
                                     }
+                                },
+                                replying_to: {
+                                    select: {
+                                        replying_to_id: true,
+                                        song: {
+                                            select: {
+                                                song_id: true,
+                                                title: true
+                                            }
+                                        },
+                                        album: {
+                                            select: {
+                                                album_id: true,
+                                                title: true
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -29,5 +29,17 @@ module.exports = [
         receiver_id: "3",
         comment_id: 9,
         message: "New comment on your album"
+    },
+    {
+        sender_id: "1",
+        receiver_id: "3",
+        comment_id: 15,
+        message: "New reply to your comment"
+    },
+    {
+        sender_id: "3",
+        receiver_id: "1",
+        comment_id: 14,
+        message: "New reply to your comment"
     }
 ]

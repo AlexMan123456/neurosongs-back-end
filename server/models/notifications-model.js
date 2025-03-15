@@ -19,17 +19,26 @@ function uploadNotification(body){
         },
         include: {
             song: true,
-            album: true
+            album: true,
+            replying_to: true
         }
     }).then((comment) => {
         if(!comment){
             return Promise.reject({status: 404, message: "Comment not found"});
         }
 
-        const contentType = comment.song ? "song" : "album"
-        if(comment.user_id !== data.sender_id || comment[contentType].user_id !== data.receiver_id){
-            return Promise.reject({status: 400, message: "Bad request"})
+        const contentType = comment.song ? "song" : (comment.album ? "album" : "comment")
+
+        if(contentType === "song" || contentType === "album"){
+            if(comment.user_id !== data.sender_id || comment[contentType].user_id !== data.receiver_id){
+                return Promise.reject({status: 400, message: "Bad request"})
+            }
+        } else if(contentType === "comment") {
+            if(comment.user_id !== data.sender_id || comment.replying_to.user_id !== data.receiver_id){
+                return Promise.reject({status: 400, message: "Bad request"})
+            }
         }
+
         return database.commentNotification.create({
             data
         })
