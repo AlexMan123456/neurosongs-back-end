@@ -56,6 +56,12 @@ function fetchCommentReplies(stringifiedID){
                         profile_picture: true
                     }
                 },
+                replying_to: {
+                    select: {
+                        song: true,
+                        album: true
+                    }
+                },
                 album_id: false,
                 song_id: false
             }

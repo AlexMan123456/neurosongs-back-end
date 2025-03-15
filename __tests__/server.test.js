@@ -2565,6 +2565,9 @@ describe("/api/comments/:comment_id/replies", () => {
                     expect(reply).not.toHaveProperty("album_id");
                     expect(reply).not.toHaveProperty("song_id");
                     expect(reply.replying_to_id).toBe(5);
+                    expect(reply.replying_to).not.toBe(null);
+                    expect(reply.replying_to.song.song_id).toBe(1);
+                    expect(reply.replying_to.song.title).toBe("Captain Kevin");
                 })
             })
         })
