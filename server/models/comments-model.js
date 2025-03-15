@@ -133,6 +133,12 @@ function uploadCommentReply(stringifiedID, body){
                         profile_picture: true
                     }
                 },
+                replying_to: {
+                    select: {
+                        song: true,
+                        album: true
+                    }
+                },
                 song_id: false,
                 album_id: false
             }
