@@ -27,7 +27,7 @@ function uploadNotification(body){
             return Promise.reject({status: 404, message: "Comment not found"});
         }
 
-        const contentType = comment.song ? "song" : (comment.album ? "album" : "comment")
+        const contentType = comment.song_id ? "song" : (comment.album_id ? "album" : "comment")
 
         if(contentType === "song" || contentType === "album"){
             if(comment.user_id !== data.sender_id || comment[contentType].user_id !== data.receiver_id){
