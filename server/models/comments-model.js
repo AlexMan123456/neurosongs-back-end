@@ -16,6 +16,7 @@ async function fetchCommentsFromContent(params){
 
     request.where[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
     request.include[params.song_id ? "album_id" : "song_id"] = false;
+    request.include[params.song_id ? "song" : "album"] = true;
 
     const comments = await database.comment.findMany(request);
     for(const comment of comments){
