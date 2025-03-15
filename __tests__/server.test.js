@@ -1115,6 +1115,10 @@ describe("/api/albums/:album_id/comments", () => {
                     expect(typeof comment.reply_count).toBe("number");
                     expect(comment).toHaveProperty("created_at");
                     expect(comment).not.toHaveProperty("song_id");
+                    expect(comment).toHaveProperty("album")
+                    expect(comment.album.title).toBe("Kevin's Greatest Hits")
+                    expect(comment).not.toHaveProperty("song");
+                    expect(comment).not.toHaveProperty("song_id");
                 })
             })
         })
@@ -1777,6 +1781,9 @@ describe("/api/songs/:song_id/comments", () => {
                     expect(typeof comment.body).toBe("string");
                     expect(typeof comment.reply_count).toBe("number");
                     expect(comment).toHaveProperty("created_at");
+                    expect(comment).toHaveProperty("song");
+                    expect(comment.song.title).toBe("Lockdown")
+                    expect(comment).not.toHaveProperty("album");
                     expect(comment).not.toHaveProperty("album_id");
                 })
             })
