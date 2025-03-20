@@ -928,6 +928,7 @@ describe("/api/albums/:album_id", () => {
     })
 })
 
+// TO DO: Make the tests pass and add functionality to automatically make the index of created songs equal to the length of the album songs array
 describe("/api/albums/:album_id/songs", () => {
     describe("POST", () => {
         test("201: Creates a song for the given album", () => {
@@ -951,6 +952,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.description).toBe("You think that I am at my highest power!");
                 expect(song.reference).toBe("highest-power.mp3");
                 expect(song.is_featured).toBe(false);
+                expect(song.index).toBe(6);
                 expect(song).toHaveProperty("created_at");
             })
         })
@@ -977,6 +979,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.description).toBe("You think that I am at my highest power!");
                 expect(song.reference).toBe("highest-power.mp3");
                 expect(song.is_featured).toBe(false);
+                expect(song.index).toBe(6);
                 expect(song).toHaveProperty("created_at");
             })
         })
@@ -999,7 +1002,23 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.title).toBe("Highest Power");
                 expect(song.reference).toBe("highest-power.mp3");
                 expect(song.is_featured).toBe(false);
+                expect(song.index).toBe(6);
                 expect(song).toHaveProperty("created_at");
+            })
+        })
+        test("400: Responds with a bad request message if posting with an index (it should always default to the current amount of songs + 1)", () => {
+            return request(app)
+            .post("/api/albums/1/songs")
+            .send({
+                user_id: "1",
+                title: "Highest Power",
+                description: "You think that I am at my highest power!",
+                reference: "highest-power.mp3",
+                index: 2
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
             })
         })
         test("400: Responds with a bad request message when missing required properties", () => {
@@ -1078,7 +1097,7 @@ describe("/api/albums/:album_id/songs", () => {
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Related property not found");
+                expect(response.body.message).toBe("Album not found");
             })
         })
         test("404: Responds with a not found message when given a user_id that does not exist", () => {
@@ -1092,6 +1111,47 @@ describe("/api/albums/:album_id/songs", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Related property not found");
+            })
+        })
+    })
+})
+
+describe("/api/albums/:album_id/reset_index", () => {
+    describe("PATCH", () => {
+        test("200: Indexes all songs from a given album based on when each song was created (earlier songs come first)", () => {
+            return request(app)
+            .patch("/api/albums/2/reset_index")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.album.songs.length).not.toBe(0)
+                body.album.songs.forEach((song) => {
+                    expect(typeof song.index).toBe("number");
+                    expect(song.index > 0).toBe(true);
+                })
+            })
+        })
+        test("200: Leaves an album unaffected if it has no songs", () => {
+            return request(app)
+            .patch("/api/albums/6/reset_index")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.album.songs.length).toBe(0);
+            })
+        })
+        test("400: Responds with a bad request message if album ID is invalid", () => {
+            return request(app)
+            .patch("/api/albums/invalid_id/reset_index")
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a bad request message if album ID does not exist", () => {
+            return request(app)
+            .patch("/api/albums/231/reset_index")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("Album not found")
             })
         })
     })
@@ -1629,7 +1689,8 @@ describe("/api/songs/:song_id", () => {
                 title: "Never Gonna Give You Up",
                 reference: "never-gonna-give-you-up.mp3",
                 is_featured: false,
-                description: "You've been rickrolled!"
+                description: "You've been rickrolled!",
+                index: 3
             })
             .expect(200)
             .then((response) => {
@@ -1641,6 +1702,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.is_featured).toBe(false);
                 expect(song.description).toBe("You've been rickrolled!");
                 expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
+                expect(song.index).toBe(3);
             })
         })
         test("200: Ignores any extra properties on request body", () => {
@@ -1663,6 +1725,21 @@ describe("/api/songs/:song_id", () => {
                 expect(song.is_featured).toBe(false);
                 expect(song.description).toBe("You've been rickrolled!");
                 expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
+            })
+        })
+        test("400: Responds with a bad request message if index is bigger than the amount of songs on the album of the original song", () => {
+            return request(app)
+            .patch("/api/songs/2")
+            .send({
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!",
+                index: 15
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Index out of bounds");
             })
         })
         test("400: Responds with a bad request message if request body contains user_id", () => {

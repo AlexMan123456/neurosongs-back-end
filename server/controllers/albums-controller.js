@@ -1,4 +1,4 @@
-const { uploadAlbum, fetchAlbumById, fetchAlbums, editAlbum, removeAlbum } = require("../models/albums-model");
+const { uploadAlbum, fetchAlbumById, fetchAlbums, editAlbum, removeAlbum, resetIndex } = require("../models/albums-model");
 const { fetchUserById } = require("../models/users-model");
 
 async function getAlbums(request, response, next){
@@ -52,5 +52,13 @@ function deleteAlbum(request, response, next){
     })
 }
 
+function patchIndex(request, response, next){
+    resetIndex(request.params.album_id).then((album) => {
+        response.status(200).send({album});
+    }).catch((err) => {
+        next(err);
+    })
+}
 
-module.exports = { getAlbumById, postAlbum, getAlbums, patchAlbum, deleteAlbum };
+
+module.exports = { getAlbumById, postAlbum, getAlbums, patchAlbum, deleteAlbum, patchIndex };

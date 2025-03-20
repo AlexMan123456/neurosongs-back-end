@@ -86,19 +86,18 @@ function fetchSongById(stringifiedSongID){
     })
 }
 
-function uploadSong(album_id, song){
-    const data = {...song};
+function uploadSong(stringifiedAlbumID, song){
+    const album_id = parseInt(stringifiedAlbumID);
+    if(song.album_id || song.index){
+        return Promise.reject({status: 400, message: "Bad request"});
+    }
+    const data = {...song, album_id};
 
     for(const key in data){
-        if(!["user_id", "title", "description", "reference"].includes(key)){
+        if(!["user_id", "album_id", "title", "description", "reference"].includes(key)){
             delete data[key];
         }
-        if(key === "album_id"){
-            return Promise.reject({status: 400, message: "Bad request"})
-        }
     }
-
-    data.album_id = parseInt(album_id);
 
     if(data.reference){
         if(data.reference.includes("/") || !data.reference.includes(".")){
@@ -106,17 +105,33 @@ function uploadSong(album_id, song){
         }
     }
 
-    return database.song.create({
-        data,
+    return database.album.findUnique({
+        where: {
+            album_id
+        },
         include: {
-            artist: {
-                select: {
-                    username: true,
-                    artist_name: true
+            songs: true
+        }
+    }).then((album) => {
+        if(!album){
+            return Promise.reject({status: 404, message: "Album not found"});
+        }
+
+        data.index = album.songs.length + 1;
+        
+        return database.song.create({
+            data,
+            include: {
+                artist: {
+                    select: {
+                        username: true,
+                        artist_name: true
+                    }
                 }
             }
-        }
+        })
     })
+
 }
 
 function editSong(stringifiedSongID, body){
@@ -128,16 +143,40 @@ function editSong(stringifiedSongID, body){
     }
 
     for(const key in data){
-        if(!["title", "reference", "is_featured", "description"].includes(key)){
+        if(!["title", "reference", "is_featured", "description", "index"].includes(key)){
             delete data[key];
         }
     }
 
-    return database.song.update({
+    return database.song.findUnique({
         where: {
             song_id
-        },
-        data
+        }
+    }).then((song) => {
+        if(!song){
+            return Promise.reject({status: 404, message: "Song not found"})
+        }
+        return database.album.findUnique({
+            where: {
+                album_id: song.album_id
+            },
+            include: {
+                songs: true
+            }
+        })
+    }).then((album) => {
+        if(!album){
+            return Promise.reject({status: 404, message: "Album not found"});
+        }
+        if(data.index > album.songs.length){
+            return Promise.reject({status: 400, message: "Index out of bounds"});
+        }
+        return database.song.update({
+            where: {
+                song_id
+            },
+            data
+        })
     })
 }
 

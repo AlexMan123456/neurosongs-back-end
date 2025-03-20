@@ -38,6 +38,7 @@ model Song {
   user_id     String
   description String?
   created_at  DateTime     @default(now())
+  index       Int
   comments    Comment[]
   ratings     SongRating[]
   album       Album        @relation(fields: [album_id], references: [album_id], onDelete: Cascade)

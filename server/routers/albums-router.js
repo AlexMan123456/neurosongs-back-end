@@ -1,5 +1,5 @@
 const express = require("express")
-const { getAlbumById, getAlbums, postAlbum, patchAlbum, deleteAlbum } = require("../controllers/albums-controller")
+const { getAlbumById, getAlbums, postAlbum, patchAlbum, deleteAlbum, patchIndex } = require("../controllers/albums-controller")
 const { postSong } = require("../controllers/songs-controller")
 const { getCommentsFromContent, postComment } = require("../controllers/comments-controller")
 const { postRating } = require("../controllers/ratings-controller")
@@ -23,5 +23,8 @@ albums.route("/:album_id/comments")
 
 albums.route("/:album_id/ratings")
 .post(postRating)
+
+albums.route("/:album_id/reset_index")
+.patch(patchIndex)
 
 module.exports = albums

@@ -29,4 +29,8 @@ module.exports = [
         front_cover_reference: "identities-deluxe-front-cover.png",
         back_cover_reference: "identities-deluxe-back-cover.png"
     },
+    {
+        user_id: "1",
+        title: "Empty album"
+    }
 ]
