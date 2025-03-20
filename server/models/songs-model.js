@@ -143,16 +143,40 @@ function editSong(stringifiedSongID, body){
     }
 
     for(const key in data){
-        if(!["title", "reference", "is_featured", "description"].includes(key)){
+        if(!["title", "reference", "is_featured", "description", "index"].includes(key)){
             delete data[key];
         }
     }
 
-    return database.song.update({
+    return database.song.findUnique({
         where: {
             song_id
-        },
-        data
+        }
+    }).then((song) => {
+        if(!song){
+            return Promise.reject({status: 404, message: "Song not found"})
+        }
+        return database.album.findUnique({
+            where: {
+                album_id: song.album_id
+            },
+            include: {
+                songs: true
+            }
+        })
+    }).then((album) => {
+        if(!album){
+            return Promise.reject({status: 404, message: "Album not found"});
+        }
+        if(data.index > album.songs.length){
+            return Promise.reject({status: 400, message: "Index out of bounds"});
+        }
+        return database.song.update({
+            where: {
+                song_id
+            },
+            data
+        })
     })
 }
 

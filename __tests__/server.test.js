@@ -1689,7 +1689,8 @@ describe("/api/songs/:song_id", () => {
                 title: "Never Gonna Give You Up",
                 reference: "never-gonna-give-you-up.mp3",
                 is_featured: false,
-                description: "You've been rickrolled!"
+                description: "You've been rickrolled!",
+                index: 3
             })
             .expect(200)
             .then((response) => {
@@ -1701,6 +1702,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.is_featured).toBe(false);
                 expect(song.description).toBe("You've been rickrolled!");
                 expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
+                expect(song.index).toBe(3);
             })
         })
         test("200: Ignores any extra properties on request body", () => {
@@ -1723,6 +1725,21 @@ describe("/api/songs/:song_id", () => {
                 expect(song.is_featured).toBe(false);
                 expect(song.description).toBe("You've been rickrolled!");
                 expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
+            })
+        })
+        test("400: Responds with a bad request message if index is bigger than the amount of songs on the album of the original song", () => {
+            return request(app)
+            .patch("/api/songs/2")
+            .send({
+                title: "Never Gonna Give You Up",
+                reference: "never-gonna-give-you-up.mp3",
+                is_featured: false,
+                description: "You've been rickrolled!",
+                index: 15
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Index out of bounds");
             })
         })
         test("400: Responds with a bad request message if request body contains user_id", () => {
