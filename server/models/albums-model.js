@@ -191,4 +191,41 @@ function removeAlbum(stringifiedAlbumID){
     })
 }
 
-module.exports = { fetchAlbums, fetchAlbumById, uploadAlbum, editAlbum, removeAlbum };
+async function resetIndex(stringifiedAlbumID){
+    const album_id = parseInt(stringifiedAlbumID);
+    
+    const album = await database.album.findUnique({
+        where: {
+            album_id
+        },
+        include: {
+            songs: true
+        }
+    })
+
+    if(!album){
+        return Promise.reject({status: 404, message: "Album not found"})
+    }
+
+    for(let i=0; i<album.songs.length; i++){
+        await database.song.update({
+            where: {
+                song_id: album.songs[i].song_id
+            },
+            data: {
+                index: i+1
+            }
+        })
+    }
+
+    return await database.album.findUnique({
+        where: {
+            album_id
+        },
+        include: {
+            songs: true
+        }
+    })
+}
+
+module.exports = { fetchAlbums, fetchAlbumById, uploadAlbum, editAlbum, removeAlbum, resetIndex };
