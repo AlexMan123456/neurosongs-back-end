@@ -58,9 +58,10 @@ function fetchAlbumById(stringifiedAlbumID){
                             }
                         },
                         created_at: true,
+                        index: true
                     },
                     orderBy: {
-                        created_at: "asc"
+                        index: "asc"
                     }
                 },
                 artist: {

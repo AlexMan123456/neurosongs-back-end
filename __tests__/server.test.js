@@ -761,7 +761,7 @@ describe("/api/albums/:album_id", () => {
                 expect(typeof album.average_rating).toBe("number")
                 expect(album.rating_count).toBe(1);
                 expect(album).toHaveProperty("created_at");
-                expect(album.songs).toBeSortedBy("created_at", {ascending: true});
+                expect(album.songs).toBeSortedBy("index", {ascending: true});
                 album.songs.forEach((song) => {
                     expect(typeof song.song_id).toBe("number");
                     expect(typeof song.artist.username).toBe("string");
