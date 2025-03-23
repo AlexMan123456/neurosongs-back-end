@@ -465,6 +465,21 @@ describe("/api/users/:user_id", () => {
             })
         })
     })
+    describe("DELETE", () => {
+        test("204: Deletes the given user from the database", () => {
+            return request(app)
+            .delete("/api/users/1")
+            .expect(204)
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .delete("/api/users/i_am_imaginary")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("User not found");
+            })
+        })
+    })
 })
 
 // ALBUMS ENDPOINTS
