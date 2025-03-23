@@ -210,4 +210,12 @@ function updateUser(user_id, data){
     })
 }
 
-module.exports = { fetchUsers, fetchUserById, uploadUser, updateUser }
+function removeUser(user_id){
+    return database.user.delete({
+        where: {
+            user_id
+        }
+    })
+}
+
+module.exports = { fetchUsers, fetchUserById, uploadUser, updateUser, removeUser }
