@@ -6,3 +6,5 @@ node_modules
 
 # Script to reset all song indexes
 prisma/scripts/reset-all-indexes.js
+
+._*
