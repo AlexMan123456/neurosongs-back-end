@@ -782,6 +782,9 @@ describe("/api/albums/:album_id", () => {
                     expect(typeof song.artist.username).toBe("string");
                     expect(typeof song.artist.artist_name).toBe("string");
                     expect(typeof song.title).toBe("string");
+                    expect(typeof song.description === "string" || song.description === null).toBe(true);
+                    expect(typeof song.index).toBe("number");
+                    expect(Array.isArray(song.comments)).toBe(true);
                     expect(typeof song.reference).toBe("string");
                 })
             })

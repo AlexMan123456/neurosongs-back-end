@@ -96,6 +96,7 @@ module.exports = [
         reference: "the-pirate-who-wanted-treasure.mp3",
         album_id: 3,
         index: 2,
+        description: "Heave ho! Heave ho!",
         is_featured: true
     },
     {
