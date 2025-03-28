@@ -47,21 +47,9 @@ function fetchAlbumById(stringifiedAlbumID){
             },
             include: {
                 songs: {
-                    select: {
-                        song_id: true,
-                        title: true,
-                        reference: true,
-                        artist: {
-                            select: {
-                                username: true,
-                                artist_name: true
-                            }
-                        },
-                        created_at: true,
-                        index: true
-                    },
-                    orderBy: {
-                        index: "asc"
+                    include: {
+                        artist: true,
+                        comments: true
                     }
                 },
                 artist: {
