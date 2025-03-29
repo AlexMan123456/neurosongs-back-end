@@ -70,7 +70,7 @@ function fetchCommentReplies(stringifiedID){
     })
 }
 
-function uploadComment(params, body){
+async function uploadComment(params, body){
     const data = {...body}
     for(const key in data){
         if(!["user_id", "body"].includes(key)){
@@ -83,7 +83,7 @@ function uploadComment(params, body){
 
     data[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
 
-    return database.comment.create({
+    const comment = await database.comment.create({
         data,
         include: {
             author: {
@@ -93,12 +93,33 @@ function uploadComment(params, body){
                     profile_picture: true
                 }
             },
-            [params.song_id ? "album_id" : "song_id"]: false
+            [params.song_id ? "album_id" : "song_id"]: false,
+            [params.song_id ? "song" : "album"]: true
         }
-    }).then((comment) => {
-        comment.reply_count = 0;
-        return comment;
+    });
+
+    const notifyList = await database.notifyList.createMany({
+        data: [
+            {
+                user_id: data.user_id,
+                comment_id: comment.comment_id
+            },
+            {
+                user_id: comment[params.song_id ? "song" : "album"].user_id,
+                comment_id: comment.comment_id
+            }
+        ],
+        skipDuplicates: true
     })
+
+    /*await database.commentNotification.createMany({
+        data: notifyList.map((item) => {
+            if(item.user_id === )
+        })
+    })*/
+
+    comment.reply_count = 0;
+    return comment;
 }
 
 function uploadCommentReply(stringifiedID, body){

@@ -4,6 +4,7 @@ require("jest-sorted")
 const data = require("../prisma/test-data");
 const seed = require("../prisma/seed");
 const endpoints = require("../server/endpoints.json");
+const database = require("../client.js");
 
 jest.setTimeout(30000)
 
@@ -1236,6 +1237,7 @@ describe("/api/albums/:album_id/comments", () => {
             .expect(201)
             .then((response) => {
                 const {comment} = response.body;
+                expect(typeof comment.comment_id).toBe("number");
                 expect(comment.user_id).toBe("3");
                 expect(comment.author.username).toBe("Kevin_SynthV");
                 expect(comment.author.artist_name).toBe("Kevin");
@@ -1245,6 +1247,20 @@ describe("/api/albums/:album_id/comments", () => {
                 expect(comment).toHaveProperty("created_at");
                 expect(comment.reply_count).toBe(0);
                 expect(comment).not.toHaveProperty("song_id");
+                return Promise.all([
+                    database.notifyList.findMany({
+                        where: {
+                            comment_id: comment.comment_id
+                        }
+                    }),
+                    comment.comment_id
+                ])
+            }).then(([items, comment_id]) => {
+                expect(items.length).not.toBe(0);
+                items.forEach((item) => {
+                    expect(item.comment_id).toBe(comment_id);
+                    expect(item.user_id === "3" || item.user_id === "1").toBe(true);
+                })
             })
         })
         test("201: Ignores any extra properties on request body", () => {

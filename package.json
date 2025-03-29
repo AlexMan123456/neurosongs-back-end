@@ -17,7 +17,10 @@
     "seed-dev": "dotenv -e ./.env.development -- npx prisma migrate reset --force",
     "dev": "dotenv -e ./.env.development -- npx prisma migrate deploy && nodemon server/listen.js",
     "prepare": "husky",
-    "start": "npx prisma migrate deploy && npx prisma generate --no-engine && node server/listen.js"
+    "start": "npx prisma migrate deploy && npx prisma generate --no-engine && node server/listen.js",
+    "test-migrate-dev": "dotenv -e ./.env.test -- npx prisma migrate dev",
+    "test-db-pull": "dotenv -e ./.env.test -- npx prisma db pull",
+    "test-generate": "dotenv -e ./.env.test -- npx prisma generate"
   },
   "keywords": [],
   "author": "",
