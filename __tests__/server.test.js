@@ -1320,6 +1320,7 @@ describe("/api/albums/:album_id/comments", () => {
                     expect(notification.comment_id).toBe(comment.comment_id);
                     expect(notification.sender_id).toBe("3");
                     expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.receiver_id).not.toBe("3");
                     expect(notification.message).toBe(
                         stripIndents(`${comment.author.artist_name} (@${comment.author.username}) has commented on the album, _${notification.comment.album.title}_:
                         '${notification.comment.body}'`)
@@ -2082,6 +2083,7 @@ describe("/api/songs/:song_id/comments", () => {
                     expect(notification.comment_id).toBe(comment.comment_id);
                     expect(notification.sender_id).toBe("3");
                     expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.receiver_id).not.toBe("3");
                     expect(notification.message).toBe(
                         stripIndents(`${comment.author.artist_name} (@${comment.author.username}) has commented on the song, _${notification.comment.song.title}_:
                         '${notification.comment.body}'`)
@@ -2876,6 +2878,66 @@ describe("/api/comments/:comment_id/replies", () => {
                 expect(reply).toHaveProperty("created_at");
                 expect(reply).not.toHaveProperty("album_id");
                 expect(reply).not.toHaveProperty("song_id");
+            })
+        })
+        test("201: Adds user replying to notify list of parent comment if they're not already on it", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.notifyList.findMany({
+                        where: {
+                            comment_id: body.reply.replying_to_id
+                        }
+                    }),
+                    body.reply.replying_to
+                ])
+            })
+            .then(([notifyList, comment]) => {
+                expect(notifyList.length).not.toBe(0);
+                notifyList.forEach((item) => {
+                    expect(item.comment_id).toBe(comment.comment_id);
+                    expect(item.user_id === "3" || item.user_id === "1").toBe(true);
+                })
+            })
+        })
+        test("201: Sends a notification to everyone in the notify list of parent comment", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: body.reply.comment_id
+                        }
+                    }),
+                    body.reply
+                ])
+            })
+            .then(([notifications, reply]) => {
+                expect(notifications.length).not.toBe(0);
+                notifications.forEach((notification) => {
+                    expect(notification.comment_id).toBe(reply.comment_id);
+                    expect(notification.sender_id).toBe("1");
+                    expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.receiver_id).not.toBe("1");
+                    expect(notification.message).toBe(
+                        stripIndents(
+                            `${reply.author.artist_name} (@${reply.author.username}) has replied to your comment:
+                            '${reply.body}'`
+                            )
+                    )
+                })
             })
         })
         test("201: Ignores any extra properties on request body", () => {

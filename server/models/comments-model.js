@@ -59,7 +59,7 @@ function fetchCommentReplies(stringifiedID){
                     }
                 },
                 replying_to: {
-                    select: {
+                    include: {
                         song: true,
                         album: true
                     }
@@ -103,7 +103,7 @@ async function uploadComment(params, body){
     const notifyList = await database.notifyList.createManyAndReturn({
         data: [
             {
-                user_id: data.user_id,
+                user_id: comment.user_id,
                 comment_id: comment.comment_id
             },
             {
@@ -116,9 +116,6 @@ async function uploadComment(params, body){
 
     await database.commentNotification.createMany({
         data: notifyList.map((item) => {
-            if(item.user_id === data.user_id){
-                return "Skip"
-            }
             return {
                 sender_id: data.user_id,
                 receiver_id: item.user_id,
@@ -127,7 +124,7 @@ async function uploadComment(params, body){
                 '${comment.body}'`)
             }
         }).filter((item) => {
-            return item !== "Skip";
+            return item.sender_id !== item.receiver_id
         })
     })
 
@@ -135,7 +132,7 @@ async function uploadComment(params, body){
     return comment;
 }
 
-function uploadCommentReply(stringifiedID, body){
+async function uploadCommentReply(stringifiedID, body){
     const data = {...body};
     
     for(const key in data){
@@ -149,37 +146,75 @@ function uploadCommentReply(stringifiedID, body){
 
     data.replying_to_id = parseInt(stringifiedID);
 
-    return database.comment.findUnique({
+    const comment = await database.comment.findUnique({
         where: {
             comment_id: data.replying_to_id
         }
-    }).then((comment) => {
-        if(!comment){
-            return Promise.reject({status: 404, message: "Comment not found"})
+    });
+    if (!comment) {
+        return Promise.reject({ status: 404, message: "Comment not found" });
+    }
+    const reply = await database.comment.create({
+        data,
+        include: {
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
+                }
+            },
+            replying_to: {
+                include: {
+                    song: true,
+                    album: true,
+                    replying_to: true
+                }
+            },
+            song_id: false,
+            album_id: false
         }
-        return database.comment.create({
-            data,
-            include: {
-                author: {
-                    select: {
-                        artist_name: true,
-                        username: true,
-                        profile_picture: true
-                    }
-                },
-                replying_to: {
-                    select: {
-                        song: true,
-                        album: true
-                    }
-                },
-                song_id: false,
-                album_id: false
-            }
-        });
-    })
+    });
     
+    const userFromNotifyList = await database.notifyList.findUnique({
+        where: {
+            user_id: comment.user_id,
+            comment_id: comment.comment_id
+        }
+    })
 
+    if(!userFromNotifyList){
+        await database.notifyList.create({
+            data: {
+                user_id: comment.user_id,
+                comment_id: comment.comment_id
+            }
+        })
+    }
+    
+    const notifyList = await database.notifyList.findMany({
+        where: {
+            comment_id: comment.comment_id
+        }
+    })
+
+    await database.commentNotification.createMany({
+        data: notifyList.map((item) => {
+            return {
+                sender_id: data.user_id,
+                receiver_id: item.user_id,
+                comment_id: reply.comment_id,
+                message: stripIndents(
+                    `${reply.author.artist_name} (@${reply.author.username}) has replied to your comment:
+                    '${reply.body}'`
+                )
+            }
+        }).filter((item) => {
+            return item.sender_id !== item.receiver_id
+        })
+    })
+
+    return reply
 }
 
 async function editComment(stringifiedCommentID, body){
