@@ -5,6 +5,7 @@ const data = require("../prisma/test-data");
 const seed = require("../prisma/seed");
 const endpoints = require("../server/endpoints.json");
 const database = require("../client.js");
+const { stripIndents } = require("common-tags");
 
 jest.setTimeout(30000)
 
@@ -1253,13 +1254,39 @@ describe("/api/albums/:album_id/comments", () => {
                             comment_id: comment.comment_id
                         }
                     }),
-                    comment.comment_id
+                    comment
                 ])
-            }).then(([items, comment_id]) => {
+            }).then(([items, comment]) => {
                 expect(items.length).not.toBe(0);
                 items.forEach((item) => {
-                    expect(item.comment_id).toBe(comment_id);
+                    expect(item.comment_id).toBe(comment.comment_id);
                     expect(item.user_id === "3" || item.user_id === "1").toBe(true);
+                })
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: comment.comment_id
+                        },
+                        include: {
+                            comment: {
+                                include: {
+                                    album: true
+                                }
+                            }
+                        }
+                    }),
+                    comment
+                ])
+            }).then(([notifications, comment]) => {
+                expect(notifications.length).not.toBe(0);
+                notifications.forEach((notification) => {
+                    expect(notification.comment_id).toBe(comment.comment_id);
+                    expect(notification.sender_id).toBe("3");
+                    expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.message).toBe(
+                        stripIndents(`${comment.author.artist_name} (@${comment.author.username}) has commented on the album, _${notification.comment.album.title}_:
+                        '${notification.comment.body}'`)
+                        )
                 })
             })
         })
@@ -1944,6 +1971,46 @@ describe("/api/songs/:song_id/comments", () => {
                 expect(comment.reply_count).toBe(0);
                 expect(comment).toHaveProperty("created_at");
                 expect(comment).not.toHaveProperty("album_id");
+                return Promise.all([
+                    database.notifyList.findMany({
+                        where: {
+                            comment_id: comment.comment_id
+                        }
+                    }),
+                    comment
+                ])
+            }).then(([items, comment]) => {
+                expect(items.length).not.toBe(0);
+                items.forEach((item) => {
+                    expect(item.comment_id).toBe(comment.comment_id);
+                    expect(item.user_id === "3" || item.user_id === "1").toBe(true);
+                })
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: comment.comment_id
+                        },
+                        include: {
+                            comment: {
+                                include: {
+                                    song: true
+                                }
+                            }
+                        }
+                    }),
+                    comment
+                ])
+            }).then(([notifications, comment]) => {
+                expect(notifications.length).not.toBe(0);
+                notifications.forEach((notification) => {
+                    expect(notification.comment_id).toBe(comment.comment_id);
+                    expect(notification.sender_id).toBe("3");
+                    expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.message).toBe(
+                        stripIndents(`${comment.author.artist_name} (@${comment.author.username}) has commented on the song, _${notification.comment.song.title}_:
+                        '${notification.comment.body}'`)
+                        )
+                })
             })
         })
         test("201: Ignores any extra properties on request body", () => {

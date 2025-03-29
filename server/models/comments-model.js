@@ -1,3 +1,4 @@
+const { stripIndents } = require("common-tags");
 const database = require("../../client")
 
 async function fetchCommentsFromContent(params){
@@ -82,6 +83,7 @@ async function uploadComment(params, body){
     }
 
     data[params.song_id ? "song_id" : "album_id"] = parseInt(params.song_id ?? params.album_id);
+    const contentType = params.song_id ? "song" : "album";
 
     const comment = await database.comment.create({
         data,
@@ -94,29 +96,40 @@ async function uploadComment(params, body){
                 }
             },
             [params.song_id ? "album_id" : "song_id"]: false,
-            [params.song_id ? "song" : "album"]: true
+            [contentType]: true
         }
     });
 
-    const notifyList = await database.notifyList.createMany({
+    const notifyList = await database.notifyList.createManyAndReturn({
         data: [
             {
                 user_id: data.user_id,
                 comment_id: comment.comment_id
             },
             {
-                user_id: comment[params.song_id ? "song" : "album"].user_id,
+                user_id: comment[contentType].user_id,
                 comment_id: comment.comment_id
             }
         ],
         skipDuplicates: true
     })
 
-    /*await database.commentNotification.createMany({
+    await database.commentNotification.createMany({
         data: notifyList.map((item) => {
-            if(item.user_id === )
+            if(item.user_id === data.user_id){
+                return "Skip"
+            }
+            return {
+                sender_id: data.user_id,
+                receiver_id: item.user_id,
+                comment_id: comment.comment_id,
+                message: stripIndents(`${comment.author.artist_name} (@${comment.author.username}) has commented on the ${contentType}, _${comment[contentType].title}_:
+                '${comment.body}'`)
+            }
+        }).filter((item) => {
+            return item !== "Skip";
         })
-    })*/
+    })
 
     comment.reply_count = 0;
     return comment;
