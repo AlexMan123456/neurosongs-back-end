@@ -85,11 +85,12 @@ model Comment {
 }
 
 model NotifyList {
-  user_id    String  @id
+  user_id    String
   comment_id Int
   comment    Comment @relation(fields: [comment_id], references: [comment_id], onDelete: Cascade)
   user       User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
+  @@id([user_id, comment_id])
   @@map("notify_list")
 }
 

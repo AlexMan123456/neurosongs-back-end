@@ -110,8 +110,7 @@ async function uploadComment(params, body){
                 user_id: comment[contentType].user_id,
                 comment_id: comment.comment_id
             }
-        ],
-        skipDuplicates: true
+        ]
     })
 
     await database.commentNotification.createMany({
@@ -127,7 +126,7 @@ async function uploadComment(params, body){
             return item.sender_id !== item.receiver_id
         })
     })
-
+    
     comment.reply_count = 0;
     return comment;
 }
