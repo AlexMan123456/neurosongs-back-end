@@ -167,21 +167,21 @@ async function uploadCommentReply(stringifiedID, body){
                 include: {
                     song: true,
                     album: true,
-                    replying_to: true
                 }
             },
             song_id: false,
             album_id: false
         }
     });
-    
     const userFromNotifyList = await database.notifyList.findUnique({
         where: {
-            user_id: comment.user_id,
-            comment_id: comment.comment_id
+            user_id_comment_id: {
+                user_id: comment.user_id,
+                comment_id: comment.comment_id
+            }
         }
     })
-
+    
     if(!userFromNotifyList){
         await database.notifyList.create({
             data: {
