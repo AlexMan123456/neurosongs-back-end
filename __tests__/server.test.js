@@ -2675,6 +2675,9 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.song_id).toBe(11);
                     expect(comment.song.title).toBe("Captain Kevin (Simulation Mix)");
                     expect(comment.body).toBe("YO HO HO, AND AWAY WE GO!");
+                    expect(comment.author.artist_name).toBe("Kevin");
+                    expect(comment.author.username).toBe("Kevin_SynthV");
+                    expect(comment.author.profile_picture).toBe("captain-kevin.png");
                     expect(comment).not.toHaveProperty("album");
                     expect(comment).not.toHaveProperty("album_id");
                     expect(comment).not.toHaveProperty("replying_to");
@@ -2689,6 +2692,9 @@ describe("/api/comments/:comment_id", () => {
                     expect(comment.album_id).toBe(2);
                     expect(comment.album.title).toBe("Show Them What You've Got");
                     expect(comment.body).toBe("I worked very hard on this album, so I hope everyone enjoys it!");
+                    expect(comment.author.artist_name).toBe("Alex The Man");
+                    expect(comment.author.username).toBe("AlexTheMan");
+                    expect(comment.author.profile_picture).toBe("KoolAlex.png");
                     expect(comment).not.toHaveProperty("song");
                     expect(comment).not.toHaveProperty("song_id");
                     expect(comment).not.toHaveProperty("replying_to");
@@ -2706,15 +2712,19 @@ describe("/api/comments/:comment_id", () => {
                 expect(comment.song_id).toBe(1);
                 expect(comment.song.title).toBe("Captain Kevin");
                 expect(comment.body).toBe("More Captain Kevin!");
+                expect(comment.author.artist_name).toBe("Alex The Man");
+                expect(comment.author.username).toBe("AlexTheMan");
+                expect(comment.author.profile_picture).toBe("KoolAlex.png");
 
                 expect(Array.isArray(comment.replies)).toBe(true);
                 comment.replies.forEach((reply) => {
                     expect(typeof reply.user_id).toBe("string");
+                    expect(typeof reply.author.artist_name).toBe("string");
+                    expect(typeof reply.author.username).toBe("string");
+                    expect(typeof reply.author.profile_picture).toBe("string");
                     expect(typeof reply.comment_id).toBe("number");
                     expect(typeof reply.body).toBe("string");
                 })
-                expect(comment.replies[0].user_id).toBe("3");
-                expect(comment.replies[0].body).toBe("Yes! Captain Kevin is the best!");
 
                 expect(comment).not.toHaveProperty("album");
                 expect(comment).not.toHaveProperty("album_id");

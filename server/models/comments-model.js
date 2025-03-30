@@ -57,6 +57,13 @@ async function fetchCommentById(stringifiedCommentID){
                     song: true,
                     album: true
                 }
+            },
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
+                }
             }
         }
     });
@@ -89,14 +96,28 @@ async function fetchCommentById(stringifiedCommentID){
         },
         include: {
             replies: {
-                omit: {
-                    song_id: true,
-                    album_id: true
+                include: {
+                    song_id: false,
+                    album_id: false,
+                    author: {
+                        select: {
+                            artist_name: true,
+                            username: true,
+                            profile_picture: true
+                        }
+                    }
                 }
             },
             [contentType]: {
                 select: {
                     title: true
+                }
+            },
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
                 }
             }
         },
