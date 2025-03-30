@@ -110,7 +110,8 @@ async function uploadComment(params, body){
                 user_id: comment[contentType].user_id,
                 comment_id: comment.comment_id
             }
-        ]
+        ],
+        skipDuplicates: true
     })
 
     await database.commentNotification.createMany({
@@ -150,6 +151,7 @@ async function uploadCommentReply(stringifiedID, body){
             comment_id: data.replying_to_id
         }
     });
+
     if (!comment) {
         return Promise.reject({ status: 404, message: "Comment not found" });
     }
@@ -176,16 +178,16 @@ async function uploadCommentReply(stringifiedID, body){
     const userFromNotifyList = await database.notifyList.findUnique({
         where: {
             user_id_comment_id: {
-                user_id: comment.user_id,
+                user_id: reply.user_id,
                 comment_id: comment.comment_id
             }
         }
     })
-    
+
     if(!userFromNotifyList){
         await database.notifyList.create({
             data: {
-                user_id: comment.user_id,
+                user_id: reply.user_id,
                 comment_id: comment.comment_id
             }
         })
@@ -197,8 +199,9 @@ async function uploadCommentReply(stringifiedID, body){
         }
     })
 
-    await database.commentNotification.createMany({
+    const notifications = await database.commentNotification.createManyAndReturn({
         data: notifyList.map((item) => {
+            console.log(data.user_id, item.user_id)
             return {
                 sender_id: data.user_id,
                 receiver_id: item.user_id,

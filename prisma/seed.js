@@ -22,8 +22,16 @@ async function seed({userData, songData, albumData, commentData, songRatingData,
             data: songData
         })
         if(commentData){
-            await database.comment.createMany({
+            const commentsFromDatabase = await database.comment.createManyAndReturn({
                 data: commentData
+            })
+            await database.notifyList.createMany({
+                data: commentsFromDatabase.map((comment) => {
+                    return {
+                        user_id: comment.user_id,
+                        comment_id: comment.comment_id
+                    }
+                })
             })
         }
         if(songRatingData){
