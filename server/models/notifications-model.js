@@ -1,5 +1,41 @@
 const database = require("../../client");
 
+function fetchNotificationsFromUser(receiver_id){
+    return database.commentNotification.findMany({
+        where: {
+            receiver_id
+        },
+        include: {
+            comment: {
+                include: {
+                    song: true,
+                    album: true,
+                    replying_to: true
+                }
+            }
+        },
+        orderBy: {
+            created_at: "asc"
+        }
+    }).then((notifications) => {
+        notifications.forEach((notification) => {
+            if(!notification.comment.song){
+                delete notification.comment.song
+                delete notification.comment.song_id
+            }
+            if(!notification.comment.album){
+                delete notification.comment.album
+                delete notification.comment.album_id
+            }
+            if(!notification.comment.replying_to){
+                delete notification.comment.replying_to
+                delete notification.comment.replying_to_id
+            }
+        })
+        return notifications
+    })
+}
+
 function uploadNotification(body){
     const data = {...body};
 
@@ -70,4 +106,4 @@ function updateNotification(stringifiedNotificationID){
     
 }
 
-module.exports = { uploadNotification, updateNotification };
+module.exports = { fetchNotificationsFromUser, uploadNotification, updateNotification };

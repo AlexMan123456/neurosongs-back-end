@@ -4,6 +4,8 @@ require("jest-sorted")
 const data = require("../prisma/test-data");
 const seed = require("../prisma/seed");
 const endpoints = require("../server/endpoints.json");
+const database = require("../client.js");
+const { stripIndents } = require("common-tags");
 
 jest.setTimeout(30000)
 
@@ -482,6 +484,34 @@ describe("/api/users/:user_id", () => {
     })
 })
 
+describe("/api/users/:user_id/notifications", () => {
+    test("200: Responds with an array of all notifications for a given user, sorted by most recent", () => {
+        return request(app)
+        .get("/api/users/1/notifications")
+        .expect(200)
+        .then(({body}) => {
+            expect(body.notifications.length).not.toBe(0);
+            expect(body.notifications).toBeSortedBy("created_at", {ascending: true})
+            body.notifications.forEach((notification) => {
+                expect(typeof notification.sender_id).toBe("string");
+                expect(notification.receiver_id).toBe("1");
+                expect(typeof notification.comment_id).toBe("number");
+                expect(typeof notification.message).toBe("string");
+                expect(notification.comment.constructor).toBe(Object)
+                expect(!!notification.comment.song || !!notification.comment.album || !!notification.comment.replying_to).toBe(true);
+            })
+        })
+    })
+    test("404: Responds with a not found message if user does not exist", () => {
+        return request(app)
+        .get("/api/users/nonexistent_user/notifications")
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe("User not found");
+        })
+    })
+})
+
 // ALBUMS ENDPOINTS
 
 describe("/api/albums", () => {
@@ -946,7 +976,6 @@ describe("/api/albums/:album_id", () => {
     })
 })
 
-// TO DO: Make the tests pass and add functionality to automatically make the index of created songs equal to the length of the album songs array
 describe("/api/albums/:album_id/songs", () => {
     describe("POST", () => {
         test("201: Creates a song for the given album", () => {
@@ -1236,6 +1265,7 @@ describe("/api/albums/:album_id/comments", () => {
             .expect(201)
             .then((response) => {
                 const {comment} = response.body;
+                expect(typeof comment.comment_id).toBe("number");
                 expect(comment.user_id).toBe("3");
                 expect(comment.author.username).toBe("Kevin_SynthV");
                 expect(comment.author.artist_name).toBe("Kevin");
@@ -1245,6 +1275,85 @@ describe("/api/albums/:album_id/comments", () => {
                 expect(comment).toHaveProperty("created_at");
                 expect(comment.reply_count).toBe(0);
                 expect(comment).not.toHaveProperty("song_id");
+            })
+        })
+        test("201: Adds the users to the notify list associated with the comment", () => {
+            return request(app)
+            .post("/api/albums/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.notifyList.findMany({
+                        where: {
+                            comment_id: body.comment.comment_id
+                        }
+                    }),
+                    body.comment
+                ])
+            }).then(([items, comment]) => {
+                expect(items.length).not.toBe(0);
+                items.forEach((item) => {
+                    expect(item.comment_id).toBe(comment.comment_id);
+                    expect(item.user_id === "3" || item.user_id === "1").toBe(true);
+                })
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: comment.comment_id
+                        },
+                        include: {
+                            comment: {
+                                include: {
+                                    album: true
+                                }
+                            }
+                        }
+                    }),
+                    comment
+                ])
+            })
+        })
+        test("201: Notifies everyone on the notify list of the comment", () => {
+            return request(app)
+            .post("/api/albums/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: body.comment.comment_id
+                        },
+                        include: {
+                            comment: {
+                                include: {
+                                    album: true
+                                }
+                            }
+                        }
+                    }),
+                    body.comment
+                ])
+            })
+            .then(([notifications, comment]) => {
+                expect(notifications.length).not.toBe(0);
+                notifications.forEach((notification) => {
+                    expect(notification.comment_id).toBe(comment.comment_id);
+                    expect(notification.sender_id).toBe("3");
+                    expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.receiver_id).not.toBe("3");
+                    expect(notification.message).toBe(
+                        stripIndents(`${comment.author.artist_name} (@${comment.author.username}) has commented on the album, _${notification.comment.album.title}_:
+                        '${notification.comment.body}'`)
+                        )
+                })
             })
         })
         test("201: Ignores any extra properties on request body", () => {
@@ -1914,20 +2023,100 @@ describe("/api/songs/:song_id/comments", () => {
             .post("/api/songs/1/comments")
             .send({
                 user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!",
+                body: "Captain Kevin! Searching for treasure far and wide!"
             })
             .expect(201)
             .then((response) => {
                 const {comment} = response.body;
+                expect(typeof comment.comment_id).toBe("number");
                 expect(comment.user_id).toBe("3");
                 expect(comment.author.username).toBe("Kevin_SynthV");
                 expect(comment.author.artist_name).toBe("Kevin");
                 expect(comment.author.profile_picture).toBe("captain-kevin.png");
                 expect(comment.song_id).toBe(1);
                 expect(comment.body).toBe("Captain Kevin! Searching for treasure far and wide!");
-                expect(comment.reply_count).toBe(0);
                 expect(comment).toHaveProperty("created_at");
+                expect(comment.reply_count).toBe(0);
                 expect(comment).not.toHaveProperty("album_id");
+            })
+        })
+        test("201: Adds the users to the notify list associated with the comment", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.notifyList.findMany({
+                        where: {
+                            comment_id: body.comment.comment_id
+                        }
+                    }),
+                    body.comment
+                ])
+            }).then(([items, comment]) => {
+                expect(items.length).not.toBe(0);
+                items.forEach((item) => {
+                    expect(item.comment_id).toBe(comment.comment_id);
+                    expect(item.user_id === "3" || item.user_id === "1").toBe(true);
+                })
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: comment.comment_id
+                        },
+                        include: {
+                            comment: {
+                                include: {
+                                    song: true
+                                }
+                            }
+                        }
+                    }),
+                    comment
+                ])
+            })
+        })
+        test("201: Notifies everyone on the notify list of the comment", () => {
+            return request(app)
+            .post("/api/songs/1/comments")
+            .send({
+                user_id: "3",
+                body: "Captain Kevin! Searching for treasure far and wide!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: body.comment.comment_id
+                        },
+                        include: {
+                            comment: {
+                                include: {
+                                    song: true
+                                }
+                            }
+                        }
+                    }),
+                    body.comment
+                ])
+            })
+            .then(([notifications, comment]) => {
+                expect(notifications.length).not.toBe(0);
+                notifications.forEach((notification) => {
+                    expect(notification.comment_id).toBe(comment.comment_id);
+                    expect(notification.sender_id).toBe("3");
+                    expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.receiver_id).not.toBe("3");
+                    expect(notification.message).toBe(
+                        stripIndents(`${comment.author.artist_name} (@${comment.author.username}) has commented on the song, _${notification.comment.song.title}_:
+                        '${notification.comment.body}'`)
+                        )
+                })
             })
         })
         test("201: Ignores any extra properties on request body", () => {
@@ -2717,6 +2906,66 @@ describe("/api/comments/:comment_id/replies", () => {
                 expect(reply).toHaveProperty("created_at");
                 expect(reply).not.toHaveProperty("album_id");
                 expect(reply).not.toHaveProperty("song_id");
+            })
+        })
+        test("201: Adds user replying to notify list of parent comment if they're not already on it", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.notifyList.findMany({
+                        where: {
+                            comment_id: body.reply.replying_to_id
+                        }
+                    }),
+                    body.reply.replying_to
+                ])
+            })
+            .then(([notifyList, comment]) => {
+                expect(notifyList.length).not.toBe(0);
+                notifyList.forEach((item) => {
+                    expect(item.comment_id).toBe(comment.comment_id);
+                    expect(item.user_id === "3" || item.user_id === "1").toBe(true);
+                })
+            })
+        })
+        test("201: Sends a notification to everyone in the notify list of parent comment", () => {
+            return request(app)
+            .post("/api/comments/1/replies")
+            .send({
+                user_id: "1",
+                body: "Cool song!"
+            })
+            .expect(201)
+            .then(({body}) => {
+                return Promise.all([
+                    database.commentNotification.findMany({
+                        where: {
+                            comment_id: body.reply.comment_id
+                        }
+                    }),
+                    body.reply
+                ])
+            })
+            .then(([notifications, reply]) => {
+                expect(notifications.length).not.toBe(0);
+                notifications.forEach((notification) => {
+                    expect(notification.comment_id).toBe(reply.comment_id);
+                    expect(notification.sender_id).toBe("1");
+                    expect(typeof notification.receiver_id).toBe("string");
+                    expect(notification.receiver_id).not.toBe("1");
+                    expect(notification.message).toBe(
+                        stripIndents(
+                            `${reply.author.artist_name} (@${reply.author.username}) has replied to your comment:
+                            '${reply.body}'`
+                            )
+                    )
+                })
             })
         })
         test("201: Ignores any extra properties on request body", () => {

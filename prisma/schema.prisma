@@ -23,6 +23,7 @@ model User {
   comments               Comment[]
   followers              Follow[]              @relation("follower")
   following              Follow[]              @relation("following")
+  notify_list            NotifyList[]
   song_ratings           SongRating[]
   songs                  Song[]
 
@@ -78,8 +79,19 @@ model Comment {
   replies        Comment[]             @relation("CommentReplies")
   song           Song?                 @relation(fields: [song_id], references: [song_id], onDelete: Cascade)
   author         User                  @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  notify_list    NotifyList[]
 
   @@map("comments")
+}
+
+model NotifyList {
+  user_id    String
+  comment_id Int
+  comment    Comment @relation(fields: [comment_id], references: [comment_id], onDelete: Cascade)
+  user       User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@id([user_id, comment_id])
+  @@map("notify_list")
 }
 
 model SongRating {
