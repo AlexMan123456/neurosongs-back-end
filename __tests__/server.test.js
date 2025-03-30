@@ -2715,7 +2715,6 @@ describe("/api/comments/:comment_id", () => {
                 expect(comment.author.artist_name).toBe("Alex The Man");
                 expect(comment.author.username).toBe("AlexTheMan");
                 expect(comment.author.profile_picture).toBe("KoolAlex.png");
-                expect(comment.replying_to.song_id).toBe(1);
 
                 expect(Array.isArray(comment.replies)).toBe(true);
                 comment.replies.forEach((reply) => {
@@ -2725,6 +2724,7 @@ describe("/api/comments/:comment_id", () => {
                     expect(typeof reply.author.profile_picture).toBe("string");
                     expect(typeof reply.comment_id).toBe("number");
                     expect(typeof reply.body).toBe("string");
+                    expect(reply.replying_to.song_id).toBe(1);
                 })
 
                 expect(comment).not.toHaveProperty("album");
