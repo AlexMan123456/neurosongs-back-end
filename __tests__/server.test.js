@@ -484,6 +484,23 @@ describe("/api/users/:user_id", () => {
     })
 })
 
+describe("/api/users/:user_id/notifications", () => {
+    test("200: Responds with an array of all notifications for a given user, sorted by most recent", () => {
+        return request(app)
+        .get("/api/users/1/notifications")
+        .expect(200)
+        .then(({body}) => {
+            expect(body.notifications.length).not.toBe(0);
+            body.notifications.forEach((notification) => {
+                expect(typeof notification.sender_id).toBe("string");
+                expect(notification.receiver_id).toBe("1");
+                expect(typeof notification.comment_id).toBe("number");
+                expect(typeof notification.message).toBe("string");
+            })
+        })
+    })
+})
+
 // ALBUMS ENDPOINTS
 
 describe("/api/albums", () => {

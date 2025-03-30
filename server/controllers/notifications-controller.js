@@ -1,5 +1,11 @@
-const { uploadNotification, updateNotification } = require("../models/notifications-model");
+const { uploadNotification, updateNotification, fetchNotificationsFromUser } = require("../models/notifications-model");
 const { fetchUserById } = require("../models/users-model");
+
+function getNotificationsFromUser(request, response, next){
+    fetchNotificationsFromUser(request.params.user_id).then((notifications) => {
+        response.status(200).send({notifications})
+    }).catch(next)
+}
 
 function postNotification(request, response, next){
     fetchUserById(request.body.sender_id).then(() => {
@@ -21,4 +27,4 @@ function patchNotification(request, response, next){
     })
 }
 
-module.exports = { postNotification, patchNotification };
+module.exports = { getNotificationsFromUser, postNotification, patchNotification };

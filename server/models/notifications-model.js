@@ -1,5 +1,13 @@
 const database = require("../../client");
 
+function fetchNotificationsFromUser(receiver_id){
+    return database.commentNotification.findMany({
+        where: {
+            receiver_id
+        }
+    })
+}
+
 function uploadNotification(body){
     const data = {...body};
 
@@ -70,4 +78,4 @@ function updateNotification(stringifiedNotificationID){
     
 }
 
-module.exports = { uploadNotification, updateNotification };
+module.exports = { fetchNotificationsFromUser, uploadNotification, updateNotification };
