@@ -199,9 +199,8 @@ async function uploadCommentReply(stringifiedID, body){
         }
     })
 
-    const notifications = await database.commentNotification.createManyAndReturn({
+    await database.commentNotification.createMany({
         data: notifyList.map((item) => {
-            console.log(data.user_id, item.user_id)
             return {
                 sender_id: data.user_id,
                 receiver_id: item.user_id,
