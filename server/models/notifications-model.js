@@ -15,7 +15,7 @@ function fetchNotificationsFromUser(receiver_id){
             }
         },
         orderBy: {
-            created_at: "desc"
+            created_at: "asc"
         }
     }).then((notifications) => {
         notifications.forEach((notification) => {
