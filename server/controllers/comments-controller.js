@@ -16,8 +16,8 @@ function getCommentsFromContent(request, response, next){
 }
 
 function getCommentById(request, response, next){
-    fetchCommentById(request.params.comment_id).then((comment) => {
-        response.status(200).send({comment});
+    fetchCommentById(request.params.comment_id).then((data) => {
+        response.status(200).send(data);
     }).catch(next)
 }
 

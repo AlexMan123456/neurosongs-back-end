@@ -2722,15 +2722,31 @@ describe("/api/comments/:comment_id", () => {
                 expect(comment).not.toHaveProperty("replying_to_id");
             })
         })
-        test("200: Makes the chosen reply the first element of the replies array", () => {
+        test("200: Also responds with the reply associated with the given ID", () => {
             return request(app)
             .get("/api/comments/12")
             .expect(200)
             .then(({body}) => {
-                const topReply = body.comment.replies[0];
-                expect(topReply.user_id).toBe("1");
-                expect(topReply.comment_id).toBe(12);
-                expect(topReply.body).toBe("Everyone loves Captain Kevin!");
+                const {reply} = body;
+                expect(reply.user_id).toBe("1");
+                expect(reply.comment_id).toBe(12);
+                expect(reply.body).toBe("Everyone loves Captain Kevin!");
+            })
+        })
+        test("400: Responds with a bad request message if comment ID is invalid", () => {
+            return request(app)
+            .get("/api/comments/invalid_id")
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if comment does not exist", () => {
+            return request(app)
+            .get("/api/comments/231")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("Comment not found");
             })
         })
     })

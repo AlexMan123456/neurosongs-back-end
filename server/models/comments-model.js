@@ -1,5 +1,5 @@
 const { stripIndents } = require("common-tags");
-const database = require("../../client")
+const database = require("../../client");
 
 async function fetchCommentsFromContent(params){
     const request = {
@@ -61,6 +61,10 @@ async function fetchCommentById(stringifiedCommentID){
         }
     });
 
+    if(!chosenComment){
+        return Promise.reject({status: 404, message: "Comment not found"})
+    }
+
     if (!chosenComment.song_id) {
         delete chosenComment.song_id;
         delete chosenComment.song;
@@ -72,7 +76,7 @@ async function fetchCommentById(stringifiedCommentID){
     if (!chosenComment.replying_to_id) {
         delete chosenComment.replying_to_id;
         delete chosenComment.replying_to;
-        return chosenComment;
+        return {comment: chosenComment};
     }
     
     // If the code gets past this point, it is a reply and shall be treated as such
@@ -106,13 +110,10 @@ async function fetchCommentById(stringifiedCommentID){
         return reply.comment_id
     })
 
-    const chosenReplyIndex = replyIDsFromParentComment.indexOf(comment_id)
-    const chosenReply = parentComment.replies[chosenReplyIndex]
+    const chosenReplyIndex = replyIDsFromParentComment.indexOf(comment_id);
+    const chosenReply = parentComment.replies[chosenReplyIndex];
 
-    parentComment.replies.splice(chosenReplyIndex, 1);
-    parentComment.replies.unshift(chosenReply);
-
-    return parentComment
+    return {comment: parentComment, reply: chosenReply}
 }
 
 function fetchCommentReplies(stringifiedID){
