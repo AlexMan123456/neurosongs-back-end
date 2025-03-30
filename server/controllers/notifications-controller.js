@@ -2,7 +2,9 @@ const { uploadNotification, updateNotification, fetchNotificationsFromUser } = r
 const { fetchUserById } = require("../models/users-model");
 
 function getNotificationsFromUser(request, response, next){
-    fetchNotificationsFromUser(request.params.user_id).then((notifications) => {
+    fetchUserById(request.params.user_id).then(() => {
+        return fetchNotificationsFromUser(request.params.user_id);
+    }).then((notifications) => {
         response.status(200).send({notifications})
     }).catch(next)
 }

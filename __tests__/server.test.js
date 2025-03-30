@@ -496,7 +496,16 @@ describe("/api/users/:user_id/notifications", () => {
                 expect(notification.receiver_id).toBe("1");
                 expect(typeof notification.comment_id).toBe("number");
                 expect(typeof notification.message).toBe("string");
+                expect(!!notification.comment.song || !!notification.comment.album || !!notification.comment.replying_to).toBe(true);
             })
+        })
+    })
+    test("404: Responds with a not found message if user does not exist", () => {
+        return request(app)
+        .get("/api/users/nonexistent_user/notifications")
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe("User not found");
         })
     })
 })
