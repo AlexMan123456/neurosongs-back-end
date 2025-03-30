@@ -2663,6 +2663,104 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
 // COMMENTS ENDPOINTS
 
 describe("/api/comments/:comment_id", () => {
+    describe("GET", () => {
+        test("200: Responds with the comment with the given ID", () => {
+            return Promise.all([
+                request(app)
+                .get("/api/comments/1")
+                .expect(200)
+                .then(({body}) => {
+                    const {comment} = body;
+                    expect(comment.user_id).toBe("3");
+                    expect(comment.song_id).toBe(11);
+                    expect(comment.song.title).toBe("Captain Kevin (Simulation Mix)");
+                    expect(comment.body).toBe("YO HO HO, AND AWAY WE GO!");
+                    expect(comment.author.artist_name).toBe("Kevin");
+                    expect(comment.author.username).toBe("Kevin_SynthV");
+                    expect(comment.author.profile_picture).toBe("captain-kevin.png");
+                    expect(comment).not.toHaveProperty("album");
+                    expect(comment).not.toHaveProperty("album_id");
+                    expect(comment).not.toHaveProperty("replying_to");
+                    expect(comment).not.toHaveProperty("replying_to_id");
+                }),
+                request(app)
+                .get("/api/comments/7")
+                .expect(200)
+                .then(({body}) => {
+                    const {comment} = body;
+                    expect(comment.user_id).toBe("1");
+                    expect(comment.album_id).toBe(2);
+                    expect(comment.album.title).toBe("Show Them What You've Got");
+                    expect(comment.body).toBe("I worked very hard on this album, so I hope everyone enjoys it!");
+                    expect(comment.author.artist_name).toBe("Alex The Man");
+                    expect(comment.author.username).toBe("AlexTheMan");
+                    expect(comment.author.profile_picture).toBe("KoolAlex.png");
+                    expect(comment).not.toHaveProperty("song");
+                    expect(comment).not.toHaveProperty("song_id");
+                    expect(comment).not.toHaveProperty("replying_to");
+                    expect(comment).not.toHaveProperty("replying_to_id");
+                })
+            ])
+        })
+        test("200: If the comment is a reply, return the parent comment with a list of its replies", () => {
+            return request(app)
+            .get("/api/comments/11")
+            .expect(200)
+            .then(({body}) => {
+                const {comment} = body;
+                expect(comment.user_id).toBe("1");
+                expect(comment.song_id).toBe(1);
+                expect(comment.song.title).toBe("Captain Kevin");
+                expect(comment.body).toBe("More Captain Kevin!");
+                expect(comment.author.artist_name).toBe("Alex The Man");
+                expect(comment.author.username).toBe("AlexTheMan");
+                expect(comment.author.profile_picture).toBe("KoolAlex.png");
+
+                expect(Array.isArray(comment.replies)).toBe(true);
+                comment.replies.forEach((reply) => {
+                    expect(typeof reply.user_id).toBe("string");
+                    expect(typeof reply.author.artist_name).toBe("string");
+                    expect(typeof reply.author.username).toBe("string");
+                    expect(typeof reply.author.profile_picture).toBe("string");
+                    expect(typeof reply.comment_id).toBe("number");
+                    expect(typeof reply.body).toBe("string");
+                    expect(reply.replying_to.song_id).toBe(1);
+                })
+
+                expect(comment).not.toHaveProperty("album");
+                expect(comment).not.toHaveProperty("album_id");
+                expect(comment).not.toHaveProperty("replying_to");
+                expect(comment).not.toHaveProperty("replying_to_id");
+            })
+        })
+        test("200: Also responds with the reply associated with the given ID", () => {
+            return request(app)
+            .get("/api/comments/12")
+            .expect(200)
+            .then(({body}) => {
+                const {reply} = body;
+                expect(reply.user_id).toBe("1");
+                expect(reply.comment_id).toBe(12);
+                expect(reply.body).toBe("Everyone loves Captain Kevin!");
+            })
+        })
+        test("400: Responds with a bad request message if comment ID is invalid", () => {
+            return request(app)
+            .get("/api/comments/invalid_id")
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if comment does not exist", () => {
+            return request(app)
+            .get("/api/comments/231")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("Comment not found");
+            })
+        })
+    })
     describe("PATCH", () => {
         test("200: Updates a given comment in the database and returns the updated comment", () => {
             return Promise.all([

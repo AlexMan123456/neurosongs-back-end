@@ -1,5 +1,5 @@
 const { stripIndents } = require("common-tags");
-const database = require("../../client")
+const database = require("../../client");
 
 async function fetchCommentsFromContent(params){
     const request = {
@@ -32,6 +32,114 @@ async function fetchCommentsFromContent(params){
         comment.reply_count = _count.replying_to_id
     }
     return comments
+}
+
+async function fetchCommentById(stringifiedCommentID){
+    const comment_id = parseInt(stringifiedCommentID);
+
+    const chosenComment = await database.comment.findUnique({
+        where: {
+            comment_id
+        },
+        include: {
+            song: {
+                select: {
+                    title: true
+                }
+            },
+            album: {
+                select: {
+                    title: true
+                }
+            },
+            replying_to: {
+                include: {
+                    song: true,
+                    album: true
+                }
+            },
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
+                }
+            }
+        }
+    });
+
+    if(!chosenComment){
+        return Promise.reject({status: 404, message: "Comment not found"})
+    }
+
+    if (!chosenComment.song_id) {
+        delete chosenComment.song_id;
+        delete chosenComment.song;
+    }
+    if (!chosenComment.album_id) {
+        delete chosenComment.album_id;
+        delete chosenComment.album;
+    }
+    if (!chosenComment.replying_to_id) {
+        delete chosenComment.replying_to_id;
+        delete chosenComment.replying_to;
+        return {comment: chosenComment};
+    }
+    
+    // If the code gets past this point, it is a reply and shall be treated as such
+
+    const contentType = chosenComment.replying_to.song ? "song" : "album";
+
+    const parentComment = await database.comment.findUnique({
+        where: {
+            comment_id: chosenComment.replying_to_id
+        },
+        include: {
+            replies: {
+                include: {
+                    song_id: false,
+                    album_id: false,
+                    author: {
+                        select: {
+                            artist_name: true,
+                            username: true,
+                            profile_picture: true
+                        }
+                    },
+                    replying_to: {
+                        select: {
+                            [`${contentType}_id`]: true
+                        }
+                    }
+                }
+            },
+            [contentType]: {
+                select: {
+                    title: true
+                }
+            },
+            author: {
+                select: {
+                    artist_name: true,
+                    username: true,
+                    profile_picture: true
+                }
+            }
+        },
+        omit: {
+            [`${contentType === "song" ? "album" : "song"}_id`]: true,
+            replying_to_id: true
+        }
+    })
+
+    const replyIDsFromParentComment = parentComment.replies.map((reply) => {
+        return reply.comment_id
+    })
+
+    const chosenReplyIndex = replyIDsFromParentComment.indexOf(comment_id);
+    const chosenReply = parentComment.replies[chosenReplyIndex];
+
+    return {comment: parentComment, reply: chosenReply}
 }
 
 function fetchCommentReplies(stringifiedID){
@@ -279,4 +387,4 @@ function removeComment(stringifiedCommentID){
     return database.comment.delete({ where: { comment_id } });
 }
 
-module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies, uploadCommentReply };
+module.exports = { fetchCommentsFromContent, fetchCommentById, uploadComment, editComment, removeComment, fetchCommentReplies, uploadCommentReply };
