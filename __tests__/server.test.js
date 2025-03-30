@@ -496,6 +496,7 @@ describe("/api/users/:user_id/notifications", () => {
                 expect(notification.receiver_id).toBe("1");
                 expect(typeof notification.comment_id).toBe("number");
                 expect(typeof notification.message).toBe("string");
+                expect(notification.comment.constructor).toBe(Object)
                 expect(!!notification.comment.song || !!notification.comment.album || !!notification.comment.replying_to).toBe(true);
             })
         })
