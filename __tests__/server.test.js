@@ -2663,6 +2663,77 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
 // COMMENTS ENDPOINTS
 
 describe("/api/comments/:comment_id", () => {
+    describe("GET", () => {
+        test("200: Responds with the comment with the given ID", () => {
+            return Promise.all([
+                request(app)
+                .get("/api/comments/1")
+                .expect(200)
+                .then(({body}) => {
+                    const {comment} = body;
+                    expect(comment.user_id).toBe("3");
+                    expect(comment.song_id).toBe(11);
+                    expect(comment.song.title).toBe("Captain Kevin (Simulation Mix)");
+                    expect(comment.body).toBe("YO HO HO, AND AWAY WE GO!");
+                    expect(comment).not.toHaveProperty("album");
+                    expect(comment).not.toHaveProperty("album_id");
+                    expect(comment).not.toHaveProperty("replying_to");
+                    expect(comment).not.toHaveProperty("replying_to_id");
+                }),
+                request(app)
+                .get("/api/comments/7")
+                .expect(200)
+                .then(({body}) => {
+                    const {comment} = body;
+                    expect(comment.user_id).toBe("1");
+                    expect(comment.album_id).toBe(2);
+                    expect(comment.album.title).toBe("Show Them What You've Got");
+                    expect(comment.body).toBe("I worked very hard on this album, so I hope everyone enjoys it!");
+                    expect(comment).not.toHaveProperty("song");
+                    expect(comment).not.toHaveProperty("song_id");
+                    expect(comment).not.toHaveProperty("replying_to");
+                    expect(comment).not.toHaveProperty("replying_to_id");
+                })
+            ])
+        })
+        test("200: If the comment is a reply, return the parent comment with a list of its replies", () => {
+            return request(app)
+            .get("/api/comments/11")
+            .expect(200)
+            .then(({body}) => {
+                const {comment} = body;
+                expect(comment.user_id).toBe("1");
+                expect(comment.song_id).toBe(1);
+                expect(comment.song.title).toBe("Captain Kevin");
+                expect(comment.body).toBe("More Captain Kevin!");
+
+                expect(Array.isArray(comment.replies)).toBe(true);
+                comment.replies.forEach((reply) => {
+                    expect(typeof reply.user_id).toBe("string");
+                    expect(typeof reply.comment_id).toBe("number");
+                    expect(typeof reply.body).toBe("string");
+                })
+                expect(comment.replies[0].user_id).toBe("3");
+                expect(comment.replies[0].body).toBe("Yes! Captain Kevin is the best!");
+
+                expect(comment).not.toHaveProperty("album");
+                expect(comment).not.toHaveProperty("album_id");
+                expect(comment).not.toHaveProperty("replying_to");
+                expect(comment).not.toHaveProperty("replying_to_id");
+            })
+        })
+        test("200: Makes the chosen reply the first element of the replies array", () => {
+            return request(app)
+            .get("/api/comments/12")
+            .expect(200)
+            .then(({body}) => {
+                const topReply = body.comment.replies[0];
+                expect(topReply.user_id).toBe("1");
+                expect(topReply.comment_id).toBe(12);
+                expect(topReply.body).toBe("Everyone loves Captain Kevin!");
+            })
+        })
+    })
     describe("PATCH", () => {
         test("200: Updates a given comment in the database and returns the updated comment", () => {
             return Promise.all([

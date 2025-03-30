@@ -34,6 +34,87 @@ async function fetchCommentsFromContent(params){
     return comments
 }
 
+async function fetchCommentById(stringifiedCommentID){
+    const comment_id = parseInt(stringifiedCommentID);
+
+    const chosenComment = await database.comment.findUnique({
+        where: {
+            comment_id
+        },
+        include: {
+            song: {
+                select: {
+                    title: true
+                }
+            },
+            album: {
+                select: {
+                    title: true
+                }
+            },
+            replying_to: {
+                include: {
+                    song: true,
+                    album: true
+                }
+            }
+        }
+    });
+
+    if (!chosenComment.song_id) {
+        delete chosenComment.song_id;
+        delete chosenComment.song;
+    }
+    if (!chosenComment.album_id) {
+        delete chosenComment.album_id;
+        delete chosenComment.album;
+    }
+    if (!chosenComment.replying_to_id) {
+        delete chosenComment.replying_to_id;
+        delete chosenComment.replying_to;
+        return chosenComment;
+    }
+    
+    // If the code gets past this point, it is a reply and shall be treated as such
+
+    const contentType = chosenComment.replying_to.song ? "song" : "album";
+
+    const parentComment = await database.comment.findUnique({
+        where: {
+            comment_id: chosenComment.replying_to_id
+        },
+        include: {
+            replies: {
+                omit: {
+                    song_id: true,
+                    album_id: true
+                }
+            },
+            [contentType]: {
+                select: {
+                    title: true
+                }
+            }
+        },
+        omit: {
+            [`${contentType === "song" ? "album" : "song"}_id`]: true,
+            replying_to_id: true
+        }
+    })
+
+    const replyIDsFromParentComment = parentComment.replies.map((reply) => {
+        return reply.comment_id
+    })
+
+    const chosenReplyIndex = replyIDsFromParentComment.indexOf(comment_id)
+    const chosenReply = parentComment.replies[chosenReplyIndex]
+
+    parentComment.replies.splice(chosenReplyIndex, 1);
+    parentComment.replies.unshift(chosenReply);
+
+    return parentComment
+}
+
 function fetchCommentReplies(stringifiedID){
     const replying_to_id = parseInt(stringifiedID);
 
@@ -279,4 +360,4 @@ function removeComment(stringifiedCommentID){
     return database.comment.delete({ where: { comment_id } });
 }
 
-module.exports = { fetchCommentsFromContent, uploadComment, editComment, removeComment, fetchCommentReplies, uploadCommentReply };
+module.exports = { fetchCommentsFromContent, fetchCommentById, uploadComment, editComment, removeComment, fetchCommentReplies, uploadCommentReply };
