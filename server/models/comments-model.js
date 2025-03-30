@@ -105,6 +105,11 @@ async function fetchCommentById(stringifiedCommentID){
                             username: true,
                             profile_picture: true
                         }
+                    },
+                    replying_to: {
+                        select: {
+                            [`${contentType}_id`]: true
+                        }
                     }
                 }
             },
