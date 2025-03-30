@@ -491,6 +491,7 @@ describe("/api/users/:user_id/notifications", () => {
         .expect(200)
         .then(({body}) => {
             expect(body.notifications.length).not.toBe(0);
+            expect(body.notifications).toBeSortedBy("created_at", {descending: true})
             body.notifications.forEach((notification) => {
                 expect(typeof notification.sender_id).toBe("string");
                 expect(notification.receiver_id).toBe("1");
