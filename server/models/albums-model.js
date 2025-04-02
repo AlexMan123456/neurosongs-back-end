@@ -9,6 +9,7 @@ function fetchAlbums(queries){
                     artist_name: true
                 }
             },
+            songs: true,
             description: false
         }
     }

@@ -530,6 +530,7 @@ describe("/api/albums", () => {
                     expect(typeof album.is_featured).toBe("boolean");
                     expect(typeof album.title).toBe("string");
                     expect(typeof album.front_cover_reference).toBe("string");
+                    expect(Array.isArray(album.songs)).toBe(true);
                     expect(album).toHaveProperty("back_cover_reference");
                     expect(album).toHaveProperty("created_at");
                     expect(album).not.toHaveProperty("description");
