@@ -4,7 +4,7 @@ require("jest-sorted")
 const data = require("../prisma/test-data");
 const seed = require("../prisma/seed");
 const endpoints = require("../server/endpoints.json");
-const database = require("../client.js");
+const database = require("../prisma/client.js");
 const { stripIndents } = require("common-tags");
 
 jest.setTimeout(30000)

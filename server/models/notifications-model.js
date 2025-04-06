@@ -1,4 +1,4 @@
-const database = require("../../client");
+const database = require("../../prisma/client");
 
 function fetchNotificationsFromUser(receiver_id){
     return database.commentNotification.findMany({
