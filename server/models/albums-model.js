@@ -51,6 +51,9 @@ function fetchAlbumById(stringifiedAlbumID){
                     include: {
                         artist: true,
                         comments: true
+                    },
+                    orderBy: {
+                        index: "asc"
                     }
                 },
                 artist: {
