@@ -1,4 +1,4 @@
-const database = require("../../prisma/client")
+const database = require("../../client")
 
 function fetchAlbums(queries){
     const request = {

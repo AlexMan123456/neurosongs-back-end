@@ -4,14 +4,8 @@ require("jest-sorted")
 const data = require("../prisma/test-data");
 const seed = require("../prisma/seed");
 const endpoints = require("../server/endpoints.json");
-const database = require("../prisma/client.js");
+const database = require("../client.js");
 const { stripIndents } = require("common-tags");
-require("dotenv").config({
-    path: `${__dirname}/../.env.test`
-})
-const headers = {
-    "X-Firebase-AppCheck": process.env.FIREBASE_TEST_HEADER
-}
 
 jest.setTimeout(30000)
 
@@ -86,7 +80,6 @@ describe("/api/users", () => {
         test("201: Posts a user to database and returns the created user", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
@@ -111,7 +104,6 @@ describe("/api/users", () => {
         test("201: Any optional properties can be left out of request", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
@@ -133,7 +125,6 @@ describe("/api/users", () => {
         test("201: Ignores any extra properties on request object", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
@@ -157,7 +148,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if user ID contains forward slash", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "5/e",
                 username: "TestUser123",
@@ -175,7 +165,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if profile picture is not a valid file name", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
@@ -193,7 +182,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if profile picture is a file directory", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
@@ -211,7 +199,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if any required properties are missing", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 artist_name: "Test User",
                 email: "test@test.com"
@@ -224,7 +211,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if username has spaces", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "Test User 123",
@@ -240,7 +226,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if username has @ symbol", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "TestUser@123",
@@ -256,7 +241,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if email does not contain @ symbol", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "TestUser123",
@@ -272,7 +256,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if username is not unique", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "AlexTheMan",
@@ -288,7 +271,6 @@ describe("/api/users", () => {
         test("400: Responds with a bad request message if email is not unique", () => {
             return request(app)
             .post("/api/users")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 username: "FakeUser123",
@@ -299,23 +281,6 @@ describe("/api/users", () => {
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Unique constraint violation");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/users")
-            .send({
-                user_id: "dQw4w9WgXcQ",
-                username: "TestUser123",
-                artist_name: "Test User",
-                email: "test@test.com",
-                profile_picture: "test-profile-picture.jpg",
-                description: "Test description",
-                date_of_birth: new Date("2003-02-22T00:00:00.000Z")
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -381,7 +346,6 @@ describe("/api/users/:user_id", () => {
         test("200: Updates the given user with the new given properties", () => {
             return request(app)
             .patch("/api/users/1")
-            .set(headers)
             .send({
                 username: "Alex.Reborn",
                 artist_name: "Alex Reborn",
@@ -405,7 +369,6 @@ describe("/api/users/:user_id", () => {
         test("200: Updates existing properties even if some are missing", () => {
             return request(app)
             .patch("/api/users/1")
-            .set(headers)
             .send({
                 username: "Alex.Reborn",
                 artist_name: "Alex Reborn",
@@ -425,7 +388,6 @@ describe("/api/users/:user_id", () => {
         test("200: Ignores any extra keys on request object", () => {
             return request(app)
             .patch("/api/users/1")
-            .set(headers)
             .send({
                 username: "Alex.Reborn",
                 artist_name: "Alex Reborn",
@@ -449,7 +411,6 @@ describe("/api/users/:user_id", () => {
         test("200: Can change back to a default profile picture", () => {
             return request(app)
             .patch("/api/users/1")
-            .set(headers)
             .send({
                 profile_picture: "Default",
             })
@@ -462,7 +423,6 @@ describe("/api/users/:user_id", () => {
         test("400: Does not allow user to update the user ID", () => {
             return request(app)
             .patch("/api/users/1")
-            .set(headers)
             .send({
                 user_id: "I'm feeling so reborn, I'm updating my ID!",
                 username: "Alex.Reborn",
@@ -479,7 +439,6 @@ describe("/api/users/:user_id", () => {
         test("400: Responds with a bad request message if profile picture reference is not a valid file name", () => {
             return request(app)
             .patch("/api/users/1")
-            .set(headers)
             .send({
                 username: "Alex.Reborn",
                 artist_name: "Alex Reborn",
@@ -495,7 +454,6 @@ describe("/api/users/:user_id", () => {
         test("400: Responds with a bad request message if profile picture reference is a file directory", () => {
             return request(app)
             .patch("/api/users/1")
-            .set(headers)
             .send({
                 username: "Alex.Reborn",
                 artist_name: "Alex Reborn",
@@ -508,45 +466,19 @@ describe("/api/users/:user_id", () => {
                 expect(response.body.message).toBe("Invalid file name")
             })
         })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .patch("/api/users/1")
-            .send({
-                username: "Alex.Reborn",
-                artist_name: "Alex Reborn",
-                description: "And now I feel reborn!",
-                email: "alexreborn@gmail.com",
-                profile_picture: "i-feel-reborn.png",
-                date_of_birth: new Date("2002-07-16T00:00:00Z")
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful")
-            })
-        })
     })
     describe("DELETE", () => {
         test("204: Deletes the given user from the database", () => {
             return request(app)
             .delete("/api/users/1")
-            .set(headers)
             .expect(204)
         })
         test("404: Responds with a not found message if user does not exist", () => {
             return request(app)
             .delete("/api/users/i_am_imaginary")
-            .set(headers)
             .expect(404)
             .then(({body}) => {
                 expect(body.message).toBe("User not found");
-            })
-        })
-        test("401: Responds with an unauthorisesd message if Firebase app check header is not set", () => {
-            return request(app)
-            .delete("/api/users/1")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful")
             })
         })
     })
@@ -703,7 +635,6 @@ describe("/api/albums", () => {
             return Promise.all([
                 request(app)
                 .post("/api/albums")
-                .set(headers)
                 .send({
                     user_id: "1",
                     title: "Neural Anthems",
@@ -721,7 +652,6 @@ describe("/api/albums", () => {
                 }),
                 request(app)
                 .post("/api/albums")
-                .set(headers)
                 .send({
                     user_id: "2",
                     title: "Universal Expedition",
@@ -745,7 +675,6 @@ describe("/api/albums", () => {
         test("201: Ignores any extra keys on request object", () => {
             return request(app)
             .post("/api/albums")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Extraordinary Escapade",
@@ -769,7 +698,6 @@ describe("/api/albums", () => {
         test("201: If left out, front_cover_reference defaults to Default", () => {
             return request(app)
             .post("/api/albums")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Neural Anthems"
@@ -788,7 +716,6 @@ describe("/api/albums", () => {
         test("400: Responds with a bad request message if front cover reference is not a valid file name", () => {
             return request(app)
             .post("/api/albums")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Universal Expedition",
@@ -803,7 +730,6 @@ describe("/api/albums", () => {
         test("400: Responds with a bad request message if front cover reference is a file directory", () => {
             return request(app)
             .post("/api/albums")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Universal Expedition",
@@ -818,7 +744,6 @@ describe("/api/albums", () => {
         test("400: Responds with a bad request message if back cover reference is not a valid file name", () => {
             return request(app)
             .post("/api/albums")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Universal Expedition",
@@ -833,7 +758,6 @@ describe("/api/albums", () => {
         test("400: Responds with a bad request message if back cover reference is a file directory", () => {
             return request(app)
             .post("/api/albums")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Universal Expedition",
@@ -848,7 +772,6 @@ describe("/api/albums", () => {
         test("404: Responds with a not found message if user does not exist", () => {
             return request(app)
             .post("/api/albums")
-            .set(headers)
             .send({
                 user_id: "nonexistent_user",
                 title: "Test album",
@@ -858,20 +781,6 @@ describe("/api/albums", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Related property not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/albums")
-            .send({
-                user_id: "2",
-                title: "Universal Expedition",
-                front_cover_reference: "universal-expedition.png",
-                back_cover_reference: "back-cover.png"
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -948,7 +857,6 @@ describe("/api/albums/:album_id", () => {
         test("200: Updates the album with the given ID and responds with the updated album", () => {
             return request(app)
             .patch("/api/albums/3")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 front_cover_reference: "rickroll.png",
@@ -968,7 +876,6 @@ describe("/api/albums/:album_id", () => {
         test("200: Ignores any extra keys on request body", () => {
             return request(app)
             .patch("/api/albums/3")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 front_cover_reference: "rickroll.png",
@@ -989,7 +896,6 @@ describe("/api/albums/:album_id", () => {
         test("400: Does not allow user_id to be edited", () => {
             return request(app)
             .patch("/api/albums/3")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Never Gonna Give You Up",
@@ -1005,7 +911,6 @@ describe("/api/albums/:album_id", () => {
         test("400: Responds with a bad request message if album_id is in request body", () => {
             return request(app)
             .patch("/api/albums/3")
-            .set(headers)
             .send({
                 album_id: 1,
                 title: "Never Gonna Give You Up",
@@ -1021,7 +926,6 @@ describe("/api/albums/:album_id", () => {
         test("400: Responds with a bad request message if album_id parameter is invalid", () => {
             return request(app)
             .patch("/api/albums/invalid_id")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 front_cover_reference: "rickroll.png",
@@ -1036,7 +940,6 @@ describe("/api/albums/:album_id", () => {
         test("404: Responds with a not found message if album does not exist", () => {
             return request(app)
             .patch("/api/albums/231")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 front_cover_reference: "rickroll.png",
@@ -1048,32 +951,16 @@ describe("/api/albums/:album_id", () => {
                 expect(response.body.message).toBe("Album not found")
             })
         })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .patch("/api/albums/3")
-            .send({
-                title: "Never Gonna Give You Up",
-                front_cover_reference: "rickroll.png",
-                back_cover_reference: "kevinroll.png",
-                description: "Never gonna give you up, never gonna let you down!"
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
-            })
-        })
     })
     describe("DELETE", () => {
         test("204: Deletes the given album from the database", () => {
             return request(app)
             .delete("/api/albums/1")
-            .set(headers)
             .expect(204)
         })
         test("400: Responds with a bad request message if album_id is invalid", () => {
             return request(app)
             .delete("/api/albums/invalid_id")
-            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -1082,18 +969,9 @@ describe("/api/albums/:album_id", () => {
         test("404: Responds with a not found message if album_id does not exist", () => {
             return request(app)
             .delete("/api/albums/231")
-            .set(headers)
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Album not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .delete("/api/albums/1")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(response.body.message).toBe("Album not found")
             })
         })
     })
@@ -1104,7 +982,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("201: Creates a song for the given album", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1130,7 +1007,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("201: Ignores any extra properties on request body", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1158,7 +1034,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("201: Optional properties can be left out", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1182,7 +1057,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("400: Responds with a bad request message if posting with an index (it should always default to the current amount of songs + 1)", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1198,7 +1072,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("400: Responds with a bad request message when missing required properties", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power"
@@ -1211,7 +1084,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("400: Responds with a bad request message if song reference is not a valid file name", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1225,7 +1097,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("400: Responds with a bad request message if song reference is a file directory", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1239,7 +1110,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("400: Responds with a bad request message if request body contains album_id", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 album_id: 1,
                 user_id: "1",
@@ -1255,7 +1125,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("400: Responds with a bad request message when given an invalid album_id", () => {
             return request(app)
             .post("/api/albums/invalid_id/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1269,7 +1138,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("404: Responds with a not found message when given an album_id that does not exist", () => {
             return request(app)
             .post("/api/albums/231/songs")
-            .set(headers)
             .send({
                 user_id: "1",
                 title: "Highest Power",
@@ -1283,7 +1151,6 @@ describe("/api/albums/:album_id/songs", () => {
         test("404: Responds with a not found message when given a user_id that does not exist", () => {
             return request(app)
             .post("/api/albums/1/songs")
-            .set(headers)
             .send({
                 user_id: "InvalidUser",
                 title: "Highest Power",
@@ -1294,20 +1161,6 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(response.body.message).toBe("Related property not found");
             })
         })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/albums/1/songs")
-            .send({
-                user_id: "1",
-                title: "Highest Power",
-                description: "You think that I am at my highest power!",
-                reference: "highest-power.mp3"
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful")
-            })
-        })
     })
 })
 
@@ -1316,7 +1169,6 @@ describe("/api/albums/:album_id/reset_index", () => {
         test("200: Indexes all songs from a given album based on when each song was created (earlier songs come first)", () => {
             return request(app)
             .patch("/api/albums/2/reset_index")
-            .set(headers)
             .expect(200)
             .then(({body}) => {
                 expect(body.album.songs.length).not.toBe(0)
@@ -1329,7 +1181,6 @@ describe("/api/albums/:album_id/reset_index", () => {
         test("200: Leaves an album unaffected if it has no songs", () => {
             return request(app)
             .patch("/api/albums/6/reset_index")
-            .set(headers)
             .expect(200)
             .then(({body}) => {
                 expect(body.album.songs.length).toBe(0);
@@ -1338,7 +1189,6 @@ describe("/api/albums/:album_id/reset_index", () => {
         test("400: Responds with a bad request message if album ID is invalid", () => {
             return request(app)
             .patch("/api/albums/invalid_id/reset_index")
-            .set(headers)
             .expect(400)
             .then(({body}) => {
                 expect(body.message).toBe("Bad request");
@@ -1347,18 +1197,9 @@ describe("/api/albums/:album_id/reset_index", () => {
         test("404: Responds with a bad request message if album ID does not exist", () => {
             return request(app)
             .patch("/api/albums/231/reset_index")
-            .set(headers)
             .expect(404)
             .then(({body}) => {
-                expect(body.message).toBe("Album not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .patch("/api/albums/1/reset_index")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(body.message).toBe("Album not found")
             })
         })
     })
@@ -1418,7 +1259,6 @@ describe("/api/albums/:album_id/comments", () => {
         test("201: Posts a new comment and responds with the posted comment", () => {
             return request(app)
             .post("/api/albums/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!"
@@ -1441,7 +1281,6 @@ describe("/api/albums/:album_id/comments", () => {
         test("201: Adds the users to the notify list associated with the comment", () => {
             return request(app)
             .post("/api/albums/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!"
@@ -1482,7 +1321,6 @@ describe("/api/albums/:album_id/comments", () => {
         test("201: Notifies everyone on the notify list of the comment", () => {
             return request(app)
             .post("/api/albums/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!"
@@ -1522,7 +1360,6 @@ describe("/api/albums/:album_id/comments", () => {
         test("201: Ignores any extra properties on request body", () => {
             return request(app)
             .post("/api/albums/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
@@ -1545,7 +1382,6 @@ describe("/api/albums/:album_id/comments", () => {
         test("400: Responds with a bad request message if song_id is included in request body", () => {
             return request(app)
             .post("/api/albums/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 song_id: 2,
@@ -1559,7 +1395,6 @@ describe("/api/albums/:album_id/comments", () => {
         test("400: Responds with a bad request message if album_id is included in request body", () => {
             return request(app)
             .post("/api/albums/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 album_id: 2,
@@ -1573,7 +1408,6 @@ describe("/api/albums/:album_id/comments", () => {
         test("400: Responds with a bad request message if song_id is invalid", () => {
             return request(app)
             .post("/api/albums/invalid_id/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
@@ -1586,26 +1420,13 @@ describe("/api/albums/:album_id/comments", () => {
         test("404: Responds with a bad request message if song_id does not exist", () => {
             return request(app)
             .post("/api/albums/231/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Album not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/albums/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!"
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(response.body.message).toBe("Album not found")
             })
         })
     })
@@ -1616,7 +1437,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("201: Creates a new rating for an album", () => {
             return request(app)
             .post("/api/albums/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -1634,7 +1454,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("201: is_visible defaults to false if not provided", () => {
             return request(app)
             .post("/api/albums/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -1651,7 +1470,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("201: Ignores any extra keys on request object", () => {
             return request(app)
             .post("/api/albums/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -1671,7 +1489,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("400: Responds with a bad request message if album_id is on request body", () => {
             return request(app)
             .post("/api/albums/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -1686,7 +1503,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("400: Responds with a bad request message if score is bigger than 10", () => {
             return request(app)
             .post("/api/albums/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 11,
@@ -1699,7 +1515,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("400: Responds with a bad request message if score is less than 1", () => {
             return request(app)
             .post("/api/albums/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: -1,
@@ -1712,7 +1527,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("400: Responds with a bad request message if song_id is not valid", () => {
             return request(app)
             .post("/api/albums/invalid_id/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -1726,7 +1540,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("404: Responds with a not found message if album does not exist", () => {
             return request(app)
             .post("/api/albums/231/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -1740,7 +1553,6 @@ describe("/api/albums/:album_id/ratings", () => {
         test("404: Responds with a not found message if user does not exist", () => {
             return request(app)
             .post("/api/albums/3/ratings")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 score: 8,
@@ -1748,20 +1560,7 @@ describe("/api/albums/:album_id/ratings", () => {
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Related property not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/albums/3/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-                is_visible: true
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(response.body.message).toBe("Related property not found")
             })
         })
     })
@@ -2014,7 +1813,6 @@ describe("/api/songs/:song_id", () => {
         test("200: Updates the given song and responds with the updated song", () => {
             return request(app)
             .patch("/api/songs/2")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 reference: "never-gonna-give-you-up.mp3",
@@ -2038,7 +1836,6 @@ describe("/api/songs/:song_id", () => {
         test("200: Ignores any extra properties on request body", () => {
             return request(app)
             .patch("/api/songs/2")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 reference: "never-gonna-give-you-up.mp3",
@@ -2061,7 +1858,6 @@ describe("/api/songs/:song_id", () => {
         test("400: Responds with a bad request message if index is bigger than the amount of songs on the album of the original song", () => {
             return request(app)
             .patch("/api/songs/2")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 reference: "never-gonna-give-you-up.mp3",
@@ -2077,7 +1873,6 @@ describe("/api/songs/:song_id", () => {
         test("400: Responds with a bad request message if request body contains user_id", () => {
             return request(app)
             .patch("/api/songs/2")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 title: "Never Gonna Give You Up",
@@ -2093,7 +1888,6 @@ describe("/api/songs/:song_id", () => {
         test("400: Responds with a bad request message if request body contains album_id", () => {
             return request(app)
             .patch("/api/songs/2")
-            .set(headers)
             .send({
                 album_id: 2,
                 title: "Never Gonna Give You Up",
@@ -2109,7 +1903,6 @@ describe("/api/songs/:song_id", () => {
         test("400: Responds with a bad request message if request body contains song_id", () => {
             return request(app)
             .patch("/api/songs/2")
-            .set(headers)
             .send({
                 song_id: 2,
                 title: "Never Gonna Give You Up",
@@ -2125,7 +1918,6 @@ describe("/api/songs/:song_id", () => {
         test("400: Responds with a bad request message if song_id in parameters is invalid", () => {
             return request(app)
             .patch("/api/songs/invalid_id")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 reference: "never-gonna-give-you-up.mp3",
@@ -2140,7 +1932,6 @@ describe("/api/songs/:song_id", () => {
         test("404: Responds with a not found message if song does not exist", () => {
             return request(app)
             .patch("/api/songs/231")
-            .set(headers)
             .send({
                 title: "Never Gonna Give You Up",
                 reference: "never-gonna-give-you-up.mp3",
@@ -2152,33 +1943,16 @@ describe("/api/songs/:song_id", () => {
                 expect(response.body.message).toBe("Song not found");
             })
         })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .patch("/api/songs/2")
-            .send({
-                title: "Never Gonna Give You Up",
-                reference: "never-gonna-give-you-up.mp3",
-                is_featured: false,
-                description: "You've been rickrolled!",
-                index: 3
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
-            })
-        })
     })
     describe("DELETE", () => {
         test("204: Deletes the song with the given song_id from the database", () => {
             return request(app)
             .delete("/api/songs/1")
-            .set(headers)
             .expect(204)
         })
         test("400: Responds with a bad request message if song_id is invalid", () => {
             return request(app)
             .delete("/api/songs/never_gonna_give_you_up")
-            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -2187,18 +1961,9 @@ describe("/api/songs/:song_id", () => {
         test("404: Responds with a not found message if song to delete does not exist", () => {
             return request(app)
             .delete("/api/songs/231")
-            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Song not found")
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .delete("/api/songs/1")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -2257,7 +2022,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("201: Posts a new comment and responds with the posted comment", () => {
             return request(app)
             .post("/api/songs/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!"
@@ -2280,7 +2044,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("201: Adds the users to the notify list associated with the comment", () => {
             return request(app)
             .post("/api/songs/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!"
@@ -2321,7 +2084,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("201: Notifies everyone on the notify list of the comment", () => {
             return request(app)
             .post("/api/songs/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!"
@@ -2361,7 +2123,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("201: Ignores any extra properties on request body", () => {
             return request(app)
             .post("/api/songs/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
@@ -2381,7 +2142,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("400: Responds with a bad request message if song_id is included in request body", () => {
             return request(app)
             .post("/api/songs/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 song_id: 2,
@@ -2395,7 +2155,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("400: Responds with a bad request message if album_id is included in request body", () => {
             return request(app)
             .post("/api/songs/1/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 album_id: 2,
@@ -2409,7 +2168,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("400: Responds with a bad request message if song_id is invalid", () => {
             return request(app)
             .post("/api/songs/invalid_id/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
@@ -2423,7 +2181,6 @@ describe("/api/songs/:song_id/comments", () => {
         test("404: Responds with a bad request message if song_id does not exist", () => {
             return request(app)
             .post("/api/songs/231/comments")
-            .set(headers)
             .send({
                 user_id: "3",
                 body: "Captain Kevin! Searching for treasure far and wide!",
@@ -2431,19 +2188,7 @@ describe("/api/songs/:song_id/comments", () => {
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Song not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/songs/1/comments")
-            .send({
-                user_id: "3",
-                body: "Captain Kevin! Searching for treasure far and wide!"
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(response.body.message).toBe("Song not found")
             })
         })
     })
@@ -2454,7 +2199,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("201: Creates a new rating for a song", () => {
             return request(app)
             .post("/api/songs/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -2472,7 +2216,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("201: is_visible defaults to false if not provided", () => {
             return request(app)
             .post("/api/songs/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -2489,7 +2232,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("201: Ignores any extra keys on request object", () => {
             return request(app)
             .post("/api/songs/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -2509,7 +2251,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("400: Responds with a bad request message if song_id is on request body", () => {
             return request(app)
             .post("/api/songs/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -2524,7 +2265,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("400: Responds with a bad request message if score is bigger than 10", () => {
             return request(app)
             .post("/api/songs/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 11,
@@ -2537,7 +2277,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("400: Responds with a bad request message if score is less than 1", () => {
             return request(app)
             .post("/api/songs/3/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: -1,
@@ -2550,7 +2289,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("400: Responds with a bad request message if song_id is not valid", () => {
             return request(app)
             .post("/api/songs/invalid_id/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -2564,7 +2302,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("404: Responds with a not found message if song does not exist", () => {
             return request(app)
             .post("/api/songs/231/ratings")
-            .set(headers)
             .send({
                 user_id: "1",
                 score: 8,
@@ -2578,7 +2315,6 @@ describe("/api/songs/:song_id/ratings", () => {
         test("404: Responds with a not found message if user does not exist", () => {
             return request(app)
             .post("/api/songs/3/ratings")
-            .set(headers)
             .send({
                 user_id: "dQw4w9WgXcQ",
                 score: 8,
@@ -2587,19 +2323,6 @@ describe("/api/songs/:song_id/ratings", () => {
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Related property not found")
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/songs/3/ratings")
-            .send({
-                user_id: "1",
-                score: 8,
-                is_visible: true
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful")
             })
         })
     })
@@ -2702,7 +2425,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("200: Updates a given song rating and responds with that rating", () => {
             return request(app)
             .patch("/api/ratings/songs/3/users/2")
-            .set(headers)
             .send({
                 score: 9,
                 is_visible: false
@@ -2719,7 +2441,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("200: Updates a given album rating and responds with that rating", () => {
             return request(app)
             .patch("/api/ratings/albums/4/users/1")
-            .set(headers)
             .send({
                 score: 7,
                 is_visible: true
@@ -2736,7 +2457,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("200: Ignores any extra properties on request body", () => {
             return request(app)
             .patch("/api/ratings/albums/4/users/1")
-            .set(headers)
             .send({
                 score: 7,
                 is_visible: true,
@@ -2754,7 +2474,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("400: Responds with a bad request message if content_type is not songs or albums", () => {
             return request(app)
             .patch("/api/ratings/books/4/users/1")
-            .set(headers)
             .send({
                 score: 7,
                 is_visible: true
@@ -2767,7 +2486,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("400: Responds with a bad request message if score is bigger than 10", () => {
             return request(app)
             .patch("/api/ratings/songs/1/users/1")
-            .set(headers)
             .send({
                 score: 11,
                 is_visible: true
@@ -2780,7 +2498,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("400: Responds with a bad request message if score is less than 1", () => {
             return request(app)
             .patch("/api/ratings/songs/1/users/1")
-            .set(headers)
             .send({
                 score: -1,
                 is_visible: true
@@ -2793,7 +2510,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("400: Responds with a bad request message if user_id is included in request body", () => {
             return request(app)
             .patch("/api/ratings/songs/3/users/2")
-            .set(headers)
             .send({
                 score: 9,
                 is_visible: false,
@@ -2807,7 +2523,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("400: Responds with a bad request message if song_id is included in request body", () => {
             return request(app)
             .patch("/api/ratings/songs/3/users/2")
-            .set(headers)
             .send({
                 score: 9,
                 is_visible: false,
@@ -2821,7 +2536,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("400: Responds with a bad request message if album_id is included in request body", () => {
             return request(app)
             .patch("/api/ratings/songs/3/users/2")
-            .set(headers)
             .send({
                 score: 9,
                 is_visible: false,
@@ -2836,7 +2550,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
             return Promise.all([
                 request(app)
                 .patch("/api/ratings/songs/invalid_song/users/2")
-                .set(headers)
                 .send({
                     score: 9,
                     is_visible: false,
@@ -2847,7 +2560,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
                 }),
                 request(app)
                 .patch("/api/ratings/albums/invalid_album/users/1")
-                .set(headers)
                 .send({
                     score: 7,
                     is_visible: true
@@ -2862,7 +2574,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
             return Promise.all([
                 request(app)
                 .patch("/api/ratings/songs/231/users/2")
-                .set(headers)
                 .send({
                     score: 9,
                     is_visible: false,
@@ -2873,7 +2584,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
                 }),
                 request(app)
                 .patch("/api/ratings/albums/231/users/1")
-                .set(headers)
                 .send({
                     score: 7,
                     is_visible: true
@@ -2887,7 +2597,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("404: Responds with a not found message if user_id does not exist", () => {
             return request(app)
             .patch("/api/ratings/songs/3/users/unknown_from_me")
-            .set(headers)
             .send({
                 score: 9,
                 is_visible: false
@@ -2897,36 +2606,21 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
                 expect(response.body.message).toBe("User not found")
             })
         })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .patch("/api/ratings/songs/3/users/2")
-            .send({
-                score: 9,
-                is_visible: false
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
-            })
-        })
     })
     describe("DELETE", () => {
         test("204: Deletes the rating from the database", () => {
             return Promise.all([
                 request(app)
                 .delete("/api/ratings/songs/1/users/1")
-                .set(headers)
                 .expect(204),
                 request(app)
                 .delete("/api/ratings/albums/4/users/4")
-                .set(headers)
                 .expect(204)
             ])
         })
         test("400: Responds with a bad request message if content_type is not songs or albums", () => {
             return request(app)
             .delete("/api/ratings/books/1/users/1")
-            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -2935,7 +2629,6 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("400: Responds with a bad request message if content_id is invalid", () => {
             return request(app)
             .delete("/api/ratings/songs/invalid_song/users/1")
-            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -2945,14 +2638,12 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
             return Promise.all([
                 request(app)
                 .delete("/api/ratings/songs/231/users/1")
-                .set(headers)
                 .expect(404)
                 .then((response) => {
                     expect(response.body.message).toBe("Song not found");
                 }),
                 request(app)
                 .delete("/api/ratings/albums/231/users/1")
-                .set(headers)
                 .expect(404)
                 .then((response) => {
                     expect(response.body.message).toBe("Album not found");
@@ -2962,27 +2653,10 @@ describe("/api/ratings/:content_type/:content_id/users/:user_id", () => {
         test("404: Responds with a not found message if user does not exist", () => {
             return request(app)
             .delete("/api/ratings/songs/1/users/unknown_from_me")
-            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found");
             })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return Promise.all([
-                request(app)
-                .delete("/api/ratings/songs/1/users/1")
-                .expect(401)
-                .then(({body}) => {
-                    expect(body.message).toBe("App check unsuccessful");
-                }),
-                request(app)
-                .delete("/api/ratings/albums/4/users/4")
-                .expect(401)
-                .then(({body}) => {
-                    expect(body.message).toBe("App check unsuccessful");
-                })
-            ])
         })
     })
 })
@@ -3093,7 +2767,6 @@ describe("/api/comments/:comment_id", () => {
             return Promise.all([
                 request(app)
                 .patch("/api/comments/3")
-                .set(headers)
                 .send({
                     body: "Not cringe",
                 })
@@ -3112,7 +2785,6 @@ describe("/api/comments/:comment_id", () => {
                 }),
                 request(app)
                 .patch("/api/comments/7")
-                .set(headers)
                 .send({
                     body: "Ultimate perfection!",
                 })
@@ -3131,7 +2803,6 @@ describe("/api/comments/:comment_id", () => {
                 }),
                 request(app)
                 .patch("/api/comments/12")
-                .set(headers)
                 .send({
                     body: "Ultimate perfection!",
                 })
@@ -3153,7 +2824,6 @@ describe("/api/comments/:comment_id", () => {
         test("200: Ignores any extra properties on request body", () => {
             return request(app)
             .patch("/api/comments/3")
-            .set(headers)
             .send({
                 body: "Not cringe",
                 extraKey: "Just kidding, it's cringe."
@@ -3174,7 +2844,6 @@ describe("/api/comments/:comment_id", () => {
         test("400: Responds with a bad request message if trying to edit user_id", () => {
             return request(app)
             .patch("/api/comments/3")
-            .set(headers)
             .send({
                 body: "Not cringe",
                 user_id: "1"
@@ -3187,7 +2856,6 @@ describe("/api/comments/:comment_id", () => {
         test("400: Responds with a bad request message if trying to edit song_id", () => {
             return request(app)
             .patch("/api/comments/3")
-            .set(headers)
             .send({
                 body: "Not cringe",
                 song_id: 2
@@ -3200,7 +2868,6 @@ describe("/api/comments/:comment_id", () => {
         test("400: Responds with a bad request message if trying to edit album_id", () => {
             return request(app)
             .patch("/api/comments/3")
-            .set(headers)
             .send({
                 body: "Not cringe",
                 album_id: 2
@@ -3213,7 +2880,6 @@ describe("/api/comments/:comment_id", () => {
         test("400: Responds with a bad request message if trying to edit replying_to_id", () => {
             return request(app)
             .patch("/api/comments/3")
-            .set(headers)
             .send({
                 body: "Not cringe",
                 replying_to_id: 2
@@ -3226,7 +2892,6 @@ describe("/api/comments/:comment_id", () => {
         test("400: Responds with a bad request message if comment_id is invalid", () => {
             return request(app)
             .patch("/api/comments/invalid_comment")
-            .set(headers)
             .send({
                 body: "Not cringe"
             })
@@ -3238,7 +2903,6 @@ describe("/api/comments/:comment_id", () => {
         test("404: Responds with a not found message if comment does not exist", () => {
             return request(app)
             .patch("/api/comments/231")
-            .set(headers)
             .send({
                 body: "Not cringe"
             })
@@ -3247,29 +2911,16 @@ describe("/api/comments/:comment_id", () => {
                 expect(response.body.message).toBe("Comment not found");
             })
         })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .patch("/api/comments/3")
-            .send({
-                body: "Not cringe",
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
-            })
-        })
     })
     describe("DELETE", () => {
         test("204: Deletes the comment from the database", () => {
             return request(app)
             .delete("/api/comments/1")
-            .set(headers)
             .expect(204)
         })
         test("400: Responds with a bad request message if comment_id is invalid", () => {
             return request(app)
             .delete("/api/comments/invalid_id")
-            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -3278,18 +2929,9 @@ describe("/api/comments/:comment_id", () => {
         test("404: Responds with a not found message if comment does not exist", () => {
             return request(app)
             .delete("/api/comments/231")
-            .set(headers)
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Comment not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .delete("/api/comments/1")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(response.body.message).toBe("Comment not found")
             })
         })
     })
@@ -3348,7 +2990,6 @@ describe("/api/comments/:comment_id/replies", () => {
         test("201: Posts a reply to the given comment and responds with the reply", () => {
             return request(app)
             .post("/api/comments/1/replies")
-            .set(headers)
             .send({
                 user_id: "1",
                 body: "Cool song!"
@@ -3369,7 +3010,6 @@ describe("/api/comments/:comment_id/replies", () => {
         test("201: Adds user replying to notify list of parent comment if they're not already on it", () => {
             return request(app)
             .post("/api/comments/1/replies")
-            .set(headers)
             .send({
                 user_id: "1",
                 body: "Cool song!"
@@ -3396,7 +3036,6 @@ describe("/api/comments/:comment_id/replies", () => {
         test("201: Sends a notification to everyone in the notify list of parent comment", () => {
             return request(app)
             .post("/api/comments/1/replies")
-            .set(headers)
             .send({
                 user_id: "1",
                 body: "Cool song!"
@@ -3431,7 +3070,6 @@ describe("/api/comments/:comment_id/replies", () => {
         test("201: Ignores any extra properties on request body", () => {
             return request(app)
             .post("/api/comments/1/replies")
-            .set(headers)
             .send({
                 user_id: "1",
                 body: "Cool song!",
@@ -3453,7 +3091,6 @@ describe("/api/comments/:comment_id/replies", () => {
         test("400: Responds with a bad request message if replying_to_id is found on request body", () => {
             return request(app)
             .post("/api/comments/1/replies")
-            .set(headers)
             .send({
                 user_id: "1",
                 body: "Cool song!",
@@ -3467,7 +3104,6 @@ describe("/api/comments/:comment_id/replies", () => {
         test("400: Responds with a bad request message if comment_id parameter is invalid", () => {
             return request(app)
             .post("/api/comments/invalid_id/replies")
-            .set(headers)
             .send({
                 user_id: "1",
                 body: "Cool song!"
@@ -3480,7 +3116,6 @@ describe("/api/comments/:comment_id/replies", () => {
         test("404: Responds with a not found message if parent comment does not exist", () => {
             return request(app)
             .post("/api/comments/231/replies")
-            .set(headers)
             .send({
                 user_id: "1",
                 body: "Cool song!"
@@ -3493,26 +3128,13 @@ describe("/api/comments/:comment_id/replies", () => {
         test("404: Responds with a not found message if user does not exist", () => {
             return request(app)
             .post("/api/comments/1/replies")
-            .set(headers)
             .send({
                 user_id: "nonexistent_user",
                 body: "Cool song!"
             })
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("User not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/comments/1/replies")
-            .send({
-                user_id: "1",
-                body: "Cool song!"
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(response.body.message).toBe("User not found")
             })
         })
     })
@@ -3525,7 +3147,6 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
         test("201: Creates a new follow relation and responds with that relation", () => {
             return request(app)
             .post("/api/follows/follower/4/following/1")
-            .set(headers)
             .expect(201)
             .then((response) => {
                 const {follow} = response.body;
@@ -3544,7 +3165,6 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
         test("400: Responds with a bad request message if follower_id and following_id are the same", () => {
             return request(app)
             .post("/api/follows/follower/1/following/1")
-            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Look at you, trying to follow yourself! Do you not have any friends?");
@@ -3553,7 +3173,6 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
         test("404: Responds with a not found message if follower does not exist", () => {
             return request(app)
             .post("/api/follows/follower/nonexistent_user/following/1")
-            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found");
@@ -3562,18 +3181,9 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
         test("404: Responds with a not found message if following user does not exist", () => {
             return request(app)
             .post("/api/follows/follower/1/following/nonexistent_user")
-            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("User not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/follows/follower/4/following/1")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -3581,42 +3191,30 @@ describe("/api/follows/follower/:follower_id/following/:following_id", () => {
         test("204: Deletes the follow from the database", () => {
             return request(app)
             .delete("/api/follows/follower/2/following/1")
-            .set(headers)
             .expect(204)
         })
         test("404: Responds with a not found property if both users exist, but the follow relation does not exist", () => {
             return request(app)
             .delete("/api/follows/follower/4/following/1")
-            .set(headers)
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("Follow not found");
+                expect(response.body.message).toBe("Follow not found")
             })
         })
         test("404: Responds with a not found message if follower does not exist", () => {
             return request(app)
             .delete("/api/follows/follower/nonexistent_user/following/1")
-            .set(headers)
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("User not found");
+                expect(response.body.message).toBe("User not found")
             })
         })
         test("404: Responds with a not found message if following user does not exist", () => {
             return request(app)
             .delete("/api/follows/follower/nonexistent_user/following/1")
-            .set(headers)
             .expect(404)
             .then((response) => {
-                expect(response.body.message).toBe("User not found");
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .delete("/api/follows/follower/4/following/1")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
+                expect(response.body.message).toBe("User not found")
             })
         })
     })
@@ -3629,7 +3227,6 @@ describe("/api/notifications", () => {
         test("201: Creates a notification for a given comment", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "4",
                 receiver_id: "2",
@@ -3651,7 +3248,6 @@ describe("/api/notifications", () => {
             return Promise.all([
                 request(app)
                 .post("/api/notifications")
-                .set(headers)
                 .send({
                     sender_id: "3",
                     receiver_id: "1",
@@ -3670,7 +3266,6 @@ describe("/api/notifications", () => {
                 }),
                 request(app)
                 .post("/api/notifications")
-                .set(headers)
                 .send({
                     sender_id: "3",
                     receiver_id: "1",
@@ -3692,7 +3287,6 @@ describe("/api/notifications", () => {
         test("201: Ignores any extra properties on request body", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "4",
                 receiver_id: "2",
@@ -3714,7 +3308,6 @@ describe("/api/notifications", () => {
         test("400: Responds with a bad request message if is_viewed is on request body (should always be false upon creation)", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "4",
                 receiver_id: "2",
@@ -3730,7 +3323,6 @@ describe("/api/notifications", () => {
         test("400: Responds with a bad request message if any required properties are missing", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 receiver_id: "2",
                 comment_id: 10,
@@ -3744,7 +3336,6 @@ describe("/api/notifications", () => {
         test("400: Responds with a bad request message if created_at is on request body (should always default to the current date and time)", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "4",
                 receiver_id: "2",
@@ -3760,7 +3351,6 @@ describe("/api/notifications", () => {
         test("400: Responds with a bad request message if sender_id and receiver_id do not correspond with what they should be according to the comment", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "3",
                 receiver_id: "1",
@@ -3775,7 +3365,6 @@ describe("/api/notifications", () => {
         test("400: Responds with a bad request mesage if comment_id is invalid", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "4",
                 receiver_id: "2",
@@ -3790,7 +3379,6 @@ describe("/api/notifications", () => {
         test("404: Responds with a not found message if sender does not exist", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "nonexistent_sender",
                 receiver_id: "2",
@@ -3805,7 +3393,6 @@ describe("/api/notifications", () => {
         test("404: Responds with a not found message if receiver does not exist", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "4",
                 receiver_id: "nonexistent_receiver",
@@ -3820,7 +3407,6 @@ describe("/api/notifications", () => {
         test("404: Responds with a not found message if comment does not exist", () => {
             return request(app)
             .post("/api/notifications")
-            .set(headers)
             .send({
                 sender_id: "4",
                 receiver_id: "2",
@@ -3832,20 +3418,6 @@ describe("/api/notifications", () => {
                 expect(response.body.message).toBe("Comment not found");
             })
         })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .post("/api/notifications")
-            .send({
-                sender_id: "4",
-                receiver_id: "2",
-                comment_id: 10,
-                message: "Bad_dev has just commented"
-            })
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful");
-            })
-        })
     })
 })
 
@@ -3854,7 +3426,6 @@ describe("/api/notifications/:notification_id", () => {
         test("200: Sets is_viewed to true", () => {
             return request(app)
             .patch("/api/notifications/1")
-            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.notification.is_viewed).toBe(true);
@@ -3863,13 +3434,11 @@ describe("/api/notifications/:notification_id", () => {
         test("200: Sets is_viewed to false if already true", () => {
             return request(app)
             .patch("/api/notifications/1")
-            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.notification.is_viewed).toBe(true);
                 return request(app)
                 .patch("/api/notifications/1")
-                .set(headers)
                 .expect(200)
             }).then((response) => {
                 expect(response.body.notification.is_viewed).toBe(false);
@@ -3878,7 +3447,6 @@ describe("/api/notifications/:notification_id", () => {
         test("400: Responds with a bad request message if notification_id is invalid", () => {
             return request(app)
             .patch("/api/notifications/invalid_id")
-            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -3887,18 +3455,9 @@ describe("/api/notifications/:notification_id", () => {
         test("404: Responds with a not found message if notification does not exist", () => {
             return request(app)
             .patch("/api/notifications/231")
-            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Notification not found")
-            })
-        })
-        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
-            return request(app)
-            .patch("/api/notifications/1")
-            .expect(401)
-            .then(({body}) => {
-                expect(body.message).toBe("App check unsuccessful")
             })
         })
     })

@@ -1,4 +1,4 @@
-const database = require("../../prisma/client")
+const database = require("../../client")
 
 async function uploadFollow(follower_id, following_id){
     if(follower_id === following_id){

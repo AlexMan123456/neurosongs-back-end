@@ -1,17 +1,16 @@
 const express = require("express")
 const { getUsers, getUserById, postUser, patchUser, deleteUser } = require("../controllers/users-controller")
 const { getNotificationsFromUser } = require("../controllers/notifications-controller")
-const appCheckVerification = require("../app-check-verification")
 const users = express.Router()
 
 users.route("/")
 .get(getUsers)
-.post([appCheckVerification], postUser)
+.post(postUser)
 
 users.route("/:user_id")
 .get(getUserById)
-.patch([appCheckVerification], patchUser)
-.delete([appCheckVerification], deleteUser)
+.patch(patchUser)
+.delete(deleteUser)
 
 users.route("/:user_id/notifications")
 .get(getNotificationsFromUser)
