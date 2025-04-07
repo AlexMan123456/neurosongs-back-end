@@ -1,4 +1,4 @@
-const database = require("../../client");
+const database = require("../../prisma/client");
 
 function fetchRating(contentType, content_id, user_id){
     const contentTypeSingular = {
