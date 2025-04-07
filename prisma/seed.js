@@ -1,4 +1,4 @@
-const database = require("../client")
+const database = require("../prisma/client")
 const ENV = process.env.NODE_ENV ?? "development"
 
 async function seed({userData, songData, albumData, commentData, songRatingData, albumRatingData, followData, commentNotificationData}){

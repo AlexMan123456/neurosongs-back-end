@@ -1,4 +1,4 @@
-const database = require("../../client")
+const database = require("../../prisma/client")
 
 function fetchUsers(queries){
     const request = {}

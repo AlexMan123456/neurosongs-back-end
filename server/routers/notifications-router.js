@@ -1,11 +1,12 @@
 const express = require("express");
 const { postNotification, patchNotification } = require("../controllers/notifications-controller");
+const appCheckVerification = require("../app-check-verification");
 const notifications = express.Router();
 
 notifications.route("/")
-.post(postNotification)
+.post([appCheckVerification], postNotification)
 
 notifications.route("/:notification_id")
-.patch(patchNotification)
+.patch([appCheckVerification], patchNotification)
 
 module.exports = notifications;

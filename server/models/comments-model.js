@@ -1,5 +1,5 @@
 const { stripIndents } = require("common-tags");
-const database = require("../../client");
+const database = require("../../prisma/client");
 
 async function fetchCommentsFromContent(params){
     const request = {
