@@ -9,6 +9,7 @@ const { stripIndents } = require("common-tags");
 require("dotenv").config({
     path: `${__dirname}/../.env.test`
 })
+
 const headers = {
     "X-Firebase-AppCheck": process.env.FIREBASE_TEST_HEADER
 }
