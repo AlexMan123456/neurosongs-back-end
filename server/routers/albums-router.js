@@ -3,29 +3,28 @@ const { getAlbumById, getAlbums, postAlbum, patchAlbum, deleteAlbum, patchIndex 
 const { postSong } = require("../controllers/songs-controller")
 const { getCommentsFromContent, postComment } = require("../controllers/comments-controller")
 const { postRating } = require("../controllers/ratings-controller")
-const appCheckVerification = require("../app-check-verification")
 const albums = express.Router()
 
 albums.route("/")
 .get(getAlbums)
-.post([appCheckVerification], postAlbum)
+.post(postAlbum)
 
 albums.route("/:album_id")
 .get(getAlbumById)
-.patch([appCheckVerification], patchAlbum)
-.delete([appCheckVerification], deleteAlbum)
+.patch(patchAlbum)
+.delete(deleteAlbum)
 
 albums.route("/:album_id/songs")
-.post([appCheckVerification], postSong)
+.post(postSong)
 
 albums.route("/:album_id/comments")
 .get(getCommentsFromContent)
-.post([appCheckVerification], postComment)
+.post(postComment)
 
 albums.route("/:album_id/ratings")
-.post([appCheckVerification], postRating)
+.post(postRating)
 
 albums.route("/:album_id/reset_index")
-.patch([appCheckVerification], patchIndex)
+.patch(patchIndex)
 
 module.exports = albums
