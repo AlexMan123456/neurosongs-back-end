@@ -1,7 +1,11 @@
+const { Visibility } = require("@prisma/client");
 const database = require("../../prisma/client")
 
 function fetchSongs(queries){
     const request = {
+        where: {
+            visibility: Visibility.public
+        },
         include: {
             artist: {
                 select: {

@@ -6,14 +6,14 @@ const seed = require("../prisma/seed");
 const endpoints = require("../server/endpoints.json");
 const database = require("../prisma/client.js");
 const { stripIndents } = require("common-tags");
+const { Visibility } = require("@prisma/client");
 require("dotenv").config({
     path: `${__dirname}/../.env.test`
 })
+
 const headers = {
     "X-Firebase-AppCheck": process.env.FIREBASE_TEST_HEADER
 }
-
-jest.setTimeout(30000)
 
 beforeEach(() => {
     return seed(data);
@@ -602,6 +602,7 @@ describe("/api/albums", () => {
                     expect(album).toHaveProperty("back_cover_reference");
                     expect(album).toHaveProperty("created_at");
                     expect(album).not.toHaveProperty("description");
+                    expect(album.visibility).toBe(Visibility.public);
                 })
             })
         })
@@ -1789,6 +1790,7 @@ describe("/api/songs", () => {
                     expect(typeof song.album.title).toBe("string");
                     expect(song).toHaveProperty("created_at");
                     expect(song).not.toHaveProperty("description");
+                    expect(song.visibility).toBe(Visibility.public);
                 })
             })
         })
