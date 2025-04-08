@@ -46,8 +46,6 @@ However, if you want to run this API in development mode, you will need a Fireba
 
 Assuming you've also set up the front-end in the intended way, it should now work as expected. To find out how to set up the front-end for app checking, see the corresponding  [App Checking section of the `README.md` in the front-end repository](https://github.com/AlexMan123456/neurosongs-front-end?tab=readme-ov-file#app-checking)
 
-
-
 ## Seeding Databases
 
 Test database seeding is done automatically when running the server tests. The database is re-seeded after every test to ensure data doesn't persist between tests.
