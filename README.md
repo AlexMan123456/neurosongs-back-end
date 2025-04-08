@@ -20,7 +20,7 @@ A list of all dependencies and their required versions can be found in the `pack
 
 ## Setting up Environment Variables
 
-Create two environment variables, `.env.test` and `.env.development`. Each of them will have just one environment variable set, that being `DATABASE_URL`. Put your test database URL in `.env.test` and your development database URL in `.env.development`, like so:
+Create two environment variables, `.env.test` and `.env.development`. Put your test `DATABASE_URL` in `.env.test` and your development `DATABASE_URL` in `.env.development`, like so:
 
     DATABASE_URL=your_database_url
 
@@ -29,6 +29,22 @@ The database in both cases are managed with Prisma, so I would recommend setting
 `.env.development` also requires one more environment variable - the `PORT`. This is the port the server will be listening for requests on if provided. If not provided, it defaults to 8080. If you want to use a different port, add something like this to `.env.development`:
 
     PORT=your_chosen_port
+
+## Firebase App Checking
+
+Some endpoints are protected with Firebase to ensure that requests are coming from the front-end for Neurosongs to prevent people from using this API to mess with the data in an unintended way. All POST, PATCH, and DELETE requests are protected so that only the front-end app can make changes to the database.
+
+You do not need to set this up for the test environment. For that, all you need to do is set the `FIREBASE_TEST_HEADER` environment variable in `.env,test` to be anything you want, and as long as you're also setting this as the header in the test file (which I'm already doing), the tests should still work.
+
+However, if you want to run this API in development mode, you will need a Firebase project to connect to. To do this, you will first need to create a Firebase Admin service account. You can do this by going to the Firebase console, selecting your project, then go to Project Settings, then Users and permissions, then Service accounts. There should be a button that allows you to generate a new private key. This will download a JSON file for you. Now set all the properties given in that file in your `.env.development` file, formatting them in the following way:
+
+    FIREBASE_ADMIN_TYPE=type
+    FIREBASE_ADMIN_PROJECT_ID=project_id
+    FIREBASE_ADMIN_PRIVATE_KEY_ID=private_key_id
+    FIREBASE_ADMIN_PRIVATE_KEY=private_key
+    ...
+
+Assuming you've also set up the front-end in the intended way, it should now work as expected. To find out how to set up the front-end for app checking, see the corresponding App Checking section of the [`README.md` in the front-end repository](https://github.com/AlexMan123456/neurosongs-front-end/blob/main/README.md)
 
 ## Seeding Databases
 
@@ -60,4 +76,4 @@ If you've set up your environment variables and Docker environment correctly, al
 
 Link to front-end repository: https://github.com/AlexMan123456/neurosongs-front-end
 
-Link to hosted version of the site: https://neurosongs.netlify.app
+Link to hosted version of the site: https://neurosongs.net
