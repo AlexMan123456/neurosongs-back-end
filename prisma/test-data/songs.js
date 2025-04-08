@@ -1,3 +1,5 @@
+const { Visibility } = require("@prisma/client");
+
 module.exports = [
     {
         user_id: "1",
@@ -105,6 +107,7 @@ module.exports = [
         reference: "lockdown.mp3",
         album_id: 4,
         index: 1,
-        created_at: new Date("2021-12-15T00:00:00Z")
+        created_at: new Date("2021-12-15T00:00:00Z"),
+        visibility: Visibility.unlisted
     }
 ]
