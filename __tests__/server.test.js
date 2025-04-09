@@ -1086,7 +1086,8 @@ describe("/api/albums/:album_id", () => {
                 title: "Never Gonna Give You Up",
                 front_cover_reference: "rickroll.png",
                 back_cover_reference: "kevinroll.png",
-                description: "Never gonna give you up, never gonna let you down!"
+                description: "Never gonna give you up, never gonna let you down!",
+                visibility: Visibility.unlisted
             })
             .expect(200)
             .then((response) => {
@@ -1095,7 +1096,8 @@ describe("/api/albums/:album_id", () => {
                 expect(album.title).toBe("Never Gonna Give You Up");
                 expect(album.front_cover_reference).toBe("rickroll.png");
                 expect(album.back_cover_reference).toBe("kevinroll.png");
-                expect(album.description).toBe("Never gonna give you up, never gonna let you down!")
+                expect(album.description).toBe("Never gonna give you up, never gonna let you down!");
+                expect(album.visibility).toBe(Visibility.unlisted)
             })
         })
         test("200: Ignores any extra keys on request body", () => {
@@ -2193,7 +2195,8 @@ describe("/api/songs/:song_id", () => {
                 reference: "never-gonna-give-you-up.mp3",
                 is_featured: false,
                 description: "You've been rickrolled!",
-                index: 3
+                index: 3,
+                visibility: Visibility.unlisted
             })
             .expect(200)
             .then((response) => {
@@ -2206,6 +2209,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.description).toBe("You've been rickrolled!");
                 expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
                 expect(song.index).toBe(3);
+                expect(song.visibility).toBe(Visibility.unlisted)
             })
         })
         test("200: Ignores any extra properties on request body", () => {

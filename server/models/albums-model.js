@@ -151,7 +151,7 @@ function editAlbum(stringifiedAlbumID, body){
     }
 
     for(const key in data){
-        if(!["title", "front_cover_reference", "back_cover_reference", "description"].includes(key)){
+        if(!["title", "front_cover_reference", "back_cover_reference", "description", "visibility"].includes(key)){
             delete data[key];
         }
     }

@@ -148,7 +148,7 @@ function editSong(stringifiedSongID, body){
     }
 
     for(const key in data){
-        if(!["title", "reference", "is_featured", "description", "index"].includes(key)){
+        if(!["title", "reference", "is_featured", "description", "index", "visibility"].includes(key)){
             delete data[key];
         }
     }
