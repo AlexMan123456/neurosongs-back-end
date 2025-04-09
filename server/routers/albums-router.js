@@ -7,7 +7,7 @@ const appCheckVerification = require("../app-check-verification")
 const albums = express.Router()
 
 albums.route("/")
-.get(getAlbums)
+.get([appCheckVerification], getAlbums)
 .post([appCheckVerification], postAlbum)
 
 albums.route("/:album_id")

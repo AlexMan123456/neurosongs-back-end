@@ -587,6 +587,7 @@ describe("/api/albums", () => {
         test("200: Responds with an array of all albums", () => {
             return request(app)
             .get("/api/albums")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.albums.length).not.toBe(0);
@@ -610,9 +611,30 @@ describe("/api/albums", () => {
             test("200: Responds with an array of all albums from a given user", () => {
                 return request(app)
                 .get("/api/albums?user_id=1")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).not.toBe(0)
+                    response.body.albums.forEach((album) => {
+                        expect(typeof album.album_id).toBe("number")
+                        expect(album.user_id).toBe("1")
+                        expect(album.artist.artist_name).toBe("Alex The Man")
+                        expect(album.artist.username).toBe("AlexTheMan")
+                        expect(typeof album.is_featured).toBe("boolean")
+                        expect(typeof album.title).toBe("string")
+                        expect(typeof album.front_cover_reference).toBe("string")
+                        expect(album).toHaveProperty("back_cover_reference")
+                        expect(album.visibility).toBe(Visibility.public)
+                    })
+                })
+            })
+            test("200: Responds with an array of all albums from a given user, including non-public albums if user is signed in", () => {
+                return request(app)
+                .get("/api/albums?user_id=1")
+                .set({...headers, "App-SignedInUser": "1"})
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).toBe(5)
                     response.body.albums.forEach((album) => {
                         expect(typeof album.album_id).toBe("number")
                         expect(album.user_id).toBe("1")
@@ -628,6 +650,7 @@ describe("/api/albums", () => {
             test("200: Responds with an empty array if user has no albums", () => {
                 return request(app)
                 .get("/api/albums?user_id=4")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).toBe(0);
@@ -636,6 +659,7 @@ describe("/api/albums", () => {
             test("404: Responds with a not found message if user does not exist", () => {
                 return request(app)
                 .get("/api/albums?user_id=nonexistent_user")
+                .set(headers)
                 .expect(404)
                 .then((response) => {
                     expect(response.body.message).toBe("User not found");
@@ -646,6 +670,7 @@ describe("/api/albums", () => {
             test("200: Responds with an array of all featured albums", () => {
                 return request(app)
                 .get("/api/albums?is_featured=true")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).not.toBe(0);
@@ -664,6 +689,7 @@ describe("/api/albums", () => {
             test("400: Responds with a bad request message if is_featured is not a boolean", () => {
                 return request(app)
                 .get("/api/albums?is_featured=not_a_boolean")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request");
@@ -674,6 +700,7 @@ describe("/api/albums", () => {
             test("200: Responds with an array of all albums that match the given search query (case insensitive)", () => {
                 return request(app)
                 .get("/api/albums?search_query=Identities")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).not.toBe(0);
@@ -692,6 +719,7 @@ describe("/api/albums", () => {
             test("200: Responds with an empty array if album being searched for does not exist", () => {
                 return request(app)
                 .get("/api/albums?search_query=unknown+album")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).toBe(0);

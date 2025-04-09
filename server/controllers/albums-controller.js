@@ -8,7 +8,7 @@ async function getAlbums(request, response, next){
                 await fetchUserById(request.query.user_id);
             }
         }
-        const albums = await fetchAlbums(request.query);
+        const albums = await fetchAlbums(request.query, request.header("App-SignedInUser"));
         response.status(200).send({albums});
     } catch(err) {
         next(err);
