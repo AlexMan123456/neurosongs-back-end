@@ -6,7 +6,7 @@ const appCheckVerification = require("../app-check-verification")
 const songs = express.Router()
 
 songs.route("/")
-.get(getSongs)
+.get([appCheckVerification], getSongs)
 
 songs.route("/:song_id")
 .get(getSongById)

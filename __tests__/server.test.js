@@ -1881,6 +1881,7 @@ describe("/api/songs", () => {
         test("200: Responds with an array of all public songs", () => {
             return request(app)
             .get("/api/songs")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.songs.length).not.toBe(0);
@@ -1904,6 +1905,7 @@ describe("/api/songs", () => {
             test("200: Responds with an array of all featured songs", () => {
                 return request(app)
                 .get("/api/songs?is_featured=true")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -1925,6 +1927,7 @@ describe("/api/songs", () => {
             test("200: The query value is case insensitive", () => {
                 return request(app)
                 .get("/api/songs?is_featured=True")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -1944,6 +1947,7 @@ describe("/api/songs", () => {
             test("400: Responds with a bad request message if is_featured is not a boolean", () => {
                 return request(app)
                 .get("/api/songs?is_featured=not_a_boolean")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request");
@@ -1954,6 +1958,7 @@ describe("/api/songs", () => {
             test("200: Responds with an array of all songs from a given user", () => {
                 return request(app)
                 .get("/api/songs?user_id=1")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -1969,20 +1974,45 @@ describe("/api/songs", () => {
                         expect(typeof song.album.front_cover_reference).toBe("string");
                         expect(song).not.toHaveProperty("description");
                         expect(song).toHaveProperty("created_at");
+                        expect(song.visibility).toBe(Visibility.public)
                     })
                 })
             })
             test("200: Responds with an empty array if user exists but has no songs", () => {
                 return request(app)
                 .get("/api/songs?user_id=4")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).toBe(0);
                 })
             })
+            test("200: Responds with an array of all songs from a given user, including private songs if user is signed in", () => {
+                return request(app)
+                .get("/api/songs?user_id=1")
+                .set({...headers, "App-SignedInUser": "1"})
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.songs.length).toBe(13);
+                    body.songs.forEach((song) => {
+                        expect(typeof song.song_id).toBe("number");
+                        expect(song.user_id).toBe("1");
+                        expect(song.artist.username).toBe("AlexTheMan");
+                        expect(song.artist.artist_name).toBe("Alex The Man");
+                        expect(typeof song.reference).toBe("string");
+                        expect(typeof song.album_id).toBe("number");
+                        expect(typeof song.is_featured).toBe("boolean");
+                        expect(typeof song.album.title).toBe("string");
+                        expect(typeof song.album.front_cover_reference).toBe("string");
+                        expect(song).not.toHaveProperty("description");
+                        expect(song).toHaveProperty("created_at");
+                    })
+                })
+            })
             test("404: Responds with a not found message if user does not exist", () => {
                 return request(app)
                 .get("/api/songs?user_id=invalid_user")
+                .set(headers)
                 .expect(404)
                 .then((response) => {
                     expect(response.body.message).toBe("User not found");
@@ -1993,6 +2023,7 @@ describe("/api/songs", () => {
             test("200: Sorts songs by created_at in descending order by default", () => {
                 return request(app)
                 .get("/api/songs")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs).toBeSortedBy("created_at", {descending: true});
@@ -2001,6 +2032,7 @@ describe("/api/songs", () => {
             test("200: Sorts by the given sort_by query if given", () => {
                 return request(app)
                 .get("/api/songs?sort_by=title")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs).toBeSortedBy("title", {descending: true});
@@ -2009,6 +2041,7 @@ describe("/api/songs", () => {
             test("200: Sorts in ascending order if order query is asc", () => {
                 return request(app)
                 .get("/api/songs?order=asc")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs).toBeSortedBy("created_at", {ascending: true});
@@ -2017,6 +2050,7 @@ describe("/api/songs", () => {
             test("400: Responds with a bad request message if sort_by is invalid", () => {
                 return request(app)
                 .get("/api/songs?sort_by=invalid_property")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request")
@@ -2025,6 +2059,7 @@ describe("/api/songs", () => {
             test("400: Responds with a bad request message if order is invalid", () => {
                 return request(app)
                 .get("/api/songs?order=invalid_order")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request")
@@ -2035,6 +2070,7 @@ describe("/api/songs", () => {
             test("200: Responds with an array of all songs matching the given search query (case insensitive)", () => {
                 return request(app)
                 .get("/api/songs?search_query=captain+kevin")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -2051,6 +2087,7 @@ describe("/api/songs", () => {
             test("200: Responds with an empty array if no songs matching the search query exists", () => {
                 return request(app)
                 .get("/api/songs?search_query=unknown+song")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).toBe(0);

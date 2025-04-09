@@ -1,7 +1,7 @@
 const { Visibility } = require("@prisma/client");
 const database = require("../../prisma/client")
 
-function fetchSongs(queries){
+function fetchSongs(queries, signedInUserID){
     const request = {
         where: {
             visibility: Visibility.public
@@ -24,8 +24,11 @@ function fetchSongs(queries){
     }
 
     if(queries.user_id){
-        const user_id = queries.user_id;
-        request.where = {user_id}
+        const {user_id} = queries
+        request.where.user_id = user_id;
+        if(user_id === signedInUserID){
+            delete request.where.visibility;
+        }
     }
 
     if(queries.is_featured){
@@ -33,15 +36,13 @@ function fetchSongs(queries){
             return Promise.reject({status: 400, message: "Bad request"});
         }
         const is_featured = queries.is_featured.toLowerCase() === "true";
-        request.where = {is_featured};
+        request.where.is_featured = is_featured;
     }
 
     if(queries.search_query){
-        request.where = {
-            title: {
-                contains: queries.search_query,
-                mode: "insensitive"
-            }
+        request.where.title = {
+            contains: queries.search_query, 
+            mode: "insensitive"
         }
     }
 
