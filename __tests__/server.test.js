@@ -740,6 +740,29 @@ describe("/api/albums", () => {
                     expect(album.front_cover_reference).toBe("universal-expedition.png");
                     expect(album.back_cover_reference).toBe("back-cover.png");
                     expect(album.is_featured).toBe(false);
+                }),
+                request(app)
+                .post("/api/albums")
+                .set(headers)
+                .send({
+                    user_id: "2",
+                    title: "Universal Expedition",
+                    front_cover_reference: "universal-expedition.png",
+                    back_cover_reference: "back-cover.png",
+                    visibility: Visibility.private
+                })
+                .expect(201)
+                .then((response) => {
+                    const {album} = response.body;
+                    expect(typeof album.album_id).toBe("number");
+                    expect(album.user_id).toBe("2");
+                    expect(album.artist.artist_name).toBe("AlexGB231");
+                    expect(album.artist.username).toBe("AlexGB231");
+                    expect(album.title).toBe("Universal Expedition");
+                    expect(album.front_cover_reference).toBe("universal-expedition.png");
+                    expect(album.back_cover_reference).toBe("back-cover.png");
+                    expect(album.is_featured).toBe(false);
+                    expect(album.visibility).toBe(Visibility.private);
                 })
             ])
         })
@@ -1191,7 +1214,8 @@ describe("/api/albums/:album_id/songs", () => {
                 user_id: "1",
                 title: "Highest Power",
                 description: "You think that I am at my highest power!",
-                reference: "highest-power.mp3"
+                reference: "highest-power.mp3",
+                visibility: Visibility.unlisted
             })
             .expect(201)
             .then((response) => {
@@ -1206,6 +1230,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.reference).toBe("highest-power.mp3");
                 expect(song.is_featured).toBe(false);
                 expect(song.index).toBe(6);
+                expect(song.visibility).toBe(Visibility.unlisted);
                 expect(song).toHaveProperty("created_at");
             })
         })

@@ -98,7 +98,7 @@ function uploadSong(stringifiedAlbumID, song){
     const data = {...song, album_id};
 
     for(const key in data){
-        if(!["user_id", "album_id", "title", "description", "reference"].includes(key)){
+        if(!["user_id", "album_id", "title", "description", "reference", "visibility"].includes(key)){
             delete data[key];
         }
     }
