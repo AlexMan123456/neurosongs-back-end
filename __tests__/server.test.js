@@ -931,7 +931,7 @@ describe("/api/albums/:album_id", () => {
                 expect(album.is_featured).toBe(false);
                 expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
                 expect(album.songs.length).not.toBe(0);
-                expect(typeof album.average_rating).toBe("number")
+                expect(typeof album.average_rating).toBe("number");
                 expect(album.rating_count).toBe(1);
                 expect(album).toHaveProperty("created_at");
                 expect(album.songs.length).toBe(3);
