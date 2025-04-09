@@ -13,7 +13,11 @@ function fetchAlbums(queries){
                     artist_name: true
                 }
             },
-            songs: true,
+            songs: {
+                where: {
+                    visibility: Visibility.public
+                }
+            },
             description: false
         }
     }
@@ -43,46 +47,60 @@ function fetchAlbums(queries){
     return database.album.findMany(request)
 }
 
-function fetchAlbumById(stringifiedAlbumID){
+function fetchAlbumById(stringifiedAlbumID, signedInUserID){
     const album_id = parseInt(stringifiedAlbumID);
-    return Promise.all([
-        database.album.findUnique({
-            where: {
-                album_id
-            },
-            include: {
-                songs: {
-                    include: {
-                        artist: true,
-                        comments: true
-                    },
-                    orderBy: {
-                        index: "asc"
-                    }
+    const albumRequest = {
+        where: {
+            album_id
+        },
+        include: {
+            songs: {
+                include: {
+                    artist: true,
+                    comments: true
                 },
-                artist: {
-                    select: {
-                        username: true,
-                        artist_name: true
-                    }
+                orderBy: {
+                    index: "asc"
+                }
+            },
+            artist: {
+                select: {
+                    username: true,
+                    artist_name: true
                 }
             }
-        }),
-        database.albumRating.aggregate({
-            where: {
-                album_id
-            },
-            _avg: {
-                score: true
-            },
-            _count: {
-                album_id: true
-            }
-        })
-    ]).then(([album, {_avg, _count}]) => {
+        }
+    }
+
+    return database.album.findUnique({
+        where: {
+            album_id
+        }
+    }).then((album) => {
         if(!album){
             return Promise.reject({status: 404, message: "Album not found"});
         }
+        if((album.visibility !== Visibility.public && album.visibility !== Visibility.unlisted) && album.user_id !== signedInUserID){
+            return Promise.reject({status: 401, message: "Unauthorised"});
+        }
+        if(album.user_id !== signedInUserID){
+            albumRequest.include.songs.where = {visibility: Visibility.public}
+        }
+        return Promise.all([
+            database.album.findUnique(albumRequest),
+            database.albumRating.aggregate({
+                where: {
+                    album_id
+                },
+                _avg: {
+                    score: true
+                },
+                _count: {
+                    album_id: true
+                }
+            })
+        ])
+    }).then(([album, {_avg, _count}]) => {
         album.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
         album.rating_count = _count.album_id;
         return album;

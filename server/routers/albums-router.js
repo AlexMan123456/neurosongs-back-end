@@ -11,7 +11,7 @@ albums.route("/")
 .post([appCheckVerification], postAlbum)
 
 albums.route("/:album_id")
-.get(getAlbumById)
+.get([appCheckVerification], getAlbumById)
 .patch([appCheckVerification], patchAlbum)
 .delete([appCheckVerification], deleteAlbum)
 

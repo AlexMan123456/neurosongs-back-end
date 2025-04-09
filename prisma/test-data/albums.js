@@ -23,8 +23,7 @@ module.exports = [
     {
         user_id: "2",
         title: "Lockdown",
-        front_cover_reference: "lockdown.png",
-        visibility: Visibility.unlisted
+        front_cover_reference: "lockdown.png"
     },
     {
         user_id: "1",
@@ -38,7 +37,7 @@ module.exports = [
     },
     {
         user_id: "1",
-        title: "Unlisted album",
-        visibility: Visibility.unlisted
+        title: "Private album",
+        visibility: Visibility.private
     }
 ]

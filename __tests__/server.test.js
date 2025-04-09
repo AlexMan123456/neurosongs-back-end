@@ -880,9 +880,10 @@ describe("/api/albums", () => {
 
 describe("/api/albums/:album_id", () => {
     describe("GET", () => {
-        test("200: Responds with the album with the corresponding album ID, along with its songs", () => {
+        test("200: Responds with the album with the corresponding album ID, along with its public songs if signed in user not set", () => {
             return request(app)
             .get("/api/albums/3")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 const {album} = response.body;
@@ -909,12 +910,79 @@ describe("/api/albums/:album_id", () => {
                     expect(typeof song.index).toBe("number");
                     expect(Array.isArray(song.comments)).toBe(true);
                     expect(typeof song.reference).toBe("string");
+                    expect(song.visibility).toBe(Visibility.public);
                 })
             })
         })
+        test("200: Responds with all songs from the album, including non-public songs, if signed in user is the owner", () => {
+            return request(app)
+            .get("/api/albums/3")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(200)
+            .then(({body}) => {
+                const {album} = body;
+                expect(album.album_id).toBe(3);
+                expect(album.user_id).toBe("3");
+                expect(album.artist.username).toBe("Kevin_SynthV");
+                expect(album.artist.artist_name).toBe("Kevin");
+                expect(album.title).toBe("Kevin's Greatest Hits");
+                expect(album.front_cover_reference).toBe("captain-kevin.png");
+                expect(album.back_cover_reference).toBe("clown-kevin.png");
+                expect(album.is_featured).toBe(false);
+                expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
+                expect(album.songs.length).not.toBe(0);
+                expect(typeof album.average_rating).toBe("number")
+                expect(album.rating_count).toBe(1);
+                expect(album).toHaveProperty("created_at");
+                expect(album.songs.length).toBe(3);
+                expect(album.songs).toBeSortedBy("index", {ascending: true});
+                album.songs.forEach((song) => {
+                    expect(typeof song.song_id).toBe("number");
+                    expect(typeof song.artist.username).toBe("string");
+                    expect(typeof song.artist.artist_name).toBe("string");
+                    expect(typeof song.title).toBe("string");
+                    expect(typeof song.description === "string" || song.description === null).toBe(true);
+                    expect(typeof song.index).toBe("number");
+                    expect(Array.isArray(song.comments)).toBe(true);
+                    expect(typeof song.reference).toBe("string");
+                })
+            })
+        })
+        test("200: Responds with the private album if user is signed in as the owner of the album", () => {
+            return request(app)
+            .get("/api/albums/7")
+            .set({...headers, "App-SignedInUser": "1"})
+            .expect(200)
+            .then(({body}) => {
+                const {album} = body;
+                expect(album.album_id).toBe(7);
+                expect(album.user_id).toBe("1");
+                expect(album.artist.artist_name).toBe("Alex The Man");
+                expect(album.artist.username).toBe("AlexTheMan");
+                expect(album.title).toBe("Private album");
+                expect(album.front_cover_reference).toBe("Default");
+                expect(album.is_featured).toBe(false);
+                expect(album).toHaveProperty("created_at");
+                album.songs.forEach((song) => {
+                    expect(typeof song.song_id).toBe("number");
+                    expect(typeof song.artist.username).toBe("string");
+                    expect(typeof song.artist.artist_name).toBe("string");
+                    expect(typeof song.title).toBe("string");
+                    expect(typeof song.description === "string" || song.description === null).toBe(true);
+                    expect(typeof song.index).toBe("number");
+                    expect(Array.isArray(song.comments)).toBe(true);
+                    expect(typeof song.reference).toBe("string");
+                    expect(song.visibility).toBe(Visibility.private);
+                    expect(song.album_id).toBe(7);
+                })
+            })
+        })
+        // TO DO (but at a later stage): Add test to respond with the restricted album if signed in user is on the list of people the album is being shared with
+        
         test("200: Average rating is rounded to one decimal place", () => {
             return request(app)
             .get("/api/albums/3")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect((response.body.album.average_rating*10)%1).toBe(0)
@@ -923,6 +991,7 @@ describe("/api/albums/:album_id", () => {
         test("200: Average rating is null if album has not been rated yet", () => {
             return request(app)
             .get("/api/albums/1")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.album.average_rating).toBe(null)
@@ -931,6 +1000,7 @@ describe("/api/albums/:album_id", () => {
         test("400: Responds with a bad request message when given an invalid album ID", () => {
             return request(app)
             .get("/api/albums/invalid_id")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -939,11 +1009,22 @@ describe("/api/albums/:album_id", () => {
         test("404: Responds with a not found message if album ID does not exist", () => {
             return request(app)
             .get("/api/albums/231")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Album not found");
             })
         })
+        test("401: Responds with an unauthorised message if trying to access a private album and the signed in user is not the owner", () => {
+            return request(app)
+            .get("/api/albums/7")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("Unauthorised");
+            })
+        })
+        // TO DO (but at a later stage): Add test to give unauthorised message if album is restricted and signed in user is not on the list of people the album is being shared with
     })
     describe("PATCH", () => {
         test("200: Updates the album with the given ID and responds with the updated album", () => {
@@ -1772,7 +1853,7 @@ describe("/api/albums/:album_id/ratings", () => {
 
 describe("/api/songs", () => {
     describe("GET", () => {
-        test("200: Responds with an array of all songs", () => {
+        test("200: Responds with an array of all public songs", () => {
             return request(app)
             .get("/api/songs")
             .expect(200)
