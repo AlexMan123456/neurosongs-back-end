@@ -1506,6 +1506,7 @@ describe("/api/albums/:album_id/comments", () => {
         test("200: Responds with an array of all comments associated with a given album", () => {
             return request(app)
             .get("/api/albums/3/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).not.toBe(0)
@@ -1526,9 +1527,34 @@ describe("/api/albums/:album_id/comments", () => {
                 })
             })
         })
+        test("200: Responds with an array of all comments associated with a given private album if user is signed in and is owner", () => {
+            return request(app)
+            .get("/api/albums/7/comments")
+            .set({...headers, "App-SignedInUser": "1"})
+            .expect(200)
+            .then((response) => {
+                expect(response.body.comments.length).not.toBe(0)
+                response.body.comments.forEach((comment) => {
+                    expect(typeof comment.user_id).toBe("string");
+                    expect(comment.album_id).toBe(7);
+                    expect(typeof comment.author.artist_name).toBe("string");
+                    expect(typeof comment.author.username).toBe("string");
+                    expect(typeof comment.author.profile_picture).toBe("string");
+                    expect(typeof comment.body).toBe("string");
+                    expect(typeof comment.reply_count).toBe("number");
+                    expect(comment).toHaveProperty("created_at");
+                    expect(comment).not.toHaveProperty("song_id");
+                    expect(comment).toHaveProperty("album")
+                    expect(comment.album.title).toBe("Private album")
+                    expect(comment).not.toHaveProperty("song");
+                    expect(comment).not.toHaveProperty("song_id");
+                })
+            })
+        })
         test("200: Responds with an empty array if album has no comments", () => {
             return request(app)
             .get("/api/albums/1/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).toBe(0);
@@ -1537,6 +1563,7 @@ describe("/api/albums/:album_id/comments", () => {
         test("400: Responds with a bad request message if album ID is invalid", () => {
             return request(app)
             .get("/api/albums/captain_kevin/comments")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -1545,9 +1572,36 @@ describe("/api/albums/:album_id/comments", () => {
         test("404: Responds with a not found message if album does not exist", () => {
             return request(app)
             .get("/api/albums/231/comments")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Album not found");
+            })
+        })
+        test("401: Responds with an unauthorised message if trying to access private album's comments without being the owner", () => {
+            return request(app)
+            .get("/api/albums/7/comments")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("Unauthorised");
+            })
+        })
+        test("401: Responds with an unauthorised message if trying to access private album's comments without being signed in at all", () => {
+            return request(app)
+            .get("/api/albums/7/comments")
+            .set(headers)
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("Unauthorised");
+            })
+        })
+        test("401: Responds with an unauthorised message if no headers are set at all", () => {
+            return request(app)
+            .get("/api/albums/1/comments")
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -2196,7 +2250,7 @@ describe("/api/songs/:song_id", () => {
                 is_featured: false,
                 description: "You've been rickrolled!",
                 index: 3,
-                visibility: Visibility.unlisted
+                visibility: "unlisted"
             })
             .expect(200)
             .then((response) => {
@@ -2386,6 +2440,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("200: Responds with an array of all comments associated with a given song", () => {
             return request(app)
             .get("/api/songs/13/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).not.toBe(0)
@@ -2408,6 +2463,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("200: Responds with an empty array if song has no comments", () => {
             return request(app)
             .get("/api/songs/2/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).toBe(0);
@@ -2416,6 +2472,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("400: Responds with a bad request message if song ID is invalid", () => {
             return request(app)
             .get("/api/songs/captain_kevin/comments")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -2424,6 +2481,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("404: Responds with a not found message if song does not exist", () => {
             return request(app)
             .get("/api/songs/231/comments")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Song not found");

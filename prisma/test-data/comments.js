@@ -73,5 +73,15 @@ module.exports = [
         user_id: "1",
         replying_to_id: 6,
         body: "Oh hi, Kevin"
-    }
+    },
+    {
+        user_id: "1",
+        album_id: 7,
+        body: "Comment on a private album"
+    },
+    {
+        user_id: "1",
+        album_id: 7,
+        body: "Another comment on a private album"
+    },
 ]

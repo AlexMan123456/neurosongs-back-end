@@ -19,7 +19,7 @@ albums.route("/:album_id/songs")
 .post([appCheckVerification], postSong)
 
 albums.route("/:album_id/comments")
-.get(getCommentsFromContent)
+.get([appCheckVerification], getCommentsFromContent)
 .post([appCheckVerification], postComment)
 
 albums.route("/:album_id/ratings")

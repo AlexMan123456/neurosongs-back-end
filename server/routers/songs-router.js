@@ -14,7 +14,7 @@ songs.route("/:song_id")
 .delete([appCheckVerification], deleteSong)
 
 songs.route("/:song_id/comments")
-.get(getCommentsFromSong)
+.get([appCheckVerification], getCommentsFromSong)
 .post([appCheckVerification], postComment)
 
 songs.route("/:song_id/ratings")
