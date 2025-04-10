@@ -7,7 +7,7 @@ function getRating(request, response, next){
     const {content_type, content_id, user_id} = request.params;
     
     fetchUserById(user_id).then(() => {
-        return content_type === "songs" ? fetchSongById(content_id) : fetchAlbumById(content_id);
+        return content_type === "songs" ? fetchSongById(content_id, request.params.user_id) : fetchAlbumById(content_id, request.params.user_id);
     }).then(() => {
         return fetchRating(content_type, content_id, user_id)
     }).then((rating) => {
@@ -20,7 +20,7 @@ function getRating(request, response, next){
 function postRating(request, response, next){
     const contentType = request.params.song_id ? "song" : "album"
 
-    const fetchContent = contentType === "song" ? fetchSongById(request.params.song_id) : fetchAlbumById(request.params.album_id);
+    const fetchContent = contentType === "song" ? fetchSongById(request.params.song_id, request.params.user_id) : fetchAlbumById(request.params.album_id, request.params.user_id);
     fetchContent.then(() => {
         return uploadRating(request.params[`${contentType}_id`], request.body, contentType)
     }).then((rating) => {
@@ -34,7 +34,7 @@ function patchRating(request, response, next){
     const {content_type, content_id, user_id} = request.params;
 
     fetchUserById(user_id).then(() => {
-        return content_type === "songs" ? fetchSongById(content_id) : fetchAlbumById(content_id);
+        return content_type === "songs" ? fetchSongById(content_id, user_id) : fetchAlbumById(content_id, user_id);
     }).then(() => {
         return updateRating(content_type, content_id, user_id, request.body)
     }).then((rating) => {
@@ -48,7 +48,7 @@ function deleteRating(request, response, next){
     const {content_type, content_id, user_id} = request.params;
 
     fetchUserById(user_id).then(() => {
-        return content_type === "songs" ? fetchSongById(content_id) : fetchAlbumById(content_id);
+        return content_type === "songs" ? fetchSongById(content_id, user_id) : fetchAlbumById(content_id, user_id);
     }).then(() => {
         return removeRating(request.params.user_id, request.params.content_id, request.params.content_type)
     }).then(() => {

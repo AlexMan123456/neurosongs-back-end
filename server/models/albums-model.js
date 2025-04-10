@@ -101,7 +101,8 @@ function fetchAlbumById(stringifiedAlbumID, signedInUserID){
                 }
             })
         ])
-    }).then(([album, {_avg, _count}]) => {
+    })
+    .then(([album, {_avg, _count}]) => {
         album.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
         album.rating_count = _count.album_id;
         return album;
@@ -142,7 +143,7 @@ function uploadAlbum(album){
     })
 }
 
-function editAlbum(stringifiedAlbumID, body){
+async function editAlbum(stringifiedAlbumID, body){
     const album_id = parseInt(stringifiedAlbumID);
     const data = {...body};
 
@@ -156,12 +157,21 @@ function editAlbum(stringifiedAlbumID, body){
         }
     }
 
-    return database.album.update({
+    const album = await database.album.update({
         where: {
             album_id
         },
         data
-    })
+    });
+    await database.song.updateMany({
+        where: {
+            album_id
+        },
+        data: {
+            visibility: data.visibility
+        }
+    });
+    return album
 }
 
 function removeAlbum(stringifiedAlbumID){

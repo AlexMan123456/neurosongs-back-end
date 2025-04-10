@@ -1100,6 +1100,33 @@ describe("/api/albums/:album_id", () => {
                 expect(album.visibility).toBe(Visibility.unlisted)
             })
         })
+        test("200: Updates all songs from the album with the new visibility", () => {
+            return request(app)
+            .patch("/api/albums/1")
+            .set(headers)
+            .send({
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!",
+                visibility: Visibility.unlisted
+            })
+            .expect(200)
+            .then(() => {
+                return database.song.findMany({
+                    where: {
+                        album_id: 1
+                    }
+                })
+            })
+            .then((songs) => {
+                expect(songs.length).not.toBe(0);
+                songs.forEach((song) => {
+                    expect(song.album_id).toBe(1);
+                    expect(song.visibility).toBe(Visibility.unlisted);
+                })
+            })
+        })
         test("200: Ignores any extra keys on request body", () => {
             return request(app)
             .patch("/api/albums/3")
