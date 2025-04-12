@@ -6,15 +6,15 @@ const appCheckVerification = require("../app-check-verification")
 const songs = express.Router()
 
 songs.route("/")
-.get(getSongs)
+.get([appCheckVerification], getSongs)
 
 songs.route("/:song_id")
-.get(getSongById)
+.get([appCheckVerification], getSongById)
 .patch([appCheckVerification], patchSong)
 .delete([appCheckVerification], deleteSong)
 
 songs.route("/:song_id/comments")
-.get(getCommentsFromSong)
+.get([appCheckVerification], getCommentsFromSong)
 .post([appCheckVerification], postComment)
 
 songs.route("/:song_id/ratings")

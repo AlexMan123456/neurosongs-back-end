@@ -1,7 +1,11 @@
+const { Visibility } = require("@prisma/client");
 const database = require("../../prisma/client")
 
-function fetchSongs(queries){
+function fetchSongs(queries, signedInUserID){
     const request = {
+        where: {
+            visibility: Visibility.public
+        },
         include: {
             artist: {
                 select: {
@@ -20,8 +24,11 @@ function fetchSongs(queries){
     }
 
     if(queries.user_id){
-        const user_id = queries.user_id;
-        request.where = {user_id}
+        const {user_id} = queries
+        request.where.user_id = user_id;
+        if(user_id === signedInUserID){
+            delete request.where.visibility;
+        }
     }
 
     if(queries.is_featured){
@@ -29,15 +36,13 @@ function fetchSongs(queries){
             return Promise.reject({status: 400, message: "Bad request"});
         }
         const is_featured = queries.is_featured.toLowerCase() === "true";
-        request.where = {is_featured};
+        request.where.is_featured = is_featured;
     }
 
     if(queries.search_query){
-        request.where = {
-            title: {
-                contains: queries.search_query,
-                mode: "insensitive"
-            }
+        request.where.title = {
+            contains: queries.search_query, 
+            mode: "insensitive"
         }
     }
 
@@ -47,7 +52,7 @@ function fetchSongs(queries){
     return database.song.findMany(request);
 }
 
-function fetchSongById(stringifiedSongID){
+function fetchSongById(stringifiedSongID, signedInUserID){
     const song_id = parseInt(stringifiedSongID);
     return Promise.all([database.song.findUnique({
             where: {song_id},
@@ -80,6 +85,9 @@ function fetchSongById(stringifiedSongID){
         if(!song){
             return Promise.reject({status: 404, message: "Song not found"});
         }
+        if(song.visibility === Visibility.private && song.user_id !== signedInUserID){
+            return Promise.reject({status: 403, message: "Access forbidden"})
+        }
         song.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
         song.rating_count = _count.song_id;
         return song;
@@ -94,7 +102,7 @@ function uploadSong(stringifiedAlbumID, song){
     const data = {...song, album_id};
 
     for(const key in data){
-        if(!["user_id", "album_id", "title", "description", "reference"].includes(key)){
+        if(!["user_id", "album_id", "title", "description", "reference", "visibility"].includes(key)){
             delete data[key];
         }
     }
@@ -143,7 +151,7 @@ function editSong(stringifiedSongID, body){
     }
 
     for(const key in data){
-        if(!["title", "reference", "is_featured", "description", "index"].includes(key)){
+        if(!["title", "reference", "is_featured", "description", "index", "visibility"].includes(key)){
             delete data[key];
         }
     }

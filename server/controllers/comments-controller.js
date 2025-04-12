@@ -5,7 +5,7 @@ const { fetchUserById } = require("../models/users-model");
 
 function getCommentsFromContent(request, response, next){
     const {params} = request
-    const getContent = params.album_id ? fetchAlbumById(params.album_id) : fetchSongById(params.song_id)
+    const getContent = params.album_id ? fetchAlbumById(params.album_id, request.header("App-SignedInUser")) : fetchSongById(params.song_id, request.header("App-SignedInUser"))
     getContent.then(() => {
         return fetchCommentsFromContent(params)
     }).then((comments) => {
@@ -31,7 +31,7 @@ function getCommentReplies(request, response, next){
 
 function postComment(request, response, next){
     const {params} = request
-    const getContent = params.song_id ? fetchSongById(params.song_id) : fetchAlbumById(params.album_id)
+    const getContent = params.song_id ? fetchSongById(params.song_id, request.body.user_id) : fetchAlbumById(params.album_id, request.body.user_id)
     getContent.then(() => {
         return uploadComment(params, request.body)
     }).then((comment) => {

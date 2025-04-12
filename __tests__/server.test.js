@@ -6,14 +6,14 @@ const seed = require("../prisma/seed");
 const endpoints = require("../server/endpoints.json");
 const database = require("../prisma/client.js");
 const { stripIndents } = require("common-tags");
+const { Visibility } = require("@prisma/client");
 require("dotenv").config({
     path: `${__dirname}/../.env.test`
 })
+
 const headers = {
     "X-Firebase-AppCheck": process.env.FIREBASE_TEST_HEADER
 }
-
-jest.setTimeout(30000)
 
 beforeEach(() => {
     return seed(data);
@@ -587,6 +587,7 @@ describe("/api/albums", () => {
         test("200: Responds with an array of all albums", () => {
             return request(app)
             .get("/api/albums")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.albums.length).not.toBe(0);
@@ -602,6 +603,7 @@ describe("/api/albums", () => {
                     expect(album).toHaveProperty("back_cover_reference");
                     expect(album).toHaveProperty("created_at");
                     expect(album).not.toHaveProperty("description");
+                    expect(album.visibility).toBe(Visibility.public);
                 })
             })
         })
@@ -609,9 +611,30 @@ describe("/api/albums", () => {
             test("200: Responds with an array of all albums from a given user", () => {
                 return request(app)
                 .get("/api/albums?user_id=1")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).not.toBe(0)
+                    response.body.albums.forEach((album) => {
+                        expect(typeof album.album_id).toBe("number")
+                        expect(album.user_id).toBe("1")
+                        expect(album.artist.artist_name).toBe("Alex The Man")
+                        expect(album.artist.username).toBe("AlexTheMan")
+                        expect(typeof album.is_featured).toBe("boolean")
+                        expect(typeof album.title).toBe("string")
+                        expect(typeof album.front_cover_reference).toBe("string")
+                        expect(album).toHaveProperty("back_cover_reference")
+                        expect(album.visibility).toBe(Visibility.public)
+                    })
+                })
+            })
+            test("200: Responds with an array of all albums from a given user, including non-public albums if user is signed in", () => {
+                return request(app)
+                .get("/api/albums?user_id=1")
+                .set({...headers, "App-SignedInUser": "1"})
+                .expect(200)
+                .then((response) => {
+                    expect(response.body.albums.length).toBe(5)
                     response.body.albums.forEach((album) => {
                         expect(typeof album.album_id).toBe("number")
                         expect(album.user_id).toBe("1")
@@ -627,6 +650,7 @@ describe("/api/albums", () => {
             test("200: Responds with an empty array if user has no albums", () => {
                 return request(app)
                 .get("/api/albums?user_id=4")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).toBe(0);
@@ -635,6 +659,7 @@ describe("/api/albums", () => {
             test("404: Responds with a not found message if user does not exist", () => {
                 return request(app)
                 .get("/api/albums?user_id=nonexistent_user")
+                .set(headers)
                 .expect(404)
                 .then((response) => {
                     expect(response.body.message).toBe("User not found");
@@ -645,6 +670,7 @@ describe("/api/albums", () => {
             test("200: Responds with an array of all featured albums", () => {
                 return request(app)
                 .get("/api/albums?is_featured=true")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).not.toBe(0);
@@ -663,6 +689,7 @@ describe("/api/albums", () => {
             test("400: Responds with a bad request message if is_featured is not a boolean", () => {
                 return request(app)
                 .get("/api/albums?is_featured=not_a_boolean")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request");
@@ -673,6 +700,7 @@ describe("/api/albums", () => {
             test("200: Responds with an array of all albums that match the given search query (case insensitive)", () => {
                 return request(app)
                 .get("/api/albums?search_query=Identities")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).not.toBe(0);
@@ -691,6 +719,7 @@ describe("/api/albums", () => {
             test("200: Responds with an empty array if album being searched for does not exist", () => {
                 return request(app)
                 .get("/api/albums?search_query=unknown+album")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.albums.length).toBe(0);
@@ -739,6 +768,29 @@ describe("/api/albums", () => {
                     expect(album.front_cover_reference).toBe("universal-expedition.png");
                     expect(album.back_cover_reference).toBe("back-cover.png");
                     expect(album.is_featured).toBe(false);
+                }),
+                request(app)
+                .post("/api/albums")
+                .set(headers)
+                .send({
+                    user_id: "2",
+                    title: "Universal Expedition",
+                    front_cover_reference: "universal-expedition.png",
+                    back_cover_reference: "back-cover.png",
+                    visibility: Visibility.private
+                })
+                .expect(201)
+                .then((response) => {
+                    const {album} = response.body;
+                    expect(typeof album.album_id).toBe("number");
+                    expect(album.user_id).toBe("2");
+                    expect(album.artist.artist_name).toBe("AlexGB231");
+                    expect(album.artist.username).toBe("AlexGB231");
+                    expect(album.title).toBe("Universal Expedition");
+                    expect(album.front_cover_reference).toBe("universal-expedition.png");
+                    expect(album.back_cover_reference).toBe("back-cover.png");
+                    expect(album.is_featured).toBe(false);
+                    expect(album.visibility).toBe(Visibility.private);
                 })
             ])
         })
@@ -879,9 +931,10 @@ describe("/api/albums", () => {
 
 describe("/api/albums/:album_id", () => {
     describe("GET", () => {
-        test("200: Responds with the album with the corresponding album ID, along with its songs", () => {
+        test("200: Responds with the album with the corresponding album ID, along with its public songs if signed in user not set", () => {
             return request(app)
             .get("/api/albums/3")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 const {album} = response.body;
@@ -908,12 +961,79 @@ describe("/api/albums/:album_id", () => {
                     expect(typeof song.index).toBe("number");
                     expect(Array.isArray(song.comments)).toBe(true);
                     expect(typeof song.reference).toBe("string");
+                    expect(song.visibility).toBe(Visibility.public);
                 })
             })
         })
+        test("200: Responds with all songs from the album, including non-public songs, if signed in user is the owner", () => {
+            return request(app)
+            .get("/api/albums/3")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(200)
+            .then(({body}) => {
+                const {album} = body;
+                expect(album.album_id).toBe(3);
+                expect(album.user_id).toBe("3");
+                expect(album.artist.username).toBe("Kevin_SynthV");
+                expect(album.artist.artist_name).toBe("Kevin");
+                expect(album.title).toBe("Kevin's Greatest Hits");
+                expect(album.front_cover_reference).toBe("captain-kevin.png");
+                expect(album.back_cover_reference).toBe("clown-kevin.png");
+                expect(album.is_featured).toBe(false);
+                expect(album.description).toBe("CAPTAIN KEVIN, SEARCHING FOR TREASURE FAR AND WIDE!");
+                expect(album.songs.length).not.toBe(0);
+                expect(typeof album.average_rating).toBe("number");
+                expect(album.rating_count).toBe(1);
+                expect(album).toHaveProperty("created_at");
+                expect(album.songs.length).toBe(3);
+                expect(album.songs).toBeSortedBy("index", {ascending: true});
+                album.songs.forEach((song) => {
+                    expect(typeof song.song_id).toBe("number");
+                    expect(typeof song.artist.username).toBe("string");
+                    expect(typeof song.artist.artist_name).toBe("string");
+                    expect(typeof song.title).toBe("string");
+                    expect(typeof song.description === "string" || song.description === null).toBe(true);
+                    expect(typeof song.index).toBe("number");
+                    expect(Array.isArray(song.comments)).toBe(true);
+                    expect(typeof song.reference).toBe("string");
+                })
+            })
+        })
+        test("200: Responds with the private album if user is signed in as the owner of the album", () => {
+            return request(app)
+            .get("/api/albums/7")
+            .set({...headers, "App-SignedInUser": "1"})
+            .expect(200)
+            .then(({body}) => {
+                const {album} = body;
+                expect(album.album_id).toBe(7);
+                expect(album.user_id).toBe("1");
+                expect(album.artist.artist_name).toBe("Alex The Man");
+                expect(album.artist.username).toBe("AlexTheMan");
+                expect(album.title).toBe("Private album");
+                expect(album.front_cover_reference).toBe("Default");
+                expect(album.is_featured).toBe(false);
+                expect(album).toHaveProperty("created_at");
+                album.songs.forEach((song) => {
+                    expect(typeof song.song_id).toBe("number");
+                    expect(typeof song.artist.username).toBe("string");
+                    expect(typeof song.artist.artist_name).toBe("string");
+                    expect(typeof song.title).toBe("string");
+                    expect(typeof song.description === "string" || song.description === null).toBe(true);
+                    expect(typeof song.index).toBe("number");
+                    expect(Array.isArray(song.comments)).toBe(true);
+                    expect(typeof song.reference).toBe("string");
+                    expect(song.visibility).toBe(Visibility.private);
+                    expect(song.album_id).toBe(7);
+                })
+            })
+        })
+        // TO DO (but at a later stage): Add test to respond with the restricted album if signed in user is on the list of people the album is being shared with
+        
         test("200: Average rating is rounded to one decimal place", () => {
             return request(app)
             .get("/api/albums/3")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect((response.body.album.average_rating*10)%1).toBe(0)
@@ -922,6 +1042,7 @@ describe("/api/albums/:album_id", () => {
         test("200: Average rating is null if album has not been rated yet", () => {
             return request(app)
             .get("/api/albums/1")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.album.average_rating).toBe(null)
@@ -930,6 +1051,7 @@ describe("/api/albums/:album_id", () => {
         test("400: Responds with a bad request message when given an invalid album ID", () => {
             return request(app)
             .get("/api/albums/invalid_id")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -938,11 +1060,22 @@ describe("/api/albums/:album_id", () => {
         test("404: Responds with a not found message if album ID does not exist", () => {
             return request(app)
             .get("/api/albums/231")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Album not found");
             })
         })
+        test("403: Responds with a forbidden access message if trying to access a private album and the signed in user is not the owner", () => {
+            return request(app)
+            .get("/api/albums/7")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(403)
+            .then(({body}) => {
+                expect(body.message).toBe("Access forbidden");
+            })
+        })
+        // TO DO (but at a later stage): Add test to give unauthorised message if album is restricted and signed in user is not on the list of people the album is being shared with
     })
     describe("PATCH", () => {
         test("200: Updates the album with the given ID and responds with the updated album", () => {
@@ -953,7 +1086,8 @@ describe("/api/albums/:album_id", () => {
                 title: "Never Gonna Give You Up",
                 front_cover_reference: "rickroll.png",
                 back_cover_reference: "kevinroll.png",
-                description: "Never gonna give you up, never gonna let you down!"
+                description: "Never gonna give you up, never gonna let you down!",
+                visibility: Visibility.unlisted
             })
             .expect(200)
             .then((response) => {
@@ -962,7 +1096,35 @@ describe("/api/albums/:album_id", () => {
                 expect(album.title).toBe("Never Gonna Give You Up");
                 expect(album.front_cover_reference).toBe("rickroll.png");
                 expect(album.back_cover_reference).toBe("kevinroll.png");
-                expect(album.description).toBe("Never gonna give you up, never gonna let you down!")
+                expect(album.description).toBe("Never gonna give you up, never gonna let you down!");
+                expect(album.visibility).toBe(Visibility.unlisted)
+            })
+        })
+        test("200: Updates all songs from the album with the new visibility", () => {
+            return request(app)
+            .patch("/api/albums/1")
+            .set(headers)
+            .send({
+                title: "Never Gonna Give You Up",
+                front_cover_reference: "rickroll.png",
+                back_cover_reference: "kevinroll.png",
+                description: "Never gonna give you up, never gonna let you down!",
+                visibility: Visibility.unlisted
+            })
+            .expect(200)
+            .then(() => {
+                return database.song.findMany({
+                    where: {
+                        album_id: 1
+                    }
+                })
+            })
+            .then((songs) => {
+                expect(songs.length).not.toBe(0);
+                songs.forEach((song) => {
+                    expect(song.album_id).toBe(1);
+                    expect(song.visibility).toBe(Visibility.unlisted);
+                })
             })
         })
         test("200: Ignores any extra keys on request body", () => {
@@ -1109,7 +1271,8 @@ describe("/api/albums/:album_id/songs", () => {
                 user_id: "1",
                 title: "Highest Power",
                 description: "You think that I am at my highest power!",
-                reference: "highest-power.mp3"
+                reference: "highest-power.mp3",
+                visibility: Visibility.unlisted
             })
             .expect(201)
             .then((response) => {
@@ -1124,6 +1287,7 @@ describe("/api/albums/:album_id/songs", () => {
                 expect(song.reference).toBe("highest-power.mp3");
                 expect(song.is_featured).toBe(false);
                 expect(song.index).toBe(6);
+                expect(song.visibility).toBe(Visibility.unlisted);
                 expect(song).toHaveProperty("created_at");
             })
         })
@@ -1369,6 +1533,7 @@ describe("/api/albums/:album_id/comments", () => {
         test("200: Responds with an array of all comments associated with a given album", () => {
             return request(app)
             .get("/api/albums/3/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).not.toBe(0)
@@ -1389,9 +1554,34 @@ describe("/api/albums/:album_id/comments", () => {
                 })
             })
         })
+        test("200: Responds with an array of all comments associated with a given private album if user is signed in and is owner", () => {
+            return request(app)
+            .get("/api/albums/7/comments")
+            .set({...headers, "App-SignedInUser": "1"})
+            .expect(200)
+            .then((response) => {
+                expect(response.body.comments.length).not.toBe(0)
+                response.body.comments.forEach((comment) => {
+                    expect(typeof comment.user_id).toBe("string");
+                    expect(comment.album_id).toBe(7);
+                    expect(typeof comment.author.artist_name).toBe("string");
+                    expect(typeof comment.author.username).toBe("string");
+                    expect(typeof comment.author.profile_picture).toBe("string");
+                    expect(typeof comment.body).toBe("string");
+                    expect(typeof comment.reply_count).toBe("number");
+                    expect(comment).toHaveProperty("created_at");
+                    expect(comment).not.toHaveProperty("song_id");
+                    expect(comment).toHaveProperty("album")
+                    expect(comment.album.title).toBe("Private album")
+                    expect(comment).not.toHaveProperty("song");
+                    expect(comment).not.toHaveProperty("song_id");
+                })
+            })
+        })
         test("200: Responds with an empty array if album has no comments", () => {
             return request(app)
             .get("/api/albums/1/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).toBe(0);
@@ -1400,6 +1590,7 @@ describe("/api/albums/:album_id/comments", () => {
         test("400: Responds with a bad request message if album ID is invalid", () => {
             return request(app)
             .get("/api/albums/captain_kevin/comments")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -1408,9 +1599,36 @@ describe("/api/albums/:album_id/comments", () => {
         test("404: Responds with a not found message if album does not exist", () => {
             return request(app)
             .get("/api/albums/231/comments")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Album not found");
+            })
+        })
+        test("403: Responds with an unauthorised message if trying to access private album's comments without being the owner", () => {
+            return request(app)
+            .get("/api/albums/7/comments")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(403)
+            .then(({body}) => {
+                expect(body.message).toBe("Access forbidden");
+            })
+        })
+        test("403: Responds with an unauthorised message if trying to access private album's comments without being signed in at all", () => {
+            return request(app)
+            .get("/api/albums/7/comments")
+            .set(headers)
+            .expect(403)
+            .then(({body}) => {
+                expect(body.message).toBe("Access forbidden");
+            })
+        })
+        test("401: Responds with an unauthorised message if no headers are set at all", () => {
+            return request(app)
+            .get("/api/albums/1/comments")
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -1771,9 +1989,10 @@ describe("/api/albums/:album_id/ratings", () => {
 
 describe("/api/songs", () => {
     describe("GET", () => {
-        test("200: Responds with an array of all songs", () => {
+        test("200: Responds with an array of all public songs", () => {
             return request(app)
             .get("/api/songs")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.songs.length).not.toBe(0);
@@ -1789,6 +2008,7 @@ describe("/api/songs", () => {
                     expect(typeof song.album.title).toBe("string");
                     expect(song).toHaveProperty("created_at");
                     expect(song).not.toHaveProperty("description");
+                    expect(song.visibility).toBe(Visibility.public);
                 })
             })
         })
@@ -1796,6 +2016,7 @@ describe("/api/songs", () => {
             test("200: Responds with an array of all featured songs", () => {
                 return request(app)
                 .get("/api/songs?is_featured=true")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -1817,6 +2038,7 @@ describe("/api/songs", () => {
             test("200: The query value is case insensitive", () => {
                 return request(app)
                 .get("/api/songs?is_featured=True")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -1836,6 +2058,7 @@ describe("/api/songs", () => {
             test("400: Responds with a bad request message if is_featured is not a boolean", () => {
                 return request(app)
                 .get("/api/songs?is_featured=not_a_boolean")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request");
@@ -1846,6 +2069,7 @@ describe("/api/songs", () => {
             test("200: Responds with an array of all songs from a given user", () => {
                 return request(app)
                 .get("/api/songs?user_id=1")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -1861,20 +2085,45 @@ describe("/api/songs", () => {
                         expect(typeof song.album.front_cover_reference).toBe("string");
                         expect(song).not.toHaveProperty("description");
                         expect(song).toHaveProperty("created_at");
+                        expect(song.visibility).toBe(Visibility.public)
                     })
                 })
             })
             test("200: Responds with an empty array if user exists but has no songs", () => {
                 return request(app)
                 .get("/api/songs?user_id=4")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).toBe(0);
                 })
             })
+            test("200: Responds with an array of all songs from a given user, including private songs if user is signed in", () => {
+                return request(app)
+                .get("/api/songs?user_id=1")
+                .set({...headers, "App-SignedInUser": "1"})
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.songs.length).toBe(13);
+                    body.songs.forEach((song) => {
+                        expect(typeof song.song_id).toBe("number");
+                        expect(song.user_id).toBe("1");
+                        expect(song.artist.username).toBe("AlexTheMan");
+                        expect(song.artist.artist_name).toBe("Alex The Man");
+                        expect(typeof song.reference).toBe("string");
+                        expect(typeof song.album_id).toBe("number");
+                        expect(typeof song.is_featured).toBe("boolean");
+                        expect(typeof song.album.title).toBe("string");
+                        expect(typeof song.album.front_cover_reference).toBe("string");
+                        expect(song).not.toHaveProperty("description");
+                        expect(song).toHaveProperty("created_at");
+                    })
+                })
+            })
             test("404: Responds with a not found message if user does not exist", () => {
                 return request(app)
                 .get("/api/songs?user_id=invalid_user")
+                .set(headers)
                 .expect(404)
                 .then((response) => {
                     expect(response.body.message).toBe("User not found");
@@ -1885,6 +2134,7 @@ describe("/api/songs", () => {
             test("200: Sorts songs by created_at in descending order by default", () => {
                 return request(app)
                 .get("/api/songs")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs).toBeSortedBy("created_at", {descending: true});
@@ -1893,6 +2143,7 @@ describe("/api/songs", () => {
             test("200: Sorts by the given sort_by query if given", () => {
                 return request(app)
                 .get("/api/songs?sort_by=title")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs).toBeSortedBy("title", {descending: true});
@@ -1901,6 +2152,7 @@ describe("/api/songs", () => {
             test("200: Sorts in ascending order if order query is asc", () => {
                 return request(app)
                 .get("/api/songs?order=asc")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs).toBeSortedBy("created_at", {ascending: true});
@@ -1909,6 +2161,7 @@ describe("/api/songs", () => {
             test("400: Responds with a bad request message if sort_by is invalid", () => {
                 return request(app)
                 .get("/api/songs?sort_by=invalid_property")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request")
@@ -1917,6 +2170,7 @@ describe("/api/songs", () => {
             test("400: Responds with a bad request message if order is invalid", () => {
                 return request(app)
                 .get("/api/songs?order=invalid_order")
+                .set(headers)
                 .expect(400)
                 .then((response) => {
                     expect(response.body.message).toBe("Bad request")
@@ -1927,6 +2181,7 @@ describe("/api/songs", () => {
             test("200: Responds with an array of all songs matching the given search query (case insensitive)", () => {
                 return request(app)
                 .get("/api/songs?search_query=captain+kevin")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).not.toBe(0);
@@ -1943,6 +2198,7 @@ describe("/api/songs", () => {
             test("200: Responds with an empty array if no songs matching the search query exists", () => {
                 return request(app)
                 .get("/api/songs?search_query=unknown+song")
+                .set(headers)
                 .expect(200)
                 .then((response) => {
                     expect(response.body.songs.length).toBe(0);
@@ -1957,6 +2213,7 @@ describe("/api/songs/:song_id", () => {
         test("200: Responds with the song with the given ID", () => {
             return request(app)
             .get("/api/songs/1")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 const {song} = response.body;
@@ -1977,9 +2234,28 @@ describe("/api/songs/:song_id", () => {
                 expect(song).toHaveProperty("created_at");
             })
         })
+        test("200: Responds with the private song with the given ID if user is signed in as the owner of the song", () => {
+            return request(app)
+            .get("/api/songs/14")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(200)
+            .then(({body}) => {
+                const {song} = body;
+                expect(song.song_id).toBe(14);
+                expect(song.title).toBe("Private song");
+                expect(song.reference).toBe("private-song.mp3");
+                expect(song.album_id).toBe(3);
+                expect(song.album.front_cover_reference).toBe("captain-kevin.png");
+                expect(song.album.title).toBe("Kevin's Greatest Hits");
+                expect(song.description).toBe("Hey! This is my treasure! This treasure can only belong to the one and only Captain Kevin!");
+                expect(song).toHaveProperty("created_at");
+                expect(song.visibility).toBe(Visibility.private);
+            })
+        })
         test("200: Average rating is rounded to one decimal place", () => {
             return request(app)
             .get("/api/songs/3")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect((response.body.song.average_rating*10)%1).toBe(0)
@@ -1988,6 +2264,7 @@ describe("/api/songs/:song_id", () => {
         test("200: Average rating is null if song has not been rated yet", () => {
             return request(app)
             .get("/api/songs/2")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.song.average_rating).toBe(null)
@@ -1996,6 +2273,7 @@ describe("/api/songs/:song_id", () => {
         test("400: Responds with a bad request message when given an invalid ID", () => {
             return request(app)
             .get("/api/songs/invalid_id")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -2004,9 +2282,36 @@ describe("/api/songs/:song_id", () => {
         test("404: Responds with a not found message when ID does not exist", () => {
             return request(app)
             .get("/api/songs/231")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Song not found");
+            })
+        })
+        test("403: Responds with an forbidden access message if trying to access a private song but the signed in user is not the owner", () => {
+            return request(app)
+            .get("/api/songs/14")
+            .set({...headers, "App-SignedInUser": "1"})
+            .expect(403)
+            .then(({body}) => {
+                expect(body.message).toBe("Access forbidden");
+            })
+        })
+        test("403: Responds with an forbidden access message if trying to access a private song but signed in user is not set", () => {
+            return request(app)
+            .get("/api/songs/14")
+            .set(headers)
+            .expect(403)
+            .then(({body}) => {
+                expect(body.message).toBe("Access forbidden");
+            })
+        })
+        test("401: Responds with an unauthorised message if no headers are set", () => {
+            return request(app)
+            .get("/api/songs/1")
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -2020,7 +2325,8 @@ describe("/api/songs/:song_id", () => {
                 reference: "never-gonna-give-you-up.mp3",
                 is_featured: false,
                 description: "You've been rickrolled!",
-                index: 3
+                index: 3,
+                visibility: "unlisted"
             })
             .expect(200)
             .then((response) => {
@@ -2033,6 +2339,7 @@ describe("/api/songs/:song_id", () => {
                 expect(song.description).toBe("You've been rickrolled!");
                 expect(song.created_at).toBe("2024-02-16T00:00:00.000Z");
                 expect(song.index).toBe(3);
+                expect(song.visibility).toBe(Visibility.unlisted)
             })
         })
         test("200: Ignores any extra properties on request body", () => {
@@ -2209,6 +2516,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("200: Responds with an array of all comments associated with a given song", () => {
             return request(app)
             .get("/api/songs/13/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).not.toBe(0)
@@ -2231,6 +2539,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("200: Responds with an empty array if song has no comments", () => {
             return request(app)
             .get("/api/songs/2/comments")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.comments.length).toBe(0);
@@ -2239,6 +2548,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("400: Responds with a bad request message if song ID is invalid", () => {
             return request(app)
             .get("/api/songs/captain_kevin/comments")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -2247,6 +2557,7 @@ describe("/api/songs/:song_id/comments", () => {
         test("404: Responds with a not found message if song does not exist", () => {
             return request(app)
             .get("/api/songs/231/comments")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Song not found");

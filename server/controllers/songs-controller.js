@@ -8,7 +8,7 @@ async function getSongs(request, response, next){
                 await fetchUserById(request.query.user_id);
             }
         }
-        const songs = await fetchSongs(request.query);
+        const songs = await fetchSongs(request.query, request.header("App-SignedInUser"));
         response.status(200).send({songs});
     } catch(err) {
         next(err);
@@ -16,7 +16,7 @@ async function getSongs(request, response, next){
 }
 
 function getSongById(request, response, next){
-    fetchSongById(request.params.song_id).then((song) => {
+    fetchSongById(request.params.song_id, request.header("App-SignedInUser")).then((song) => {
         response.status(200).send({song});
     }).catch((err) => {
         next(err);

@@ -1,3 +1,5 @@
+const { Visibility } = require("@prisma/client");
+
 module.exports = [
     {
         user_id: "1",
@@ -88,7 +90,8 @@ module.exports = [
         reference: "captain-kevin-simulation.mp3",
         album_id: 3,
         index: 1,
-        created_at: new Date("2024-01-16T00:00:00Z")
+        created_at: new Date("2024-01-16T00:00:00Z"),
+        visibility: Visibility.restricted
     },
     {
         user_id: "3",
@@ -105,6 +108,43 @@ module.exports = [
         reference: "lockdown.mp3",
         album_id: 4,
         index: 1,
-        created_at: new Date("2021-12-15T00:00:00Z")
-    }
+        created_at: new Date("2021-12-15T00:00:00Z"),
+        visibility: Visibility.unlisted
+    },
+    {
+        user_id: "3",
+        title: "Private song",
+        reference: "private-song.mp3",
+        album_id: 3,
+        index: 3,
+        description: "Hey! This is my treasure! This treasure can only belong to the one and only Captain Kevin!",
+        visibility: Visibility.private
+    },
+    {
+        user_id: "1",
+        title: "Private song 1",
+        reference: "private-song-1.mp3",
+        album_id: 7,
+        index: 1,
+        description: "Nothing to see here!",
+        visibility: Visibility.private
+    },
+    {
+        user_id: "1",
+        title: "Private song 2",
+        reference: "private-song-2.mp3",
+        album_id: 7,
+        index: 2,
+        description: "Seriously! There's nothing here.",
+        visibility: Visibility.private
+    },
+    {
+        user_id: "1",
+        title: "Private song 3",
+        reference: "private-song-3.mp3",
+        album_id: 7,
+        index: 3,
+        description: "Ok, there are songs here but they're cringe and not worth sharing. Go away.",
+        visibility: Visibility.private
+    },
 ]

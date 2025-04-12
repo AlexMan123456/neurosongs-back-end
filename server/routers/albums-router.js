@@ -7,11 +7,11 @@ const appCheckVerification = require("../app-check-verification")
 const albums = express.Router()
 
 albums.route("/")
-.get(getAlbums)
+.get([appCheckVerification], getAlbums)
 .post([appCheckVerification], postAlbum)
 
 albums.route("/:album_id")
-.get(getAlbumById)
+.get([appCheckVerification], getAlbumById)
 .patch([appCheckVerification], patchAlbum)
 .delete([appCheckVerification], deleteAlbum)
 
@@ -19,7 +19,7 @@ albums.route("/:album_id/songs")
 .post([appCheckVerification], postSong)
 
 albums.route("/:album_id/comments")
-.get(getCommentsFromContent)
+.get([appCheckVerification], getCommentsFromContent)
 .post([appCheckVerification], postComment)
 
 albums.route("/:album_id/ratings")

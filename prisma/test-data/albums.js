@@ -1,3 +1,5 @@
+const { Visibility } = require("@prisma/client");
+
 module.exports = [
     {
         user_id: "1",
@@ -32,5 +34,10 @@ module.exports = [
     {
         user_id: "1",
         title: "Empty album"
+    },
+    {
+        user_id: "1",
+        title: "Private album",
+        visibility: Visibility.private
     }
 ]
