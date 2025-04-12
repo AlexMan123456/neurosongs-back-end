@@ -1,6 +1,6 @@
 {
   "name": "neurosongs-back-end",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "main": "index.js",
   "devDependencies": {
     "husky": "^9.1.7",
