@@ -2297,6 +2297,23 @@ describe("/api/songs/:song_id", () => {
                 expect(body.message).toBe("Access forbidden");
             })
         })
+        test("403: Responds with an forbidden access message if trying to access a private song but signed in user is not set", () => {
+            return request(app)
+            .get("/api/songs/14")
+            .set(headers)
+            .expect(403)
+            .then(({body}) => {
+                expect(body.message).toBe("Access forbidden");
+            })
+        })
+        test("401: Responds with an unauthorised message if no headers are set", () => {
+            return request(app)
+            .get("/api/songs/1")
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("App check unsuccessful");
+            })
+        })
     })
     describe("PATCH", () => {
         test("200: Updates the given song and responds with the updated song", () => {
