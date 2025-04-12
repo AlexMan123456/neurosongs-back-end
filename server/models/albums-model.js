@@ -82,7 +82,7 @@ function fetchAlbumById(stringifiedAlbumID, signedInUserID){
             return Promise.reject({status: 404, message: "Album not found"});
         }
         if((album.visibility !== Visibility.public && album.visibility !== Visibility.unlisted) && album.user_id !== signedInUserID){
-            return Promise.reject({status: 401, message: "Unauthorised"});
+            return Promise.reject({status: 403, message: "Access forbidden"});
         }
         if(album.user_id !== signedInUserID){
             albumRequest.include.songs.where = {visibility: Visibility.public}

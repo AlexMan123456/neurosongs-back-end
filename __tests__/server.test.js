@@ -1066,13 +1066,13 @@ describe("/api/albums/:album_id", () => {
                 expect(response.body.message).toBe("Album not found");
             })
         })
-        test("401: Responds with an unauthorised message if trying to access a private album and the signed in user is not the owner", () => {
+        test("403: Responds with a forbidden access message if trying to access a private album and the signed in user is not the owner", () => {
             return request(app)
             .get("/api/albums/7")
             .set({...headers, "App-SignedInUser": "3"})
-            .expect(401)
+            .expect(403)
             .then(({body}) => {
-                expect(body.message).toBe("Unauthorised");
+                expect(body.message).toBe("Access forbidden");
             })
         })
         // TO DO (but at a later stage): Add test to give unauthorised message if album is restricted and signed in user is not on the list of people the album is being shared with
@@ -1605,22 +1605,22 @@ describe("/api/albums/:album_id/comments", () => {
                 expect(response.body.message).toBe("Album not found");
             })
         })
-        test("401: Responds with an unauthorised message if trying to access private album's comments without being the owner", () => {
+        test("403: Responds with an unauthorised message if trying to access private album's comments without being the owner", () => {
             return request(app)
             .get("/api/albums/7/comments")
             .set({...headers, "App-SignedInUser": "3"})
-            .expect(401)
+            .expect(403)
             .then(({body}) => {
-                expect(body.message).toBe("Unauthorised");
+                expect(body.message).toBe("Access forbidden");
             })
         })
-        test("401: Responds with an unauthorised message if trying to access private album's comments without being signed in at all", () => {
+        test("403: Responds with an unauthorised message if trying to access private album's comments without being signed in at all", () => {
             return request(app)
             .get("/api/albums/7/comments")
             .set(headers)
-            .expect(401)
+            .expect(403)
             .then(({body}) => {
-                expect(body.message).toBe("Unauthorised");
+                expect(body.message).toBe("Access forbidden");
             })
         })
         test("401: Responds with an unauthorised message if no headers are set at all", () => {
