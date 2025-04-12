@@ -52,7 +52,7 @@ function fetchSongs(queries, signedInUserID){
     return database.song.findMany(request);
 }
 
-function fetchSongById(stringifiedSongID){
+function fetchSongById(stringifiedSongID, signedInUserID){
     const song_id = parseInt(stringifiedSongID);
     return Promise.all([database.song.findUnique({
             where: {song_id},
@@ -84,6 +84,9 @@ function fetchSongById(stringifiedSongID){
     ]).then(([song, {_avg, _count}]) => {
         if(!song){
             return Promise.reject({status: 404, message: "Song not found"});
+        }
+        if(song.visibility === Visibility.private && song.user_id !== signedInUserID){
+            return Promise.reject({status: 403, message: "Access forbidden"})
         }
         song.average_rating = Math.round(parseFloat(_avg.score)*10)/10;
         song.rating_count = _count.song_id;

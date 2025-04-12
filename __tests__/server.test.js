@@ -2213,6 +2213,7 @@ describe("/api/songs/:song_id", () => {
         test("200: Responds with the song with the given ID", () => {
             return request(app)
             .get("/api/songs/1")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 const {song} = response.body;
@@ -2233,9 +2234,28 @@ describe("/api/songs/:song_id", () => {
                 expect(song).toHaveProperty("created_at");
             })
         })
+        test("200: Responds with the private song with the given ID if user is signed in as the owner of the song", () => {
+            return request(app)
+            .get("/api/songs/14")
+            .set({...headers, "App-SignedInUser": "3"})
+            .expect(200)
+            .then(({body}) => {
+                const {song} = body;
+                expect(song.song_id).toBe(14);
+                expect(song.title).toBe("Private song");
+                expect(song.reference).toBe("private-song.mp3");
+                expect(song.album_id).toBe(3);
+                expect(song.album.front_cover_reference).toBe("captain-kevin.png");
+                expect(song.album.title).toBe("Kevin's Greatest Hits");
+                expect(song.description).toBe("Hey! This is my treasure! This treasure can only belong to the one and only Captain Kevin!");
+                expect(song).toHaveProperty("created_at");
+                expect(song.visibility).toBe(Visibility.private);
+            })
+        })
         test("200: Average rating is rounded to one decimal place", () => {
             return request(app)
             .get("/api/songs/3")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect((response.body.song.average_rating*10)%1).toBe(0)
@@ -2244,6 +2264,7 @@ describe("/api/songs/:song_id", () => {
         test("200: Average rating is null if song has not been rated yet", () => {
             return request(app)
             .get("/api/songs/2")
+            .set(headers)
             .expect(200)
             .then((response) => {
                 expect(response.body.song.average_rating).toBe(null)
@@ -2252,6 +2273,7 @@ describe("/api/songs/:song_id", () => {
         test("400: Responds with a bad request message when given an invalid ID", () => {
             return request(app)
             .get("/api/songs/invalid_id")
+            .set(headers)
             .expect(400)
             .then((response) => {
                 expect(response.body.message).toBe("Bad request");
@@ -2260,9 +2282,19 @@ describe("/api/songs/:song_id", () => {
         test("404: Responds with a not found message when ID does not exist", () => {
             return request(app)
             .get("/api/songs/231")
+            .set(headers)
             .expect(404)
             .then((response) => {
                 expect(response.body.message).toBe("Song not found");
+            })
+        })
+        test("403: Responds with an forbidden access message if trying to access a private song but the signed in user is not the owner", () => {
+            return request(app)
+            .get("/api/songs/14")
+            .set({...headers, "App-SignedInUser": "1"})
+            .expect(403)
+            .then(({body}) => {
+                expect(body.message).toBe("Access forbidden");
             })
         })
     })

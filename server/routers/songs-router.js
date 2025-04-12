@@ -9,7 +9,7 @@ songs.route("/")
 .get([appCheckVerification], getSongs)
 
 songs.route("/:song_id")
-.get(getSongById)
+.get([appCheckVerification], getSongById)
 .patch([appCheckVerification], patchSong)
 .delete([appCheckVerification], deleteSong)
 
