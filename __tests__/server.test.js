@@ -614,6 +614,78 @@ describe("/api/users/:user_id/links", () => {
             })
         })
     })
+    describe("POST", () => {
+        test("201: Posts a link for the given user to the database and responds with the given link", () => {
+            return request(app)
+            .post("/api/users/1/links")
+            .send({
+                name: "My very cool link",
+                url: "https://www.youtube.com/@Neurosongs-app"
+            })
+            .expect(201)
+            .then(({body}) => {
+                const {link} = body;
+                expect(typeof link.link_id).toBe("number");
+                expect(link.user_id).toBe("1");
+                expect(link.name).toBe("My very cool link")
+                expect(link.url).toBe("https://www.youtube.com/@Neurosongs-app")
+            })
+        })
+        test("200: Ignores any extra properties on request body", () => {
+            return request(app)
+            .post("/api/users/1/links")
+            .send({
+                name: "My very cool link",
+                url: "https://www.youtube.com/@Neurosongs-app",
+                extraKey: "Extra property"
+            })
+            .expect(201)
+            .then(({body}) => {
+                const {link} = body;
+                expect(typeof link.link_id).toBe("number");
+                expect(link.user_id).toBe("1");
+                expect(link.name).toBe("My very cool link")
+                expect(link.url).toBe("https://www.youtube.com/@Neurosongs-app")
+            })
+        })
+        test("400: Responds with a bad request message if user_id is on request body", () => {
+            return request(app)
+            .post("/api/users/1/links")
+            .send({
+                user_id: "2",
+                name: "My very cool link",
+                url: "https://www.youtube.com/@Neurosongs-app"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if URL is not valid", () => {
+            return request(app)
+            .post("/api/users/1/links")
+            .send({
+                name: "This link is not a link",
+                url: "Don't listen to them. I promise I am a link."
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Invalid URL");
+            })
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .post("/api/users/nonexistent_user/links")
+            .send({
+                name: "My very cool link",
+                url: "https://www.youtube.com/@Neurosongs-app"
+            })
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("User not found");
+            })
+        })
+    })
 })
 
 // ALBUMS ENDPOINTS
@@ -4250,6 +4322,8 @@ describe("/api/notifications/:notification_id", () => {
         })
     })
 })
+
+// OTHER ENDPOINTS
 
 describe("/*", () => {
     test("404: Responds with a not found message if endpoint does not exist", () => {
