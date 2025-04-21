@@ -16,6 +16,7 @@ model User {
   user_id                String                @id
   date_of_birth          DateTime?
   member_since           DateTime              @default(now())
+  links                  Link[]
   album_ratings          AlbumRating[]
   albums                 Album[]
   received_notifications CommentNotification[] @relation("receiver")
@@ -143,6 +144,14 @@ model CommentNotification {
   sender                  User     @relation("sender", fields: [sender_id], references: [user_id], onDelete: Cascade)
 
   @@map("comment_notifications")
+}
+
+model Link {
+  link_id Int    @id @default(autoincrement())
+  user_id String
+  name    String @db.VarChar(100)
+  url     String
+  user    User   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
 enum Visibility {

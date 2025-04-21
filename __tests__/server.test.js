@@ -580,6 +580,42 @@ describe("/api/users/:user_id/notifications", () => {
     })
 })
 
+describe("/api/users/:user_id/links", () => {
+    describe("GET", () => {
+        test("200: Responds with an array of all links associated with a given user", () => {
+            return request(app)
+            .get("/api/users/1/links")
+            .expect(200)
+            .then(({body}) => {
+                const {links} = body;
+                expect(links.length).not.toBe(0);
+                links.forEach((link) => {
+                    expect(typeof link.link_id).toBe("number");
+                    expect(link.user_id).toBe("1");
+                    expect(typeof link.name).toBe("string");
+                    expect(typeof link.url).toBe("string");
+                })
+            })
+        })
+        test("200: Responds with an empty array if user exists but has no links", () => {
+            return request(app)
+            .get("/api/users/2/links")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.links.length).toBe(0);
+            })
+        })
+        test("404: Responds with a not found message if user does not exist", () => {
+            return request(app)
+            .get("/api/users/i_dont_exist/links")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("User not found");
+            })
+        })
+    })
+})
+
 // ALBUMS ENDPOINTS
 
 describe("/api/albums", () => {

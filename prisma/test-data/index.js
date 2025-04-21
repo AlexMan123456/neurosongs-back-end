@@ -6,5 +6,6 @@ const songRatingData = require("./song-ratings.js");
 const albumRatingData = require("./album-ratings.js");
 const followData = require("./follows.js");
 const commentNotificationData = require("./comment-notifications.js")
+const linkData = require("./links.js")
 
-module.exports = { userData, songData, albumData, commentData, songRatingData, albumRatingData, followData, commentNotificationData };
+module.exports = { userData, songData, albumData, commentData, songRatingData, albumRatingData, followData, commentNotificationData, linkData };
