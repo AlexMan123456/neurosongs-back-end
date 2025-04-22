@@ -622,6 +622,7 @@ describe("/api/users/:user_id/links", () => {
                 name: "My very cool link",
                 url: "https://www.youtube.com/@Neurosongs-app"
             })
+            .set(headers)
             .expect(201)
             .then(({body}) => {
                 const {link} = body;
@@ -631,7 +632,7 @@ describe("/api/users/:user_id/links", () => {
                 expect(link.url).toBe("https://www.youtube.com/@Neurosongs-app")
             })
         })
-        test("200: Ignores any extra properties on request body", () => {
+        test("201: Ignores any extra properties on request body", () => {
             return request(app)
             .post("/api/users/1/links")
             .send({
@@ -639,6 +640,7 @@ describe("/api/users/:user_id/links", () => {
                 url: "https://www.youtube.com/@Neurosongs-app",
                 extraKey: "Extra property"
             })
+            .set(headers)
             .expect(201)
             .then(({body}) => {
                 const {link} = body;
@@ -656,6 +658,7 @@ describe("/api/users/:user_id/links", () => {
                 name: "My very cool link",
                 url: "https://www.youtube.com/@Neurosongs-app"
             })
+            .set(headers)
             .expect(400)
             .then(({body}) => {
                 expect(body.message).toBe("Bad request");
@@ -668,6 +671,7 @@ describe("/api/users/:user_id/links", () => {
                 name: "This link is not a link",
                 url: "Don't listen to them. I promise I am a link."
             })
+            .set(headers)
             .expect(400)
             .then(({body}) => {
                 expect(body.message).toBe("Invalid URL");
@@ -680,9 +684,22 @@ describe("/api/users/:user_id/links", () => {
                 name: "My very cool link",
                 url: "https://www.youtube.com/@Neurosongs-app"
             })
+            .set(headers)
             .expect(404)
             .then(({body}) => {
                 expect(body.message).toBe("User not found");
+            })
+        })
+        test("401: Responds with an unauthorised message if Firebase app check header not set", () => {
+            return request(app)
+            .post("/api/users/1/links")
+            .send({
+                name: "My very cool link",
+                url: "https://www.youtube.com/@Neurosongs-app"
+            })
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
@@ -4318,6 +4335,110 @@ describe("/api/notifications/:notification_id", () => {
             .expect(401)
             .then(({body}) => {
                 expect(body.message).toBe("App check unsuccessful")
+            })
+        })
+    })
+})
+
+// LINKS ENDPOINTS
+describe("/api/links/:link_id", () => {
+    describe("PATCH", () => {
+        test("200: Updates the given link and responds with the updated link", () => {
+            return request(app)
+            .patch("/api/links/1")
+            .send({
+                name: "A very cool link",
+                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            })
+            .set(headers)
+            .expect(200)
+            .then(({body}) => {
+                const {link} = body;
+                expect(link.link_id).toBe(1);
+                expect(link.user_id).toBe("1");
+                expect(link.name).toBe("A very cool link");
+                expect(link.url).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+            })
+        })
+        test("200: Ignores any extra properties on request body", () => {
+            return request(app)
+            .patch("/api/links/1")
+            .send({
+                name: "A very cool link",
+                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                extraKey: "Extra property"
+            })
+            .expect(200)
+            .then(({body}) => {
+                const {link} = body;
+                expect(link.link_id).toBe(1);
+                expect(link.user_id).toBe("1");
+                expect(link.name).toBe("A very cool link");
+                expect(link.url).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+            })
+        })
+        test("200: Only updates the link name if no URL provided", () => {
+            return request(app)
+            .patch("/api/links/1")
+            .send({
+                name: "My very cool link"
+            })
+            .expect(200)
+            .then(({body}) => {
+                const {link} = body;
+                expect(link.link_id).toBe(1);
+                expect(link.user_id).toBe("1");
+                expect(link.name).toBe("My very cool link");
+                expect(link.url).toBe("https://open.spotify.com/artist/5JAXf5EPOWZ8P0M3nEmY9p?si=CCPHkJ6WRQKZsgxDKEmXQQ");
+            })
+        })
+        test("400: Responds with a bad request message if user_id is on request body", () => {
+            return request(app)
+            .patch("/api/links/1")
+            .send({
+                user_id: "2",
+                name: "A very cool link",
+                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
+            })
+        })
+        test("400: Responds with a bad request message if URL is not valid", () => {
+            return request(app)
+            .patch("/api/links/1")
+            .send({
+                name: "This is not a link",
+                url: "I am pretending to be a link"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Invalid URL")
+            })
+        })
+        test("400: Responds with a bad request message if link_id is not valid", () => {
+            return request(app)
+            .patch("/api/links/invalid_id")
+            .send({
+                name: "A very cool link",
+                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            })
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if link is not found", () => {
+            return request(app)
+            .patch("/api/links/231")
+            .send({
+                name: "A very cool link",
+                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            })
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("Link not found");
             })
         })
     })

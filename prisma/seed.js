@@ -7,6 +7,7 @@ async function seed({userData, songData, albumData, commentData, songRatingData,
             await database.$executeRaw`TRUNCATE songs RESTART IDENTITY CASCADE`
             await database.$executeRaw`TRUNCATE albums RESTART IDENTITY CASCADE`
             await database.$executeRaw`TRUNCATE comments RESTART IDENTITY CASCADE`
+            await database.$executeRaw`TRUNCATE links RESTART IDENTITY CASCADE`
             await database.songRating.deleteMany({});
             await database.albumRating.deleteMany({});
             await database.follow.deleteMany({});

@@ -19,6 +19,6 @@ users.route("/:user_id/notifications")
 
 users.route("/:user_id/links")
 .get(getLinksFromUser)
-.post(postLink)
+.post([appCheckVerification], postLink)
 
 module.exports = users

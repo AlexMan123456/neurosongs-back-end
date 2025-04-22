@@ -1,4 +1,4 @@
-const { fetchLinksFromUser, uploadLink } = require("../models/links-model");
+const { fetchLinksFromUser, uploadLink, editLink } = require("../models/links-model");
 const { fetchUserById } = require("../models/users-model");
 
 function getLinksFromUser(request, response, next){
@@ -17,4 +17,13 @@ function postLink(request, response, next){
     }).catch(next)
 }
 
-module.exports = { getLinksFromUser, postLink }
+function patchLink(request, response, next){
+    return editLink(request.params.link_id, request.body).then((link) => {
+        response.status(200).send({link});
+    }).catch((error) => {
+        console.log(error)
+        next(error)
+    })
+}
+
+module.exports = { getLinksFromUser, postLink, patchLink }
