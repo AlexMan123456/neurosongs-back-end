@@ -23,6 +23,7 @@ model User {
   comments               Comment[]
   followers              Follow[]              @relation("follower")
   following              Follow[]              @relation("following")
+  links                  Link[]
   notify_list            NotifyList[]
   song_ratings           SongRating[]
   songs                  Song[]
@@ -143,6 +144,16 @@ model CommentNotification {
   sender                  User     @relation("sender", fields: [sender_id], references: [user_id], onDelete: Cascade)
 
   @@map("comment_notifications")
+}
+
+model Link {
+  link_id Int    @id @default(autoincrement())
+  user_id String
+  name    String @db.VarChar(100)
+  url     String
+  user    User   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("links")
 }
 
 enum Visibility {

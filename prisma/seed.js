@@ -1,12 +1,13 @@
 const database = require("../prisma/client")
 const ENV = process.env.NODE_ENV ?? "development"
 
-async function seed({userData, songData, albumData, commentData, songRatingData, albumRatingData, followData, commentNotificationData}){
+async function seed({userData, songData, albumData, commentData, songRatingData, albumRatingData, followData, commentNotificationData, linkData}){
     try {
         if(ENV === "test"){
             await database.$executeRaw`TRUNCATE songs RESTART IDENTITY CASCADE`
             await database.$executeRaw`TRUNCATE albums RESTART IDENTITY CASCADE`
             await database.$executeRaw`TRUNCATE comments RESTART IDENTITY CASCADE`
+            await database.$executeRaw`TRUNCATE links RESTART IDENTITY CASCADE`
             await database.songRating.deleteMany({});
             await database.albumRating.deleteMany({});
             await database.follow.deleteMany({});
@@ -52,6 +53,11 @@ async function seed({userData, songData, albumData, commentData, songRatingData,
         if(commentNotificationData){
             await database.commentNotification.createMany({
                 data: commentNotificationData
+            })
+        }
+        if(linkData){
+            await database.link.createMany({
+                data: linkData
             })
         }
     } catch(err) {
