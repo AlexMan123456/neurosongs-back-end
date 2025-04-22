@@ -1,4 +1,4 @@
-const { fetchLinksFromUser, uploadLink, editLink } = require("../models/links-model");
+const { fetchLinksFromUser, uploadLink, editLink, removeLink } = require("../models/links-model");
 const { fetchUserById } = require("../models/users-model");
 
 function getLinksFromUser(request, response, next){
@@ -20,9 +20,13 @@ function postLink(request, response, next){
 function patchLink(request, response, next){
     return editLink(request.params.link_id, request.body).then((link) => {
         response.status(200).send({link});
-    }).catch((error) => {
-        next(error)
-    })
+    }).catch(next)
 }
 
-module.exports = { getLinksFromUser, postLink, patchLink }
+function deleteLink(request, response, next){
+    removeLink(request.params.link_id).then(() => {
+        response.status(204).send({});
+    }).catch(next)
+}
+
+module.exports = { getLinksFromUser, postLink, patchLink, deleteLink }

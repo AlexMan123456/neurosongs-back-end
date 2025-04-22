@@ -59,4 +59,14 @@ function editLink(stringifiedLinkID, link){
     })
 }
 
-module.exports = { fetchLinksFromUser, uploadLink, editLink }
+function removeLink(stringifiedLinkID){
+    const link_id = parseInt(stringifiedLinkID);
+
+    return database.link.delete({
+        where: {
+            link_id
+        }
+    })
+}
+
+module.exports = { fetchLinksFromUser, uploadLink, editLink, removeLink }

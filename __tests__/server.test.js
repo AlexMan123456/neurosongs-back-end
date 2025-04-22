@@ -4461,6 +4461,40 @@ describe("/api/links/:link_id", () => {
             })
         })
     })
+    describe("DELETE", () => {
+        test("204: Deletes the given link from the database", () => {
+            return request(app)
+            .delete("/api/links/1")
+            .set(headers)
+            .expect(204)
+        })
+        test("400: Responds with a bad request message if link_id is not valid", () => {
+            return request(app)
+            .delete("/api/links/invalid_link")
+            .set(headers)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.message).toBe("Bad request");
+            })
+        })
+        test("404: Responds with a not found message if link is not found", () => {
+            return request(app)
+            .delete("/api/links/231")
+            .set(headers)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.message).toBe("Link not found");
+            })
+        })
+        test("401: Responds with an unauthorised message if Firebase app check header is not set", () => {
+            return request(app)
+            .delete("/api/links/1")
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("App check unsuccessful");
+            })
+        })
+    })
 })
 
 // OTHER ENDPOINTS
