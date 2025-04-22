@@ -21,7 +21,6 @@ function patchLink(request, response, next){
     return editLink(request.params.link_id, request.body).then((link) => {
         response.status(200).send({link});
     }).catch((error) => {
-        console.log(error)
         next(error)
     })
 }

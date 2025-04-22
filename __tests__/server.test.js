@@ -4346,6 +4346,7 @@ describe("/api/links/:link_id", () => {
         test("200: Updates the given link and responds with the updated link", () => {
             return request(app)
             .patch("/api/links/1")
+            .set(headers)
             .send({
                 name: "A very cool link",
                 url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -4363,6 +4364,7 @@ describe("/api/links/:link_id", () => {
         test("200: Ignores any extra properties on request body", () => {
             return request(app)
             .patch("/api/links/1")
+            .set(headers)
             .send({
                 name: "A very cool link",
                 url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -4380,6 +4382,7 @@ describe("/api/links/:link_id", () => {
         test("200: Only updates the link name if no URL provided", () => {
             return request(app)
             .patch("/api/links/1")
+            .set(headers)
             .send({
                 name: "My very cool link"
             })
@@ -4395,6 +4398,7 @@ describe("/api/links/:link_id", () => {
         test("400: Responds with a bad request message if user_id is on request body", () => {
             return request(app)
             .patch("/api/links/1")
+            .set(headers)
             .send({
                 user_id: "2",
                 name: "A very cool link",
@@ -4408,6 +4412,7 @@ describe("/api/links/:link_id", () => {
         test("400: Responds with a bad request message if URL is not valid", () => {
             return request(app)
             .patch("/api/links/1")
+            .set(headers)
             .send({
                 name: "This is not a link",
                 url: "I am pretending to be a link"
@@ -4420,6 +4425,7 @@ describe("/api/links/:link_id", () => {
         test("400: Responds with a bad request message if link_id is not valid", () => {
             return request(app)
             .patch("/api/links/invalid_id")
+            .set(headers)
             .send({
                 name: "A very cool link",
                 url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -4432,6 +4438,7 @@ describe("/api/links/:link_id", () => {
         test("404: Responds with a not found message if link is not found", () => {
             return request(app)
             .patch("/api/links/231")
+            .set(headers)
             .send({
                 name: "A very cool link",
                 url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -4439,6 +4446,18 @@ describe("/api/links/:link_id", () => {
             .expect(404)
             .then(({body}) => {
                 expect(body.message).toBe("Link not found");
+            })
+        })
+        test("401: Responds with an unauthorised message if Firebase app check header not set", () => {
+            return request(app)
+            .patch("/api/links/1")
+            .send({
+                name: "A very cool link",
+                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            })
+            .expect(401)
+            .then(({body}) => {
+                expect(body.message).toBe("App check unsuccessful");
             })
         })
     })
