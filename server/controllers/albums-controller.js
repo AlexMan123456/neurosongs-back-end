@@ -13,11 +13,6 @@ async function getAlbums(request, response, next){
     } catch(err) {
         next(err);
     }
-    fetchAlbums(request.query).then((albums) => {
-        response.status(200).send({albums});
-    }).catch((err) => {
-        next(err);
-    })
 }
 
 function getAlbumById(request, response, next){
